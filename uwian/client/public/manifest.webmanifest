@@ -1,0 +1,15 @@
+{
+  "name": "Uwian",
+  "short_name": "Uwian",
+  "start_url": "/groups",
+  "display": "standalone",
+  "background_color": "#241b12",
+  "theme_color": "#241b12",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%23241b12'/%3E%3Cpath d='M48 96 96 48l48 48v40a10 10 0 0 1-10 10h-22v-32h-32v32H58a10 10 0 0 1-10-10z' fill='none' stroke='%23d8a24a' stroke-width='10' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
