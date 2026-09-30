@@ -1,0 +1,11 @@
+{
+  "name": "uwian",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev:server": "node --watch server/src/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "test": "node --test server/src/lib/*.test.js shared/*.test.js"
+  }
+}

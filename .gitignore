@@ -1,0 +1,4 @@
+# Database files
+uwian/server/uwian.sqlite
+uwian/server/uwian.sqlite-shm
+uwian/server/uwian.sqlite-wal
