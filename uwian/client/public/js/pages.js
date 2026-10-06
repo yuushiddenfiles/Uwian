@@ -9,11 +9,11 @@ export function pageLogin() {
   const email = h("input", { placeholder: "email address", type: "email", id: "login-email" });
   const pw    = h("input", { placeholder: "password", type: "password", id: "login-pw" });
   return h("div", { class: "auth-card enter" },
-    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:8px" },
-      h("div", { style: "width:38px;height:38px;border-radius:10px;background:var(--accent-dim);border:1px solid #c4cafd;display:grid;place-items:center;flex:none" },
-        h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.2", "stroke-linejoin": "round" },
+    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:6px" },
+      h("div", { style: "width:36px;height:36px;border-radius:8px;background:var(--accent-dim);border:1px solid #f0c88a;display:grid;place-items:center;flex:none" },
+        h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.4", "stroke-linejoin": "round", "aria-hidden": "true" },
           h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
-      h("span", { style: "font:700 20px 'Space Grotesk',sans-serif;color:var(--accent);letter-spacing:-.3px" }, "uwian")),
+      h("span", { style: "font:700 17px 'DM Sans',system-ui,sans-serif;color:var(--accent-text)" }, "uwian")),
     h("h2", {}, "Welcome back"),
     h("p", { class: "sub" }, "Log in to your account to continue."),
     h("label", { class: "f", for: "login-email" }, "Email"), email,
