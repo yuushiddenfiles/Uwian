@@ -1,4 +1,4 @@
-import { $, api, h, toast, openSheet, avatar, fmtPeso, lampFor, MODES, timeAgo, pesoToCents, icon } from "./util.js";
+import { $, api, h, toast, openSheet, avatar, fmtPeso, lampFor, MODES, timeAgo, pesoToCents, icon, icon3d } from "./util.js";
 
 let ME_ = null;
 export const me = () => ME_;
@@ -91,8 +91,8 @@ export async function showVerificationSheet() {
     let closeSheet;
     closeSheet = openSheet("Identity & Safety Verification", h("div", { class: "enter" },
       h("div", { style: "display:flex;align-items:center;gap:14px;padding:16px;background:var(--green-dim);border:1.5px solid #a8dece;border-radius:14px;margin-bottom:18px" },
-        h("div", { style: "width:42px;height:42px;border-radius:50%;background:#22A87A;display:grid;place-items:center;flex:none" },
-          icon("check", { size: 20, strokeColor: "#fff" })),
+        h("div", { style: "width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg, #e6f9f0 0%, #cbf2e2 100%);display:grid;place-items:center;flex:none;border:1px solid #95dcc0" },
+          icon3d("shield", { size: 36, class: "icon-3d-float" })),
         h("div", { style: "flex:1;min-width:0" },
           h("div", { style: "font:700 15px var(--font);color:var(--text)" }, v.security_badge),
           h("div", { style: "font-size:12.5px;color:var(--green);font-weight:600;margin-top:2px" }, `${v.trust_tier} · Full Access`))),
@@ -148,15 +148,15 @@ export async function pageGroups() {
     h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
     h("div", { class: "page-actions" },
       h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
-      h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon("shield", { size: 14 }), "Safety & ID Rules"))));
+      h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))));
 
   /* ── Trust & Security Banner ── */
   el.append(h("div", { class: "trust-banner", role: "region", "aria-label": "Safety status" },
-    h("div", { class: "trust-icon-box" }, icon("shield", { size: 22, strokeColor: "var(--accent-text)" })),
+    h("div", { class: "trust-icon-box" }, icon3d("shield", { size: 28, class: "icon-3d-float" })),
     h("div", { class: "trust-banner-content" },
       h("div", { class: "trust-banner-title" },
         "Safe Space & Identity Protected",
-        h("span", { class: "trust-badge-pill icon-text-row" }, icon("check", { size: 10, strokeColor: "var(--green)" }), "ID Verified")),
+        h("span", { class: "trust-badge-pill icon-text-row" }, icon3d("tick", { size: 12 }), "ID Verified")),
       h("div", { class: "trust-banner-sub" },
         "Strict verification: all hangouts require verified identity and vouched entry. Automated buddy pairing escorts everyone safely home.")),
     h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "Details →")));
@@ -215,21 +215,21 @@ export async function pageGroups() {
       },
         h("div", { class: "feed-card-header" },
           h("div", {},
-            h("div", { class: "feed-card-spot icon-text-row" }, icon("pin", { size: 14, strokeColor: "var(--accent)" }), spotName),
-            h("div", { class: "feed-card-crew icon-text-row" }, icon("users", { size: 12 }), s.group_name)),
+            h("div", { class: "feed-card-spot icon-text-row" }, icon3d("pin", { size: 16 }), spotName),
+            h("div", { class: "feed-card-crew icon-text-row" }, icon3d("boy", { size: 14 }), s.group_name)),
           h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status))),
         h("div", { class: "feed-card-body" },
           h("div", { class: "feed-meta-row" },
-            h("div", { class: "feed-meta-item icon-text-row" }, icon("clock", { size: 12 }), dateText),
+            h("div", { class: "feed-meta-item icon-text-row" }, icon3d("clock", { size: 14 }), dateText),
             s.price_range ? h("div", { class: "feed-meta-item" }, `· ${s.price_range}`) : null),
           h("div", { class: "avatar-stack" },
             ...(s.attendees || []).slice(0, 3).map(a => crewAv(a.name)),
             h("span", { class: "avatar-stack-label" },
               attendeesCount > 0 ? `${attendeesCount} friend${attendeesCount !== 1 ? "s" : ""} going` : "Be the first to join"))),
         h("div", { class: "feed-card-foot" },
-          h("span", { class: "security-tag icon-text-row" }, icon("shield", { size: 12 }), "ID Checked"),
+          h("span", { class: "security-tag icon-text-row" }, icon3d("shield", { size: 14 }), "ID Checked"),
           isMyGoing
-            ? h("span", { class: "chip green icon-text-row", style: "font-weight:600" }, icon("check", { size: 11 }), "You're Going")
+            ? h("span", { class: "chip green icon-text-row", style: "font-weight:600" }, icon3d("tick", { size: 12 }), "You're Going")
             : h("span", { style: "font:600 13px var(--font);color:var(--accent-text)" }, "View Session →"))
       );
 
@@ -274,7 +274,7 @@ export async function pageGroups() {
 
   if (gs.length === 0) {
     el.append(h("div", { class: "hero-empty" },
-      h("div", { class: "hero-icon" }, icon("users", { size: 24, strokeColor: "var(--accent-text)" })),
+      h("div", { class: "hero-icon", style: "border:none;background:transparent" }, icon3d("boy", { size: 48, class: "icon-3d-float" })),
       h("h3", {}, "No crews yet"),
       h("p", {}, "Create your first crew above, or ask a friend to share an invite link.")));
   } else {
@@ -305,8 +305,8 @@ export async function pageGroups() {
   el.append(h("div", {
     style: "background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;margin-top:28px;display:flex;align-items:center;gap:16px"
   },
-    h("div", { style: "width:42px;height:42px;border-radius:12px;background:var(--surface-in);display:grid;place-items:center;flex:none;color:var(--accent-text)" },
-      icon("car", { size: 22 })),
+    h("div", { style: "width:48px;height:48px;border-radius:12px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
+      icon3d("travel", { size: 30, class: "icon-3d-float" })),
     h("div", { style: "flex:1;min-width:0" },
       h("strong", { style: "display:block;font:600 14.5px var(--font);color:var(--text)" }, "Uwian Safe Arrival Guarantee"),
       h("p", { style: "font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.45" },
@@ -358,7 +358,7 @@ export async function pageGroup(gid) {
       h("h1", {}, d.group.name),
       h("div", { class: "member-count" }, `${d.members.length} member${d.members.length !== 1 ? "s" : ""}`)),
     h("div", { class: "group-header-actions" },
-      h("button", { class: "btn ghost sm icon-text-row", onclick: () => inviteFlow(gid) }, icon("mail", { size: 13 }), "Invite"),
+      h("button", { class: "btn ghost sm icon-text-row", onclick: () => inviteFlow(gid) }, icon3d("mail", { size: 15 }), "Invite"),
       isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null)));
 
   /* ── vouch queue ── */
@@ -389,11 +389,11 @@ export async function pageGroup(gid) {
       isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null),
     upcoming.length === 0
       ? h("div", { class: "hero-empty", style: "padding:32px 0" },
-          h("div", { class: "hero-icon", style: "width:48px;height:48px;margin-bottom:10px" }, icon("glass", { size: 22, strokeColor: "var(--accent-text)" })),
+          h("div", { class: "hero-icon", style: "width:48px;height:48px;margin-bottom:10px;border:none;background:transparent" }, icon3d("cup", { size: 40, class: "icon-3d-float" })),
           h("p", {}, isAdmin ? "No sessions yet — hit + Session to plan one." : "No upcoming sessions."))
       : h("div", {},
           ...upcoming.map((s) => {
-            const sessIcon = s.status === "open" ? icon("glass", { size: 15 }) : s.status === "wrapped" ? icon("car", { size: 15 }) : s.status === "closed" ? icon("check", { size: 15 }) : icon("calendar", { size: 15 });
+            const sessIcon = s.status === "open" ? icon3d("cup", { size: 18 }) : s.status === "wrapped" ? icon3d("travel", { size: 18 }) : s.status === "closed" ? icon3d("tick", { size: 18 }) : icon3d("calendar", { size: 18 });
             return h("div", {
               class: "session-card", role: "link", tabindex: "0",
               onclick: () => (location.hash = `/s/${s.id}`),
@@ -421,7 +421,7 @@ export async function pageGroup(gid) {
     h("h2", {}, "Outstanding balances"),
     ledger.length === 0
       ? h("div", { style: "display:flex;align-items:center;gap:10px;padding:12px 0;color:var(--green)" },
-          h("span", { style: "display:inline-flex;align-items:center" }, icon("check", { size: 18, strokeColor: "var(--green)" })),
+          h("span", { style: "display:inline-flex;align-items:center" }, icon3d("tick", { size: 22 })),
           h("span", { style: "font:600 15px var(--font)" }, "All settled up!"))
       : h("div", { class: "receipt" },
           ...ledger.map((t) => h("div", { class: "line" },
@@ -462,14 +462,14 @@ export async function pageGroup(gid) {
   el.append(h("div", { class: "grid2" },
     h("div", { class: "panel card-hover", style: "cursor:pointer", onclick: () => (location.hash = `/map/${gid}`) },
       h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:8px" },
-        h("span", { style: "font-size:22px" }, "📍"),
+        icon3d("mappin", { size: 26 }),
         h("h2", { style: "margin-bottom:0" }, "Hangout Map")),
       h("p", { class: "dim" },
         `${spots.length} spot${spots.length !== 1 ? "s" : ""}${spots.some((s) => s.stale) ? " · some need re-confirming" : ""}`),
       h("p", { style: "margin-top:12px;color:var(--accent-text);font:600 13px var(--font)" }, "Open map →")),
     isAdmin ? h("div", { class: "panel" },
       h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:16px" },
-        h("span", { style: "font-size:22px" }, "⚙️"),
+        icon3d("setting", { size: 26 }),
         h("h2", { style: "margin-bottom:0" }, "Group settings")),
       settingsPanel(gid, d)) : null));
 
@@ -544,10 +544,10 @@ export async function pageSession(sid) {
         h("h1", { style: "font:700 20px var(--font);color:var(--text);letter-spacing:-0.3px" },
           new Date(d.session.starts_at + "Z").toLocaleString([], { weekday: "long", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }))),
       h("span", { class: `status-bar ${d.session.status}` }, statusLabel(d.session.status))),
-    d.spot ? h("p", { style: "font-size:14px;color:var(--text-2)" }, `📍 ${d.spot.name}`) : null,
+    d.spot ? h("p", { style: "font-size:14px;color:var(--text-2);display:inline-flex;align-items:center;gap:6px" }, icon3d("mappin", { size: 16 }), d.spot.name) : null,
     d.session.designated_driver_id
       ? h("div", { class: "inset", style: "margin-top:14px;display:flex;align-items:center;gap:10px" },
-          h("span", { style: "font-size:18px" }, "🚗"),
+          icon3d("travel", { size: 24 }),
           h("span", {}, h("b", {}, "DD: "), nameOfU(d.session.designated_driver_id)),
           h("span", { class: "dim" }, "— excluded from alcohol items"))
       : null));
@@ -606,7 +606,9 @@ export async function pageSession(sid) {
               const parts = Object.keys(d.shares[e.id] ?? {});
               return h("div", {},
                 h("div", { class: "line" },
-                  h("span", {}, `${e.is_alcohol ? "🍺" : "🍽"} ${e.description}`),
+                  h("span", { style: "display:inline-flex;align-items:center;gap:6px" },
+                    icon3d(e.is_alcohol ? "cup" : "takeaway", { size: 18 }),
+                    e.description),
                   h("span", {}, `${fmtPeso(e.amount_centavos)} — paid by ${e.payer_name ?? nameOfU(e.paid_by)}`)),
                 h("div", { class: "dim", style: "padding:2px 0 8px;font-size:12px" },
                   `Split with: ${parts.map(nameOfU).join(", ") || "—"}` +
@@ -666,7 +668,7 @@ export async function pageSession(sid) {
   function tabUwian() {
     const wrap = h("div", { class: "panel" },
       h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:16px" },
-        icon("car", { size: 22, strokeColor: "var(--accent-text)" }),
+        icon3d("travel", { size: 28, class: "icon-3d-float" }),
         h("h2", { style: "margin-bottom:0" }, "Uwian — get everyone home safe")));
     if (isAdmin && d.session.status === "open")
       wrap.append(h("button", { class: "btn primary", style: "margin-bottom:18px;width:100%;justify-content:center", onclick: async () => {
@@ -846,15 +848,15 @@ export async function pageMap(gid) {
   el.append(h("div", { class: "panel" },
     h("div", { style: "display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px" },
       h("div", { style: "display:flex;align-items:center;gap:12px" },
-        h("div", { style: "width:42px;height:42px;border-radius:12px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;color:var(--accent-text);flex:none" },
-          icon("radar", { size: 22 })),
+        h("div", { style: "width:48px;height:48px;border-radius:12px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
+          icon3d("radar", { size: 28, class: "icon-3d-float" })),
         h("div", {},
           h("h1", { style: "font:700 22px var(--font);letter-spacing:-0.3px;margin:0" },
             gid && gd ? `${gd.group.name} · Tambayan Map` : "Verified Hangout Radar"),
           h("p", { class: "dim", style: "margin:3px 0 0;font-size:13px" },
             "Scheduled and active drinking sessions, closing hours, and verified tambayan spots."))),
       h("div", { style: "display:flex;align-items:center;gap:8px" },
-        h("span", { class: "chip green icon-text-row" }, icon("shield", { size: 12 }), "Verified Members Only"),
+        h("span", { class: "chip green icon-text-row" }, icon3d("shield", { size: 14 }), "Verified Members Only"),
         gid ? h("button", { class: "btn ghost sm", onclick: () => { location.hash = `/g/${gid}`; } }, "← Back to crew") : null))));
 
   /* Interactive Filters */
@@ -886,7 +888,7 @@ export async function pageMap(gid) {
 
     if (filteredSpots.length === 0) {
       listPanel.append(h("div", { class: "hero-empty", style: "padding:32px 0" },
-        h("div", { class: "hero-icon" }, icon("pin", { size: 26, strokeColor: "var(--accent-text)" })),
+        h("div", { class: "hero-icon", style: "border:none;background:transparent" }, icon3d("mappin", { size: 48, class: "icon-3d-float" })),
         h("h3", {}, "No spots in this filter"),
         h("p", {}, "Try selecting All Spots above to see every verified hangout.")));
       return;
@@ -911,13 +913,13 @@ export async function pageMap(gid) {
             h("div", { style: "font:700 15px var(--font);color:var(--text)" }, sp.name),
             sp.group_name ? h("div", { class: "dim", style: "font-size:12px;margin-top:2px" }, `Host crew: ${sp.group_name}`) : null),
           h("span", { class: `chip ${sp.has_active_session ? "amber" : "green"} icon-text-row`, style: "font-weight:600" },
-            icon("clock", { size: 11 }), closingText)),
+            icon3d("clock", { size: 13 }), closingText)),
         sp.notes ? h("p", { style: "font-size:13px;color:var(--text-2);margin:6px 0 10px;line-height:1.4" }, sp.notes) : null,
         hasSessions ? h("div", { class: "radar-session-box" },
           h("div", { style: "display:flex;align-items:center;justify-content:space-between;gap:6px" },
             h("span", { style: "font:600 12.5px var(--font);color:var(--text)" },
               `${sp.sessions.length} session${sp.sessions.length !== 1 ? "s" : ""} scheduled`),
-            h("span", { class: "chip primary icon-text-row" }, icon("glass", { size: 11 }), "Drinking session")),
+            h("span", { class: "chip primary icon-text-row" }, icon3d("cup", { size: 13 }), "Drinking session")),
           ...sp.sessions.slice(0, 2).map(sess => h("div", { style: "font-size:12px;color:var(--text-2);margin-top:4px" },
             `• ${sess.group_name || "Crew"}: ${fmtSessionTime(sess.starts_at)} (${sess.going_count || 0} going)`))) : null,
         h("div", { style: "display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)" },

@@ -140,3 +140,75 @@ export function icon(name, { size = 16, stroke = 2, strokeColor = "currentColor"
   return svg;
 }
 
+/* ════════════════════════════════════
+   3D ICON SYSTEM
+   (Warm tactile 3D rendered assets from 3dicons)
+   ════════════════════════════════════ */
+const ICONS_3D = {
+  pin: "/img/3d/mappin.png",
+  mappin: "/img/3d/mappin.png",
+  radar: "/img/3d/target.png",
+  shield: "/img/3d/shield.png",
+  security: "/img/3d/shield.png",
+  verified: "/img/3d/shield.png",
+  lock: "/img/3d/lock.png",
+  key: "/img/3d/key.png",
+  beer: "/img/3d/cup.png",
+  drink: "/img/3d/glass.png",
+  drinks: "/img/3d/glass.png",
+  glass: "/img/3d/glass.png",
+  cup: "/img/3d/cup.png",
+  food: "/img/3d/teacup.png",
+  dish: "/img/3d/takeaway.png",
+  meal: "/img/3d/teacup.png",
+  teacup: "/img/3d/teacup.png",
+  takeaway: "/img/3d/takeaway.png",
+  clock: "/img/3d/clock.png",
+  time: "/img/3d/clock.png",
+  calendar: "/img/3d/calendar.png",
+  car: "/img/3d/travel.png",
+  commute: "/img/3d/travel.png",
+  travel: "/img/3d/travel.png",
+  uwian: "/img/3d/travel.png",
+  gear: "/img/3d/setting.png",
+  setting: "/img/3d/setting.png",
+  settings: "/img/3d/setting.png",
+  search: "/img/3d/zoom.png",
+  zoom: "/img/3d/zoom.png",
+  bell: "/img/3d/bell.png",
+  chat: "/img/3d/chat.png",
+  money: "/img/3d/wallet.png",
+  wallet: "/img/3d/wallet.png",
+  star: "/img/3d/star.png",
+  fire: "/img/3d/fire.png",
+  tick: "/img/3d/tick.png",
+  check: "/img/3d/tick.png",
+  target: "/img/3d/target.png",
+  trophy: "/img/3d/trophy.png",
+  users: "/img/3d/boy.png",
+  user: "/img/3d/boy.png",
+  boy: "/img/3d/boy.png",
+  girl: "/img/3d/girl.png",
+  crown: "/img/3d/crown.png",
+  bulb: "/img/3d/bulb.png",
+  heart: "/img/3d/heart.png",
+  mail: "/img/3d/mail.png",
+  message: "/img/3d/message.png",
+  plus: "/img/3d/plus.png",
+  thumbup: "/img/3d/thumbup.png"
+};
+
+export function icon3d(name, { size = 24, class: cls = "", alt = "" } = {}) {
+  const src = ICONS_3D[name] || `/img/3d/${name}.png`;
+  const img = document.createElement("img");
+  img.src = src;
+  img.width = size;
+  img.height = size;
+  img.alt = alt || name;
+  img.className = `icon-3d ${cls}`.trim();
+  img.loading = "lazy";
+  img.decoding = "async";
+  return img;
+}
+
+

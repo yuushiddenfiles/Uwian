@@ -1,4 +1,4 @@
-import { $, api, h, toast, icon } from "./util.js";
+import { $, api, h, toast, icon, icon3d } from "./util.js";
 import * as P from "./pages.js";
 
 const view = $("#view");
@@ -61,15 +61,15 @@ function toggleUserMenu(user, trigger) {
     h("div", { class: "menu-head" },
       h("div", { class: "menu-head-name" }, user.name),
       h("div", { class: "menu-head-email" }, user.email),
-      h("div", { class: "menu-trust-badge" }, icon("shield", { size: 12 }), "ID Verified · Safe Space")),
+      h("div", { class: "menu-trust-badge" }, icon3d("shield", { size: 14 }), "ID Verified · Safe Space")),
     h("button", {
       class: "menu-item",
       onclick: () => { closeUserMenu(); P.showVerificationSheet && P.showVerificationSheet(); }
-    }, icon("shield", { size: 15 }), "ID & Safety Center"),
+    }, icon3d("shield", { size: 18 }), "ID & Safety Center"),
     h("button", {
       class: "menu-item",
       onclick: () => { closeUserMenu(); location.hash = "/map"; }
-    }, icon("pin", { size: 15 }), "Live Hangout Map"),
+    }, icon3d("mappin", { size: 18 }), "Live Hangout Map"),
     h("button", {
       class: "menu-item",
       onclick: async () => {
@@ -81,11 +81,11 @@ function toggleUserMenu(user, trigger) {
           closeUserMenu();
         } catch (e) { toast(e.message, true); }
       }
-    }, icon("glass", { size: 15 }), user.can_drink ? "Status: Drinks" : "Status: Non-drinker"),
+    }, icon3d(user.can_drink ? "cup" : "teacup", { size: 18 }), user.can_drink ? "Status: Drinks" : "Status: Non-drinker"),
     h("button", {
       class: "menu-item",
       onclick: () => { closeUserMenu(); location.hash = "/groups"; }
-    }, icon("users", { size: 15 }), "My Crews"),
+    }, icon3d("boy", { size: 18 }), "My Crews"),
     h("div", { class: "menu-divider" }),
     h("button", {
       class: "menu-item danger",
@@ -94,7 +94,7 @@ function toggleUserMenu(user, trigger) {
         await api("/api/logout", {});
         location.hash = "/login";
       }
-    }, icon("logout", { size: 15 }), "Sign out")
+    }, icon("logout", { size: 16 }), "Sign out")
   );
 
   trigger.parentElement.append(dropdown);
@@ -121,8 +121,8 @@ function refreshNav() {
     
     nav.append(
       h("a", { href: "#/groups", class: isGroups ? "on" : "", "aria-current": isGroups ? "page" : undefined }, "Explore & Crews"),
-      h("a", { href: "#/map", class: isMap ? "on" : "", "aria-current": isMap ? "page" : undefined, style: "display:inline-flex;align-items:center;gap:5px" },
-        icon("pin", { size: 13 }), "Live Map")
+      h("a", { href: "#/map", class: isMap ? "on" : "", "aria-current": isMap ? "page" : undefined, style: "display:inline-flex;align-items:center;gap:6px" },
+        icon3d("mappin", { size: 15 }), "Live Map")
     );
 
     /* User wrap with avatar pill and interactive dropdown */
