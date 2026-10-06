@@ -1,4 +1,4 @@
-import { $, api, h, toast } from "./util.js";
+import { $, api, h, toast, icon } from "./util.js";
 import * as P from "./pages.js";
 
 const view = $("#view");
@@ -12,9 +12,12 @@ async function route() {
     await api("/api/escalation-tick", {}, "POST").catch(() => {}); // lazy escalation on load
     let el;
     if (path === "/" || path === "/groups") el = await P.pageGroups();
+    else if (path === "/map" || path.startsWith("/map/")) {
+      const gid = path.split("/")[2] ? Number(path.split("/")[2]) : null;
+      el = await P.pageMap(gid);
+    }
     else if (path.startsWith("/g/")) el = await P.pageGroup(Number(path.split("/")[2]));
     else if (path.startsWith("/s/")) el = await P.pageSession(Number(path.split("/")[2]));
-    else if (path.startsWith("/map/")) el = await P.pageMap(Number(path.split("/")[2]));
     else if (path.startsWith("/join/")) {
       const gid = Number(path.split("/")[2]);
       const r = await api(`/api/groups/${gid}/join`, {});
@@ -58,11 +61,15 @@ function toggleUserMenu(user, trigger) {
     h("div", { class: "menu-head" },
       h("div", { class: "menu-head-name" }, user.name),
       h("div", { class: "menu-head-email" }, user.email),
-      h("div", { class: "menu-trust-badge" }, "🛡️ ID Verified · Safe Space")),
+      h("div", { class: "menu-trust-badge" }, icon("shield", { size: 12 }), "ID Verified · Safe Space")),
     h("button", {
       class: "menu-item",
       onclick: () => { closeUserMenu(); P.showVerificationSheet && P.showVerificationSheet(); }
-    }, "🛡️ ID & Safety Center"),
+    }, icon("shield", { size: 15 }), "ID & Safety Center"),
+    h("button", {
+      class: "menu-item",
+      onclick: () => { closeUserMenu(); location.hash = "/map"; }
+    }, icon("pin", { size: 15 }), "Live Hangout Map"),
     h("button", {
       class: "menu-item",
       onclick: async () => {
@@ -70,15 +77,15 @@ function toggleUserMenu(user, trigger) {
           const next = !user.can_drink;
           await api("/api/me", { can_drink: next }, "PATCH");
           user.can_drink = next ? 1 : 0;
-          toast(next ? "Preference: Open to drinking 🍻" : "Preference: Non-drinker 🥤");
+          toast(next ? "Preference: Open to drinking sessions" : "Preference: Non-drinker");
           closeUserMenu();
         } catch (e) { toast(e.message, true); }
       }
-    }, user.can_drink ? "🍻 Status: Drinks" : "🥤 Status: Non-drinker"),
+    }, icon("glass", { size: 15 }), user.can_drink ? "Status: Drinks" : "Status: Non-drinker"),
     h("button", {
       class: "menu-item",
       onclick: () => { closeUserMenu(); location.hash = "/groups"; }
-    }, "👥 My Crews"),
+    }, icon("users", { size: 15 }), "My Crews"),
     h("div", { class: "menu-divider" }),
     h("button", {
       class: "menu-item danger",
@@ -87,7 +94,7 @@ function toggleUserMenu(user, trigger) {
         await api("/api/logout", {});
         location.hash = "/login";
       }
-    }, "🚪 Sign out")
+    }, icon("logout", { size: 15 }), "Sign out")
   );
 
   trigger.parentElement.append(dropdown);
@@ -109,9 +116,14 @@ function refreshNav() {
   const user = P.me();
   if (user) {
     const hash = location.hash;
-    const isHome = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/") || hash.startsWith("#/map/");
+    const isGroups = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/");
+    const isMap = hash === "#/map" || hash.startsWith("#/map/");
     
-    nav.append(h("a", { href: "#/groups", class: isHome ? "on" : "", "aria-current": isHome ? "page" : undefined }, "Explore & Crews"));
+    nav.append(
+      h("a", { href: "#/groups", class: isGroups ? "on" : "", "aria-current": isGroups ? "page" : undefined }, "Explore & Crews"),
+      h("a", { href: "#/map", class: isMap ? "on" : "", "aria-current": isMap ? "page" : undefined, style: "display:inline-flex;align-items:center;gap:5px" },
+        icon("pin", { size: 13 }), "Live Map")
+    );
 
     /* User wrap with avatar pill and interactive dropdown */
     const initials = user.name?.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
@@ -129,7 +141,7 @@ function refreshNav() {
     },
       h("div", { class: "nav-signout", style: "width:28px;height:28px;font-size:11px;flex:none" }, initials),
       h("span", { class: "user-name-short" }, firstName),
-      h("span", { class: "nav-chevron" }, "▼")
+      icon("chevron", { size: 11, class: "nav-chevron" })
     );
 
     const wrap = h("div", { class: "nav-user-wrap" }, trigger);

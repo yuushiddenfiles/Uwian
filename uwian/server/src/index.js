@@ -421,7 +421,41 @@ app.get("/api/sessions/:sid/limit", requireAuth, (req, res) => {
     .get(Number(req.params.sid), req.session.uid) ?? { lim: null, count: 0 });
 });
 
-// ---------- spots / tambayan map (S5 freshness) ----------
+// ---------- spots / tambayan map (S5 freshness & Public Verified Radar) ----------
+app.get("/api/map/radar", requireAuth, (req, res) => {
+  const spots = db.prepare(`
+    SELECT sp.*, g.name AS group_name
+    FROM spots sp
+    JOIN groups g ON g.id = sp.group_id
+    ORDER BY sp.id DESC
+  `).all();
+
+  const results = spots.map((sp) => {
+    const sessions = db.prepare(`
+      SELECT s.id, s.starts_at, s.status, s.uwian_deadline, g.name AS group_name,
+             (SELECT COUNT(*) FROM rsvps r WHERE r.session_id=s.id AND r.status='going') AS going_count
+      FROM sessions s
+      JOIN groups g ON g.id = s.group_id
+      WHERE s.spot_id = ? AND s.status IN ('planning','open','wrapped')
+      ORDER BY s.starts_at ASC
+    `).all(sp.id);
+
+    const hasActive = sessions.some((s) => s.status === "open" || s.status === "wrapped");
+
+    return {
+      ...sp,
+      stale: !sp.last_confirmed_at || (Date.now() - new Date(sp.last_confirmed_at)) > 60 * 864e5,
+      sessions,
+      has_active_session: hasActive,
+      active_count: sessions.reduce((sum, s) => sum + s.going_count, 0),
+      closing_time: sp.closes_at || "Late",
+      verified_secure: true,
+    };
+  });
+
+  res.json(results);
+});
+
 app.get("/api/groups/:gid/spots", requireMember, (req, res) => {
   const spots = db.prepare("SELECT * FROM spots WHERE group_id=?").all(Number(req.params.gid));
   res.json(spots.map((sp) => ({

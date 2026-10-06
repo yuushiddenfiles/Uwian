@@ -1,4 +1,4 @@
-import { $, api, h, toast, openSheet, avatar, fmtPeso, lampFor, MODES, timeAgo, pesoToCents } from "./util.js";
+import { $, api, h, toast, openSheet, avatar, fmtPeso, lampFor, MODES, timeAgo, pesoToCents, icon } from "./util.js";
 
 let ME_ = null;
 export const me = () => ME_;
@@ -91,7 +91,8 @@ export async function showVerificationSheet() {
     let closeSheet;
     closeSheet = openSheet("Identity & Safety Verification", h("div", { class: "enter" },
       h("div", { style: "display:flex;align-items:center;gap:14px;padding:16px;background:var(--green-dim);border:1.5px solid #a8dece;border-radius:14px;margin-bottom:18px" },
-        h("div", { style: "width:42px;height:42px;border-radius:50%;background:#22A87A;color:#fff;display:grid;place-items:center;font-size:20px;flex:none" }, "✓"),
+        h("div", { style: "width:42px;height:42px;border-radius:50%;background:#22A87A;display:grid;place-items:center;flex:none" },
+          icon("check", { size: 20, strokeColor: "#fff" })),
         h("div", { style: "flex:1;min-width:0" },
           h("div", { style: "font:700 15px var(--font);color:var(--text)" }, v.security_badge),
           h("div", { style: "font-size:12.5px;color:var(--green);font-weight:600;margin-top:2px" }, `${v.trust_tier} · Full Access`))),
@@ -143,26 +144,26 @@ export async function pageGroups() {
   /* ── Page Hero ── */
   el.append(h("div", { class: "page-hero" },
     h("p", { class: "greeting" }, greetingByHour()),
-    h("h1", {}, `Hey, ${firstName} 👋`),
+    h("h1", {}, `Hey, ${firstName}`),
     h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
     h("div", { class: "page-actions" },
       h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
-      h("button", { class: "btn ghost", onclick: () => showVerificationSheet() }, "🛡️ Safety & ID Rules"))));
+      h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon("shield", { size: 14 }), "Safety & ID Rules"))));
 
   /* ── Trust & Security Banner ── */
   el.append(h("div", { class: "trust-banner", role: "region", "aria-label": "Safety status" },
-    h("div", { class: "trust-icon-box" }, "🛡️"),
+    h("div", { class: "trust-icon-box" }, icon("shield", { size: 22, strokeColor: "var(--accent-text)" })),
     h("div", { class: "trust-banner-content" },
       h("div", { class: "trust-banner-title" },
         "Safe Space & Identity Protected",
-        h("span", { class: "trust-badge-pill" }, "✓ ID Verified")),
+        h("span", { class: "trust-badge-pill icon-text-row" }, icon("check", { size: 10, strokeColor: "var(--green)" }), "ID Verified")),
       h("div", { class: "trust-banner-sub" },
         "Strict verification: all hangouts require verified identity and vouched entry. Automated buddy pairing escorts everyone safely home.")),
     h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "Details →")));
 
   /* ── Session Discovery & Search Section ── */
   const searchWrap = h("div", { class: "search-bar-wrap" },
-    h("span", { class: "search-icon", "aria-hidden": "true" }, "🔍"),
+    h("span", { class: "search-icon", "aria-hidden": "true" }, icon("search", { size: 15 })),
     h("input", {
       type: "search",
       class: "search-input",
@@ -192,7 +193,7 @@ export async function pageGroups() {
     feedContainer.innerHTML = "";
     if (items.length === 0) {
       feedContainer.append(h("div", { class: "hero-empty", style: "grid-column: 1 / -1; padding: 40px 16px" },
-        h("div", { class: "hero-icon" }, "🔍"),
+        h("div", { class: "hero-icon" }, icon("search", { size: 24, strokeColor: "var(--text-3)" })),
         h("h3", {}, "No matching sessions found"),
         h("p", {}, "Try searching for a different spot or crew name, or create a session in one of your crews.")));
       return;
@@ -200,9 +201,7 @@ export async function pageGroups() {
 
     items.forEach(s => {
       const spotName = s.spot_name || "Tambayan TBD";
-      const statusIcon = { planning: "📋", open: "🍻", wrapped: "🏠", closed: "✔" }[s.status] ?? "📅";
       const dateText = fmtSessionTime(s.starts_at);
-
       const attendeesCount = s.going_count || (s.attendees?.length ?? 0);
       const isMyGoing = s.my_rsvp === "going";
 
@@ -216,21 +215,21 @@ export async function pageGroups() {
       },
         h("div", { class: "feed-card-header" },
           h("div", {},
-            h("div", { class: "feed-card-spot" }, `📍 ${spotName}`),
-            h("div", { class: "feed-card-crew" }, `👥 ${s.group_name}`)),
-          h("span", { class: `status-bar ${s.status}` }, `${statusIcon} ${statusLabel(s.status)}`)),
+            h("div", { class: "feed-card-spot icon-text-row" }, icon("pin", { size: 14, strokeColor: "var(--accent)" }), spotName),
+            h("div", { class: "feed-card-crew icon-text-row" }, icon("users", { size: 12 }), s.group_name)),
+          h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status))),
         h("div", { class: "feed-card-body" },
           h("div", { class: "feed-meta-row" },
-            h("div", { class: "feed-meta-item" }, "🕒 ", dateText),
+            h("div", { class: "feed-meta-item icon-text-row" }, icon("clock", { size: 12 }), dateText),
             s.price_range ? h("div", { class: "feed-meta-item" }, `· ${s.price_range}`) : null),
           h("div", { class: "avatar-stack" },
             ...(s.attendees || []).slice(0, 3).map(a => crewAv(a.name)),
             h("span", { class: "avatar-stack-label" },
               attendeesCount > 0 ? `${attendeesCount} friend${attendeesCount !== 1 ? "s" : ""} going` : "Be the first to join"))),
         h("div", { class: "feed-card-foot" },
-          h("span", { class: "security-tag" }, "🛡️ ID Checked"),
+          h("span", { class: "security-tag icon-text-row" }, icon("shield", { size: 12 }), "ID Checked"),
           isMyGoing
-            ? h("span", { class: "chip green", style: "font-weight:600" }, "✓ You're Going")
+            ? h("span", { class: "chip green icon-text-row", style: "font-weight:600" }, icon("check", { size: 11 }), "You're Going")
             : h("span", { style: "font:600 13px var(--font);color:var(--accent-text)" }, "View Session →"))
       );
 
@@ -275,7 +274,7 @@ export async function pageGroups() {
 
   if (gs.length === 0) {
     el.append(h("div", { class: "hero-empty" },
-      h("div", { class: "hero-icon" }, "🍻"),
+      h("div", { class: "hero-icon" }, icon("users", { size: 24, strokeColor: "var(--accent-text)" })),
       h("h3", {}, "No crews yet"),
       h("p", {}, "Create your first crew above, or ask a friend to share an invite link.")));
   } else {
@@ -306,7 +305,8 @@ export async function pageGroups() {
   el.append(h("div", {
     style: "background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;margin-top:28px;display:flex;align-items:center;gap:16px"
   },
-    h("div", { style: "font-size:28px;flex:none" }, "🚗"),
+    h("div", { style: "width:42px;height:42px;border-radius:12px;background:var(--surface-in);display:grid;place-items:center;flex:none;color:var(--accent-text)" },
+      icon("car", { size: 22 })),
     h("div", { style: "flex:1;min-width:0" },
       h("strong", { style: "display:block;font:600 14.5px var(--font);color:var(--text)" }, "Uwian Safe Arrival Guarantee"),
       h("p", { style: "font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.45" },
@@ -358,7 +358,7 @@ export async function pageGroup(gid) {
       h("h1", {}, d.group.name),
       h("div", { class: "member-count" }, `${d.members.length} member${d.members.length !== 1 ? "s" : ""}`)),
     h("div", { class: "group-header-actions" },
-      h("button", { class: "btn ghost sm", onclick: () => inviteFlow(gid) }, "✉ Invite"),
+      h("button", { class: "btn ghost sm icon-text-row", onclick: () => inviteFlow(gid) }, icon("mail", { size: 13 }), "Invite"),
       isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null)));
 
   /* ── vouch queue ── */
@@ -389,17 +389,17 @@ export async function pageGroup(gid) {
       isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null),
     upcoming.length === 0
       ? h("div", { class: "hero-empty", style: "padding:32px 0" },
-          h("div", { class: "hero-icon", style: "width:48px;height:48px;font-size:20px;margin-bottom:10px" }, "🍺"),
+          h("div", { class: "hero-icon", style: "width:48px;height:48px;margin-bottom:10px" }, icon("glass", { size: 22, strokeColor: "var(--accent-text)" })),
           h("p", {}, isAdmin ? "No sessions yet — hit + Session to plan one." : "No upcoming sessions."))
       : h("div", {},
           ...upcoming.map((s) => {
-            const icon = { planning: "📋", open: "🍻", wrapped: "🏠", closed: "✔" }[s.status] ?? "📅";
+            const sessIcon = s.status === "open" ? icon("glass", { size: 15 }) : s.status === "wrapped" ? icon("car", { size: 15 }) : s.status === "closed" ? icon("check", { size: 15 }) : icon("calendar", { size: 15 });
             return h("div", {
               class: "session-card", role: "link", tabindex: "0",
               onclick: () => (location.hash = `/s/${s.id}`),
               onkeydown: (e) => { if (e.key === "Enter") location.hash = `/s/${s.id}`; }
             },
-              h("div", { class: "session-card-icon" }, icon),
+              h("div", { class: "session-card-icon" }, sessIcon),
               h("div", { class: "session-card-body" },
                 h("div", { class: "session-card-title" }, fmtSessionTime(s.starts_at)),
                 h("div", { class: "session-card-sub" }, statusLabel(s.status))),
@@ -421,7 +421,7 @@ export async function pageGroup(gid) {
     h("h2", {}, "Outstanding balances"),
     ledger.length === 0
       ? h("div", { style: "display:flex;align-items:center;gap:10px;padding:12px 0;color:var(--green)" },
-          h("span", { style: "font-size:20px" }, "✔"),
+          h("span", { style: "display:inline-flex;align-items:center" }, icon("check", { size: 18, strokeColor: "var(--green)" })),
           h("span", { style: "font:600 15px var(--font)" }, "All settled up!"))
       : h("div", { class: "receipt" },
           ...ledger.map((t) => h("div", { class: "line" },
@@ -557,7 +557,7 @@ export async function pageSession(sid) {
   el.append(h("div", { class: "panel" },
     h("h2", {}, "Who's coming"),
     h("div", { class: "rsvp-bar" },
-      ...[["going", "✔ Going"], ["maybe", "? Maybe"], ["cant", "✖ Can't"]].map(([st, label]) =>
+      ...[["going", "Going"], ["maybe", "Maybe"], ["cant", "Can't"]].map(([st, label]) =>
         h("button", {
           class: `btn ${my?.status === st ? "primary" : ""}`,
           onclick: async () => { await api(`/api/sessions/${sid}/rsvp`, { status: st }); pageSessionRerender(sid); }
@@ -568,7 +568,7 @@ export async function pageSession(sid) {
         return h("div", { class: "line" },
           h("span", {}, m.name + (m.user_id === me().id ? " (you)" : "")),
           h("span", { style: r?.status === "going" ? "color:var(--green);font-weight:600" : r?.status === "cant" ? "color:var(--red)" : "" },
-            r ? { going: "✔ Going", maybe: "? Maybe", cant: "✖ Can't" }[r.status] : "—"));
+            r ? { going: "Going", maybe: "Maybe", cant: "Can't" }[r.status] : "—"));
       }))));
 
   /* tabs */
@@ -624,7 +624,7 @@ export async function pageSession(sid) {
           await api(`/api/sessions/${sid}/close-tab`, {});
           toast("Tab closed — no more edits without reopening.");
           pageSessionRerender(sid);
-        } }, "Close tab ✍"));
+        } }, "Close tab"));
     if (!d.settlements.length)
       return wrap.append(h("p", { class: "dim" }, "No settlements yet — close the tab when the night's done.")), wrap;
     for (const t of d.settlements) {
@@ -635,7 +635,7 @@ export async function pageSession(sid) {
           h("b", {}, `${t.from_name ?? nameOfU(t.from_user)} → ${t.to_name ?? nameOfU(t.to_user)}`),
           " ",
           h("span", { class: `chip ${t.status === "confirmed" ? "green" : t.status === "disputed" ? "red" : t.status === "paid_claimed" ? "amber" : ""}` },
-            { open: "Open", paid_claimed: "Claimed paid", confirmed: "✔ Confirmed", disputed: "Disputed" }[t.status]),
+            { open: "Open", paid_claimed: "Claimed paid", confirmed: "Confirmed", disputed: "Disputed" }[t.status]),
           t.note ? h("div", { class: "dim", style: "margin-top:4px" }, `"${t.note}"`) : null),
         h("span", { class: "money" }, fmtPeso(t.amount_centavos)));
       if (mine_payer && t.status === "open")
@@ -666,7 +666,7 @@ export async function pageSession(sid) {
   function tabUwian() {
     const wrap = h("div", { class: "panel" },
       h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:16px" },
-        h("span", { style: "font-size:22px" }, "🏠"),
+        icon("car", { size: 22, strokeColor: "var(--accent-text)" }),
         h("h2", { style: "margin-bottom:0" }, "Uwian — get everyone home safe")));
     if (isAdmin && d.session.status === "open")
       wrap.append(h("button", { class: "btn primary", style: "margin-bottom:18px;width:100%;justify-content:center", onclick: async () => {
@@ -674,7 +674,7 @@ export async function pageSession(sid) {
           await api(`/api/sessions/${sid}`, { status: "wrapped", uwian_deadline: deadline }, "PATCH");
           toast("Uwian time! Buddies paired by direction.");
           pageSessionRerender(sid);
-        } }, "🏠 Uwian na!"));
+        } }, "Uwian na!"));
     const myCi = d.checkins.find((c) => c.user_id === me().id);
     if (!myCi?.home_confirmed_at) {
       const modeSel = h("select", { style: "width:auto" }, ...Object.entries(MODES).map(([k, v]) => h("option", { value: k }, v)));
@@ -684,7 +684,7 @@ export async function pageSession(sid) {
             await api(`/api/sessions/${sid}/checkin`, { mode: modeSel.value });
             toast("Checked in! Stay safe out there.");
             pageSessionRerender(sid);
-          } }, "I'm home ✔")));
+          } }, "I'm home")));
     }
     wrap.append(h("h3", { style: "margin:0 0 10px" }, "Who's home"),
       ...gd.members.filter((m) => m.status === "active").map((m) => {
@@ -726,7 +726,7 @@ export async function pageSession(sid) {
   function tabLimit() {
     const wrap = h("div", { class: "panel" },
       h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:6px" },
-        h("span", { style: "font-size:22px" }, "🎚"),
+        icon("sliders", { size: 20, strokeColor: "var(--accent-text)" }),
         h("h2", { style: "margin-bottom:0" }, "My Limit")),
       h("p", { class: "dim", style: "margin-bottom:18px" }, "Private — only you can see this. A personal reminder, not an alcohol calculator."));
     const board = h("div", { class: "tally-board" });
@@ -737,7 +737,7 @@ export async function pageSession(sid) {
       board.innerHTML = "";
       const show = Math.max(r.lim ?? 0, r.count, 8);
       for (let i = 1; i <= Math.min(show, 12); i++)
-        board.append(h("div", { class: `tally ${i <= r.count ? "full" : "empty"}` }, i <= r.count ? "✕" : "·"));
+        board.append(h("div", { class: `tally ${i <= r.count ? "full" : "empty"}` }, i <= r.count ? "/" : "·"));
       const pct = r.lim ? r.count / r.lim : 0;
       if (pct >= 0.8) board.append(h("div", { class: `chip ${pct >= 1 ? "red" : "amber"}`, style: "align-self:center;margin-left:4px" },
         pct >= 1 ? "At your limit — sort your ride?" : "Getting close — sort your ride?"));
@@ -832,49 +832,167 @@ function disputeForm(id, sid) {
 function pageSessionRerender(sid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/s/${sid}`)); }
 
 /* ════════════════════════════════════
-   HANGOUT MAP
+   PUBLIC / VERIFIED HANGOUT RADAR MAP
    ════════════════════════════════════ */
 export async function pageMap(gid) {
-  const spots = await api(`/api/groups/${gid}/spots`);
-  const gd    = await api(`/api/groups/${gid}`);
-  const nameOfU = (uid) => gd.members.find((m) => m.user_id === Number(uid))?.name ?? `#${uid}`;
-  const el = h("div", { class: "enter" },
-    h("div", { class: "panel" },
-      h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:6px" },
-        h("span", { style: "font-size:22px" }, "📍"),
-        h("h1", { style: "font:700 22px var(--font);letter-spacing:-0.3px" }, "Hangout Map")),
-      h("p", { class: "dim" }, "Double-click the map to drop a new spot. Powered by Leaflet + OpenStreetMap.")),
-    h("div", { class: "map-frame" }, h("div", { id: "map" })),
-    h("div", { class: "panel" },
-      h("h2", {}, "Spots"),
-      spots.length === 0
-        ? h("p", { class: "dim" }, "No spots yet. Double-click the map to add one.")
-        : null,
-      ...spots.map((sp) => h("div", { class: "list-row" },
-        h("div", { class: "pin-spot" + (sp.stale ? " pin-stale" : ""), style: "flex:none;border-radius:50%;width:14px;height:14px" }),
-        h("div", { class: "grow" },
-          h("b", {}, sp.name),
-          h("div", { class: "dim" }, `${sp.price_range ?? ""} · closes ${sp.closes_at ?? "?"} · ${sp.notes ?? ""}`),
-          h("div", { class: "dim" }, `Last confirmed: ${timeAgo(sp.last_confirmed_at)}${sp.stale ? " · ⚠ UNVERIFIED — 60+ days" : ""}`)),
-        h("div", { class: "row" },
-          h("button", { class: "btn good sm", onclick: () => confirmSpot(sp.id, "yes") }, "Still open ✔"),
-          h("button", { class: "btn sm", onclick: () => confirmSpot(sp.id, "changed") }, "Changed"),
-          h("button", { class: "btn bad sm", onclick: () => confirmSpot(sp.id, "no") }, "Closed"))))));
-  requestAnimationFrame(() => {
-    const map = L.map("map").setView([14.676, 121.0437], 13);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
-    for (const sp of spots) {
-      const icon = L.divIcon({ className: "", html: `<div class="pin-spot${sp.stale ? " pin-stale" : ""}"></div>`, iconSize: [22, 22], iconAnchor: [11, 22] });
-      L.marker([sp.lat, sp.lng], { icon }).addTo(map)
-        .bindPopup(`<b>${sp.name}</b><br>${sp.notes ?? ""}<br><i>${sp.stale ? "Unverified — please confirm" : "Added by " + nameOfU(sp.added_by)}</i>`);
+  const spots = gid
+    ? await api(`/api/groups/${gid}/spots`).catch(() => [])
+    : await api("/api/map/radar").catch(() => []);
+
+  const gd = gid ? await api(`/api/groups/${gid}`).catch(() => null) : null;
+  const el = h("div", { class: "enter" });
+
+  /* Map Header */
+  el.append(h("div", { class: "panel" },
+    h("div", { style: "display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px" },
+      h("div", { style: "display:flex;align-items:center;gap:12px" },
+        h("div", { style: "width:42px;height:42px;border-radius:12px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;color:var(--accent-text);flex:none" },
+          icon("radar", { size: 22 })),
+        h("div", {},
+          h("h1", { style: "font:700 22px var(--font);letter-spacing:-0.3px;margin:0" },
+            gid && gd ? `${gd.group.name} · Tambayan Map` : "Verified Hangout Radar"),
+          h("p", { class: "dim", style: "margin:3px 0 0;font-size:13px" },
+            "Scheduled and active drinking sessions, closing hours, and verified tambayan spots."))),
+      h("div", { style: "display:flex;align-items:center;gap:8px" },
+        h("span", { class: "chip green icon-text-row" }, icon("shield", { size: 12 }), "Verified Members Only"),
+        gid ? h("button", { class: "btn ghost sm", onclick: () => { location.hash = `/g/${gid}`; } }, "← Back to crew") : null))));
+
+  /* Interactive Filters */
+  let activeFilter = "all";
+  const activeSpotsCount = spots.filter(s => s.has_active_session || (s.sessions && s.sessions.length > 0)).length;
+
+  const btnAll = h("button", { class: "filter-chip active", onclick: () => setFilter("all") }, `All Spots (${spots.length})`);
+  const btnActive = h("button", { class: "filter-chip", onclick: () => setFilter("active") }, `Active / Scheduled (${activeSpotsCount})`);
+  const btnLate = h("button", { class: "filter-chip", onclick: () => setFilter("late") }, "Late Night (Open 1AM+)");
+  const filterRow = h("div", { class: "filter-bar", style: "margin:10px 0 14px" }, btnAll, btnActive, btnLate);
+  el.append(filterRow);
+
+  /* Map Container */
+  const mapFrame = h("div", { class: "map-frame" }, h("div", { id: "map" }));
+  el.append(mapFrame);
+
+  /* Spot List Container */
+  const listPanel = h("div", { class: "panel" });
+  el.append(listPanel);
+
+  let mapInstance = null;
+  const markersMap = new Map();
+
+  function renderList(filteredSpots) {
+    listPanel.innerHTML = "";
+    listPanel.append(h("div", { class: "section-head", style: "margin-bottom:12px" },
+      h("h2", {}, `Tambayans & Sessions (${filteredSpots.length})`),
+      gid ? h("span", { class: "dim", style: "font-size:12px" }, "Double-click map to drop a new spot") : null));
+
+    if (filteredSpots.length === 0) {
+      listPanel.append(h("div", { class: "hero-empty", style: "padding:32px 0" },
+        h("div", { class: "hero-icon" }, icon("pin", { size: 26, strokeColor: "var(--accent-text)" })),
+        h("h3", {}, "No spots in this filter"),
+        h("p", {}, "Try selecting All Spots above to see every verified hangout.")));
+      return;
     }
-    map.on("dblclick", async (e) => {
-      const nm = prompt("Spot name:"); if (!nm) return;
-      await api(`/api/groups/${gid}/spots`, { name: nm, lat: e.latlng.lat, lng: e.latlng.lng, price_range: "$$", closes_at: "02:00", notes: "" });
-      toast("Spot added to map.");
-      pageMapRerender(gid);
+
+    const cardsGrid = h("div", { class: "map-radar-list" });
+    filteredSpots.forEach(sp => {
+      const hasSessions = sp.sessions && sp.sessions.length > 0;
+      const closingText = sp.closes_at ? `Closes ${sp.closes_at}` : "Closes late";
+      const card = h("div", {
+        class: `map-radar-card ${sp.has_active_session ? "active-session" : ""}`,
+        onclick: () => {
+          if (mapInstance) {
+            mapInstance.flyTo([sp.lat, sp.lng], 15, { duration: 1 });
+            const m = markersMap.get(sp.id);
+            if (m) m.openPopup();
+          }
+        }
+      },
+        h("div", { style: "display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px" },
+          h("div", {},
+            h("div", { style: "font:700 15px var(--font);color:var(--text)" }, sp.name),
+            sp.group_name ? h("div", { class: "dim", style: "font-size:12px;margin-top:2px" }, `Host crew: ${sp.group_name}`) : null),
+          h("span", { class: `chip ${sp.has_active_session ? "amber" : "green"} icon-text-row`, style: "font-weight:600" },
+            icon("clock", { size: 11 }), closingText)),
+        sp.notes ? h("p", { style: "font-size:13px;color:var(--text-2);margin:6px 0 10px;line-height:1.4" }, sp.notes) : null,
+        hasSessions ? h("div", { class: "radar-session-box" },
+          h("div", { style: "display:flex;align-items:center;justify-content:space-between;gap:6px" },
+            h("span", { style: "font:600 12.5px var(--font);color:var(--text)" },
+              `${sp.sessions.length} session${sp.sessions.length !== 1 ? "s" : ""} scheduled`),
+            h("span", { class: "chip primary icon-text-row" }, icon("glass", { size: 11 }), "Drinking session")),
+          ...sp.sessions.slice(0, 2).map(sess => h("div", { style: "font-size:12px;color:var(--text-2);margin-top:4px" },
+            `• ${sess.group_name || "Crew"}: ${fmtSessionTime(sess.starts_at)} (${sess.going_count || 0} going)`))) : null,
+        h("div", { style: "display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)" },
+          h("span", { class: "dim", style: "font-size:11.5px" }, `Freshness: ${timeAgo(sp.last_confirmed_at)}`),
+          h("button", {
+            class: "btn ghost sm",
+            onclick: (e) => { e.stopPropagation(); confirmSpot(sp.id, "yes"); }
+          }, "Confirm Open"))
+      );
+      cardsGrid.append(card);
     });
+    listPanel.append(cardsGrid);
+  }
+
+  function setFilter(filter) {
+    activeFilter = filter;
+    btnAll.classList.toggle("active", filter === "all");
+    btnActive.classList.toggle("active", filter === "active");
+    btnLate.classList.toggle("active", filter === "late");
+
+    let filtered = spots;
+    if (filter === "active") {
+      filtered = spots.filter(s => s.has_active_session || (s.sessions && s.sessions.length > 0));
+    } else if (filter === "late") {
+      filtered = spots.filter(s => {
+        const c = s.closes_at || "";
+        return c.startsWith("01") || c.startsWith("02") || c.startsWith("03") || c.startsWith("04") || c.startsWith("05") || c.toLowerCase().includes("am");
+      });
+    }
+    renderList(filtered);
+  }
+
+  requestAnimationFrame(() => {
+    const center = spots.length > 0 ? [spots[0].lat, spots[0].lng] : [14.676, 121.0437];
+    const map = L.map("map").setView(center, 13);
+    mapInstance = map;
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
+
+    markersMap.clear();
+    for (const sp of spots) {
+      const isActive = sp.has_active_session || (sp.sessions && sp.sessions.length > 0);
+      const pinClass = isActive ? "pin-spot pin-active" : (sp.stale ? "pin-spot pin-stale" : "pin-spot");
+      const markIcon = L.divIcon({ className: "", html: `<div class="${pinClass}"></div>`, iconSize: [22, 22], iconAnchor: [11, 22] });
+      const marker = L.marker([sp.lat, sp.lng], { icon: markIcon }).addTo(map);
+      markersMap.set(sp.id, marker);
+
+      let popupHtml = `<div class="radar-popup">
+        <div class="radar-popup-title">${sp.name}</div>
+        <div class="radar-popup-closing">Open until ${sp.closes_at || "Late"} · ${sp.price_range || "$$"}</div>
+        ${sp.notes ? `<div style="font-size:12px;color:var(--text-2);margin-bottom:6px">${sp.notes}</div>` : ""}`;
+
+      if (sp.sessions && sp.sessions.length > 0) {
+        popupHtml += `<div class="radar-session-box"><div style="font-weight:700;font-size:12px;color:var(--accent-text);margin-bottom:4px">Scheduled Drinking Sessions:</div>`;
+        for (const s of sp.sessions) {
+          popupHtml += `<div style="font-size:11.5px;color:var(--text);margin-bottom:3px"><strong>${s.group_name}</strong> · ${fmtSessionTime(s.starts_at)} (${s.going_count || 0} going)</div>`;
+        }
+        popupHtml += `</div>`;
+      }
+      popupHtml += `</div>`;
+      marker.bindPopup(popupHtml);
+    }
+
+    if (gid) {
+      map.on("dblclick", async (e) => {
+        const nm = prompt("Spot name:"); if (!nm) return;
+        const closes = prompt("Closing time (e.g. 02:00):", "02:00") || "02:00";
+        await api(`/api/groups/${gid}/spots`, { name: nm, lat: e.latlng.lat, lng: e.latlng.lng, price_range: "$$", closes_at: closes, notes: "" });
+        toast("Spot added to map.");
+        pageMapRerender(gid);
+      });
+    }
   });
+
+  renderList(spots);
+
   async function confirmSpot(id, answer) {
     let closes_at = null, new_details = null;
     if (answer === "changed") {
@@ -885,9 +1003,10 @@ export async function pageMap(gid) {
     toast(answer === "no" ? "Spot marked as closed. Thanks for the update!" : "Thanks — spot freshness updated.");
     pageMapRerender(gid);
   }
+
   return el;
 }
-function pageMapRerender(gid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/map/${gid}`)); }
+function pageMapRerender(gid) { location.hash = ""; requestAnimationFrame(() => (location.hash = gid ? `/map/${gid}` : "/map")); }
 
 /* ════════════════════════════════════
    NOTIFICATIONS
@@ -895,9 +1014,10 @@ function pageMapRerender(gid) { location.hash = ""; requestAnimationFrame(() => 
 export async function bellDrawer() {
   const notifs = await api("/api/me/notifications");
   openSheet("Notifications", h("div", {},
-    notifs.length === 0 ? h("div", { style: "text-align:center;padding:24px 0;color:var(--text-2)" },
-      h("div", { style: "font-size:28px;margin-bottom:8px" }, "✔"),
-      h("p", {}, "All clear — nothing to see here.")) : null,
+    notifs.length === 0 ? h("div", { style: "text-align:center;padding:28px 0;color:var(--text-2)" },
+      h("div", { style: "width:44px;height:44px;border-radius:12px;background:var(--green-dim);display:grid;place-items:center;margin:0 auto 10px" },
+        icon("check", { size: 22, strokeColor: "var(--green)" })),
+      h("p", { style: "font:600 14px var(--font);color:var(--text)" }, "All clear — nothing to see here.")) : null,
     ...notifs.map((n) => {
       const p = JSON.parse(n.payload);
       return h("div", { class: "list-row" },
