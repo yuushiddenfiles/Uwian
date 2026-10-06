@@ -139,19 +139,46 @@ export async function pageGroups() {
     api("/api/sessions/feed").catch(() => [])
   ]);
   const firstName = me()?.name?.split(" ")[0] ?? "there";
-  const el = h("div", { class: "enter" });
+  const user = me();
+  const el = h("div", { class: "glass-dashboard-panel enter" });
 
-  /* ── Page Hero ── */
-  el.append(h("div", { class: "page-hero" },
-    h("p", { class: "greeting" }, greetingByHour()),
-    h("h1", {}, `Hey, ${firstName}`),
-    h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
-    h("div", { class: "page-actions" },
-      h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
-      h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))));
+  /* ── Helper for live digital clock widget (matching Image 1) ── */
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = now.toLocaleDateString([], { weekday: "long", month: "2-digit", day: "2-digit" });
 
-  /* ── Trust & Security Banner ── */
-  el.append(h("div", { class: "trust-banner", role: "region", "aria-label": "Safety status" },
+  const clockWidget = h("div", { class: "glass-clock-widget" },
+    h("div", { class: "clock-time", id: "live-clock-time" }, timeStr),
+    h("div", { class: "clock-date" }, dateStr));
+
+  /* ── User pill in top-right of panel (matching Image 1 profile widget) ── */
+  const initialsStr = (user?.name || "?").trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+  const userBadge = h("div", { class: "panel-user-badge", onclick: () => showVerificationSheet() },
+    h("div", { class: "badge-av" }, initialsStr),
+    h("div", { class: "badge-info" },
+      h("span", { class: "badge-name" }, user?.name || "Account"),
+      h("span", { class: "badge-status" }, icon3d("shield", { size: 12 }), "ID Verified")));
+
+  /* ── Top Bar inside the Large Centered Glass Panel ── */
+  const panelTopBar = h("div", { class: "glass-panel-topbar" },
+    clockWidget,
+    userBadge
+  );
+  el.append(panelTopBar);
+
+  /* ── Greeting & Hero (Smaller rounded glass card) ── */
+  const heroCard = h("div", { class: "glass-card greeting-glass-card" },
+    h("div", { class: "greeting-content" },
+      h("p", { class: "greeting" }, greetingByHour()),
+      h("h1", {}, `Hey, ${firstName}`),
+      h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
+      h("div", { class: "page-actions" },
+        h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
+        h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))));
+  el.append(heroCard);
+
+  /* ── Trust & Security Banner (Smaller rounded glass card) ── */
+  el.append(h("div", { class: "glass-card trust-glass-card", role: "region", "aria-label": "Safety status" },
     h("div", { class: "trust-icon-box" }, icon3d("shield", { size: 28, class: "icon-3d-float" })),
     h("div", { class: "trust-banner-content" },
       h("div", { class: "trust-banner-title" },
@@ -166,7 +193,7 @@ export async function pageGroups() {
     h("span", { class: "search-icon", "aria-hidden": "true" }, icon("search", { size: 15 })),
     h("input", {
       type: "search",
-      class: "search-input",
+      class: "search-input glass-search-input",
       placeholder: "Search sessions by spot, crew, or vibe (e.g. Aling Nena's, Sabado, Norte)...",
       id: "session-search",
       oninput: (e) => filterSessions(e.target.value)
@@ -180,7 +207,7 @@ export async function pageGroups() {
   const filterBar = h("div", { class: "filter-bar" }, tabAll, tabTonight, tabGoing);
   const feedContainer = h("div", { class: "feed-grid", id: "feed-container" });
 
-  el.append(
+  const sessionsCard = h("div", { class: "glass-card sessions-glass-card" },
     h("div", { class: "section-head" },
       h("h2", {}, "Discover & Upcoming Sessions"),
       feed.length > 0 ? h("span", { class: "chip amber" }, `${feed.length} available`) : null),
@@ -188,6 +215,7 @@ export async function pageGroups() {
     filterBar,
     feedContainer
   );
+  el.append(sessionsCard);
 
   function renderFeed(items) {
     feedContainer.innerHTML = "";
@@ -206,7 +234,7 @@ export async function pageGroups() {
       const isMyGoing = s.my_rsvp === "going";
 
       const card = h("div", {
-        class: "feed-card",
+        class: "feed-card glass-feed-card",
         tabindex: "0",
         role: "link",
         "aria-label": `Open session at ${spotName}`,
@@ -266,25 +294,25 @@ export async function pageGroups() {
   // Initial render of feed
   renderFeed(feed);
 
-  /* ── My Crews Section ── */
-  el.append(
-    h("div", { class: "section-head", style: "margin-top:28px" },
+  /* ── My Crews Section (Smaller rounded glass card) ── */
+  const crewsCard = h("div", { class: "glass-card crews-glass-card" },
+    h("div", { class: "section-head", style: "margin-top:0" },
       h("h2", {}, `My Crews (${gs.length})`),
       h("button", { class: "btn ghost sm", onclick: () => newCrewSheet() }, "+ New crew")));
 
   if (gs.length === 0) {
-    el.append(h("div", { class: "hero-empty" },
+    crewsCard.append(h("div", { class: "hero-empty" },
       h("div", { class: "hero-icon", style: "border:none;background:transparent" }, icon3d("boy", { size: 48, class: "icon-3d-float" })),
       h("h3", {}, "No crews yet"),
       h("p", {}, "Create your first crew above, or ask a friend to share an invite link.")));
   } else {
-    el.append(
+    crewsCard.append(
       h("div", { class: "crew-grid" },
         ...gs.map((g) => {
           const parts = (g.name ?? "").trim().split(" ");
           const init  = (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
           const card  = h("div", {
-            class: "crew-card", tabindex: "0", role: "link",
+            class: "crew-card glass-crew-card", tabindex: "0", role: "link",
             "aria-label": `Open crew ${g.name}`,
             onclick: () => (location.hash = `/g/${g.id}`),
             onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") location.hash = `/g/${g.id}`; }
@@ -300,10 +328,12 @@ export async function pageGroups() {
           return card;
         })));
   }
+  el.append(crewsCard);
 
-  /* ── Safety Guarantee Footer ── */
+  /* ── Safety Guarantee Footer (Smaller rounded glass card) ── */
   el.append(h("div", {
-    style: "background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;margin-top:28px;display:flex;align-items:center;gap:16px"
+    class: "glass-card safety-guarantee-glass-card",
+    style: "display:flex;align-items:center;gap:16px"
   },
     h("div", { style: "width:48px;height:48px;border-radius:12px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
       icon3d("travel", { size: 30, class: "icon-3d-float" })),
@@ -314,6 +344,7 @@ export async function pageGroups() {
     h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "How it works →")
   ));
 
+  window._uwianNewCrewSheet = newCrewSheet;
   return el;
 
   function newCrewSheet() {

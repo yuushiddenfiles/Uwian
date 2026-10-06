@@ -112,47 +112,74 @@ document.addEventListener("keydown", (e) => {
 
 function refreshNav() {
   const nav = $("#topnav");
-  nav.innerHTML = "";
+  if (nav) nav.innerHTML = "";
   const user = P.me();
+
+  const hash = location.hash;
+  const isGroups = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/");
+  const isMap = hash === "#/map" || hash.startsWith("#/map/");
+
+  // Sync active states on glass rail and floating dock
+  const railGroups = $("#rail-groups-btn");
+  const railMap = $("#rail-map-btn");
+  const dockSessions = $("#dock-sessions");
+  const dockMap = $("#dock-map");
+
+  if (railGroups) railGroups.classList.toggle("active", isGroups);
+  if (railMap) railMap.classList.toggle("active", isMap);
+  if (dockSessions) dockSessions.classList.toggle("active", isGroups);
+  if (dockMap) dockMap.classList.toggle("active", isMap);
+
   if (user) {
-    const hash = location.hash;
-    const isGroups = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/");
-    const isMap = hash === "#/map" || hash.startsWith("#/map/");
-    
-    nav.append(
-      h("a", { href: "#/groups", class: isGroups ? "on" : "", "aria-current": isGroups ? "page" : undefined }, "Explore & Crews"),
-      h("a", { href: "#/map", class: isMap ? "on" : "", "aria-current": isMap ? "page" : undefined, style: "display:inline-flex;align-items:center;gap:6px" },
-        icon3d("mappin", { size: 15 }), "Live Map")
-    );
+    if (nav) {
+      nav.append(
+        h("a", { href: "#/groups", class: isGroups ? "on" : "", "aria-current": isGroups ? "page" : undefined }, "Explore & Crews"),
+        h("a", { href: "#/map", class: isMap ? "on" : "", "aria-current": isMap ? "page" : undefined, style: "display:inline-flex;align-items:center;gap:6px" },
+          icon3d("mappin", { size: 15 }), "Live Map")
+      );
+    }
 
     /* User wrap with avatar pill and interactive dropdown */
     const initials = user.name?.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
     const firstName = user.name?.split(" ")[0] ?? "Account";
 
-    const trigger = h("button", {
-      class: "nav-user-trigger",
-      "aria-haspopup": "menu",
-      "aria-expanded": "false",
-      title: `Account: ${user.name}`,
-      onclick: (e) => {
-        e.stopPropagation();
-        toggleUserMenu(user, trigger);
-      }
-    },
-      h("div", { class: "nav-signout", style: "width:28px;height:28px;font-size:11px;flex:none" }, initials),
-      h("span", { class: "user-name-short" }, firstName),
-      icon("chevron", { size: 11, class: "nav-chevron" })
-    );
+    function createUserTrigger(isMini = false) {
+      const trigger = h("button", {
+        class: isMini ? "nav-user-trigger mini-rail-trigger" : "nav-user-trigger",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        title: `Account: ${user.name}`,
+        onclick: (e) => {
+          e.stopPropagation();
+          toggleUserMenu(user, trigger);
+        }
+      },
+        h("div", { class: "nav-signout", style: "width:28px;height:28px;font-size:11px;flex:none" }, initials),
+        !isMini ? h("span", { class: "user-name-short" }, firstName) : null,
+        !isMini ? icon("chevron", { size: 11, class: "nav-chevron" }) : null
+      );
+      return h("div", { class: "nav-user-wrap" }, trigger);
+    }
 
-    const wrap = h("div", { class: "nav-user-wrap" }, trigger);
-    nav.append(wrap);
+    const railSlot = $("#rail-user-slot");
+    if (railSlot) {
+      railSlot.innerHTML = "";
+      railSlot.append(createUserTrigger(true));
+    }
+
+    const dockMobileSlot = $("#dock-mobile-user-slot");
+    if (dockMobileSlot) {
+      dockMobileSlot.innerHTML = "";
+      dockMobileSlot.append(createUserTrigger(true));
+    }
   } else {
-    nav.append(h("a", { href: "#/login" }, "Log in"));
+    if (nav) nav.append(h("a", { href: "#/login" }, "Log in"));
   }
 }
 
 async function refreshBell() {
   const dot = $("#bell-count");
+  if (!dot) return;
   if (!P.me()) return (dot.hidden = true);
   try {
     const n = await api("/api/me/notifications");
@@ -161,9 +188,57 @@ async function refreshBell() {
 }
 
 /* logo → home */
-document.querySelector(".logo-btn")?.addEventListener("click", () => { location.hash = "/groups"; });
+document.querySelectorAll(".logo-btn").forEach(btn => {
+  btn.addEventListener("click", () => { location.hash = "/groups"; });
+});
 
-$("#bell").addEventListener("click", () => P.bellDrawer && P.bellDrawer());
+$("#bell")?.addEventListener("click", () => P.bellDrawer && P.bellDrawer());
+
+/* Wire dock & rail quick actions */
+$("#rail-search-btn")?.addEventListener("click", () => focusSearch());
+$("#dock-search")?.addEventListener("click", () => focusSearch());
+
+function focusSearch() {
+  if (location.hash !== "#/groups" && location.hash !== "" && location.hash !== "#/") {
+    location.hash = "/groups";
+    setTimeout(doFocus, 350);
+  } else {
+    doFocus();
+  }
+  function doFocus() {
+    const s = document.querySelector("#session-search");
+    if (s) {
+      s.scrollIntoView({ behavior: "smooth", block: "center" });
+      s.focus();
+    }
+  }
+}
+
+$("#rail-safety-btn")?.addEventListener("click", () => P.showVerificationSheet && P.showVerificationSheet());
+$("#dock-safety")?.addEventListener("click", () => P.showVerificationSheet && P.showVerificationSheet());
+
+$("#dock-new-crew")?.addEventListener("click", () => {
+  if (window._uwianNewCrewSheet) {
+    window._uwianNewCrewSheet();
+  } else {
+    const btn = document.querySelector("#new-crew-btn");
+    if (btn) btn.click();
+    else {
+      location.hash = "/groups";
+      setTimeout(() => document.querySelector("#new-crew-btn")?.click(), 300);
+    }
+  }
+});
+
+/* Live clock ticker for the panel */
+setInterval(() => {
+  const clockEl = document.querySelector("#live-clock-time");
+  if (clockEl) {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  }
+}, 30000);
+
 window.addEventListener("hashchange", () => { refreshNav(); route(); });
 
 (async () => { await P.loadMe().catch(() => {}); refreshNav(); route(); })();

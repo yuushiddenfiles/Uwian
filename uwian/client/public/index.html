@@ -14,27 +14,90 @@
 <link rel="stylesheet" href="/app.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z' fill='%23F59332'/%3E%3C/svg%3E">
 </head>
-<body>
-<div class="noise" aria-hidden="true"></div>
+<body class="glass-os-theme">
+<div class="wallpaper-bg" aria-hidden="true"></div>
 
-<header class="masthead">
-  <button class="logo-btn" data-link="/" aria-label="Uwian home">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M9 3h6"/><path d="M12 3v3"/><circle cx="12" cy="11" r="2.2"/><path d="M6 10a6 6 0 0 1 12 0v7a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 19v2h6v-2"/>
-    </svg>
-  </button>
+<!-- Slim Vertical Glass Rail (Left) -->
+<aside id="glass-rail" class="glass-rail" aria-label="Sidebar Navigation">
+  <div class="rail-top">
+    <button class="logo-btn rail-icon-btn" data-link="/" aria-label="Uwian home" title="Uwian Home">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 3h6"/><path d="M12 3v3"/><circle cx="12" cy="11" r="2.2"/><path d="M6 10a6 6 0 0 1 12 0v7a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 19v2h6v-2"/>
+      </svg>
+    </button>
+  </div>
+  
+  <nav class="rail-nav" aria-label="Quick Links">
+    <button class="rail-btn" id="rail-search-btn" title="Search sessions" aria-label="Search">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+    </button>
+    <a href="#/groups" class="rail-btn" id="rail-groups-btn" title="Explore & Sessions" aria-label="Explore & Sessions">
+      <img src="/img/3d/calendar.png" width="22" height="22" alt="" class="icon-3d">
+    </a>
+    <a href="#/map" class="rail-btn" id="rail-map-btn" title="Live Hangout Map" aria-label="Live Hangout Map">
+      <img src="/img/3d/mappin.png" width="22" height="22" alt="" class="icon-3d">
+    </a>
+    <button class="rail-btn" id="rail-safety-btn" title="Safety & ID Rules" aria-label="Safety & ID Rules">
+      <img src="/img/3d/shield.png" width="22" height="22" alt="" class="icon-3d">
+    </button>
+  </nav>
+
+  <div class="rail-bottom">
+    <button id="bell" class="bell-btn rail-icon-btn" aria-label="Notifications" title="Notifications">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0-6 6c0 4-2 5-2 7h16c0-2-2-3-2-7a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0"/>
+      </svg>
+      <span id="bell-count" class="bell-dot" hidden aria-live="polite"></span>
+    </button>
+    <div id="rail-user-slot" class="rail-user-slot"></div>
+  </div>
+</aside>
+
+<!-- Hidden fallback topnav for route compatibility -->
+<header class="masthead legacy-masthead" style="display:none" aria-hidden="true">
   <span class="wordmark">uwian</span>
   <span class="tagline">find your crew, get home safe</span>
   <nav id="topnav" class="topnav" aria-label="Main"></nav>
-  <button id="bell" class="bell-btn" aria-label="Notifications">
-    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-      <path d="M12 3a6 6 0 0 0-6 6c0 4-2 5-2 7h16c0-2-2-3-2-7a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0"/>
-    </svg>
-    <span id="bell-count" class="bell-dot" hidden aria-live="polite"></span>
-  </button>
 </header>
 
 <main id="view" tabindex="-1" aria-label="Page content"></main>
+
+<!-- Floating Glass Dock (Bottom) -->
+<div id="glass-dock" class="glass-dock" role="toolbar" aria-label="Quick Actions">
+  <button class="dock-item" id="dock-new-crew" title="Create New Crew" aria-label="Create New Crew">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/plus.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">+ Crew</span>
+  </button>
+  <a href="#/groups" class="dock-item" id="dock-sessions" title="Explore Sessions" aria-label="Explore Sessions">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/calendar.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">Sessions</span>
+  </a>
+  <a href="#/map" class="dock-item" id="dock-map" title="Live Hangout Map" aria-label="Live Map">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/mappin.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">Live Map</span>
+  </a>
+  <button class="dock-item" id="dock-safety" title="Safety & ID Rules" aria-label="Safety Rules">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/shield.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">Safety</span>
+  </button>
+  <button class="dock-item" id="dock-search" title="Search Sessions" aria-label="Search Sessions">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/zoom.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">Search</span>
+  </button>
+  <div id="dock-mobile-user-slot" class="dock-mobile-user-slot"></div>
+</div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="sheet-root"></div>
