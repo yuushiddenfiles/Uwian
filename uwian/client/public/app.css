@@ -631,11 +631,18 @@ label.f {
 .toast.show { transform: translate(-50%, 0); }
 .toast.err  { background: var(--red); }
 
-/* ═══════════════════════ BOTTOM SHEET ═══════════════════════ */
+/* ═══════════════════════ BOTTOM SHEET / MODAL ═══════════════════════ */
+#sheet-root {
+  position: relative;
+  z-index: 9999;
+}
 .scrim {
   position: fixed; inset: 0;
-  background: rgba(10,8,6,0.42);
-  z-index: 150; opacity: 0;
+  background: rgba(10,8,6,0.48);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9998;
+  opacity: 0;
   transition: opacity 0.22s;
 }
 .scrim.show { opacity: 1; }
@@ -643,14 +650,14 @@ label.f {
   position: fixed; left: 50%; bottom: 0;
   width: min(580px, 100vw);
   transform: translate(-50%, 100%);
-  z-index: 160;
+  z-index: 9999;
   background: var(--surface);
   border: 1px solid var(--border);
   border-bottom: none;
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   padding: 10px 24px 40px;
   max-height: 84vh; overflow: auto;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   transition: transform 0.28s cubic-bezier(0.3, 1.0, 0.4, 1);
 }
 .sheet.show { transform: translate(-50%, 0); }
@@ -663,13 +670,24 @@ label.f {
 
 /* ═══════════════════════ MAP ═══════════════════════ */
 .map-frame {
-  border-radius: var(--r-card);
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   overflow: hidden;
+  border-radius: 16px;
   border: 1px solid var(--border);
   margin-bottom: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
-#map { height: 440px; }
-.leaflet-container { font-family: var(--font); }
+#map {
+  width: 100%;
+  max-width: 100%;
+  height: 440px;
+  box-sizing: border-box;
+}
+.leaflet-container { font-family: var(--font); width: 100%; height: 100%; }
 .pin-spot {
   width: 18px; height: 18px;
   border-radius: 50% 50% 50% 4px;
@@ -1267,11 +1285,17 @@ label.f {
 
 /* map frame elevated */
 .map-frame {
-  border-radius: var(--r-card);
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   overflow: hidden;
+  border-radius: 16px;
   border: 1px solid var(--border);
   margin-bottom: 16px;
   box-shadow: var(--shadow-card);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .icon-text-row {

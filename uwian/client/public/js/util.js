@@ -48,18 +48,37 @@ export function toast(msg, isErr = false) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
 }
 
-// bottom-sheet drawer
+// bottom-sheet drawer (portal directly into document.body to avoid stacking context traps)
 export function openSheet(title, contentEl) {
-  const root = $("#sheet-root");
+  let root = $("#sheet-root");
+  if (!root) {
+    root = h("div", { id: "sheet-root" });
+    document.body.append(root);
+  } else if (root.parentElement !== document.body) {
+    document.body.append(root);
+  }
   root.innerHTML = "";
   const scrim = h("div", { class: "scrim", onclick: close });
   const sheet = h("div", { class: "sheet", role: "dialog", "aria-label": title },
     h("div", { class: "handle" }), h("h3", {}, title), contentEl);
   root.append(scrim, sheet);
-  requestAnimationFrame(() => { scrim.classList.add("show"); sheet.classList.add("show"); });
+  requestAnimationFrame(() => {
+    scrim.classList.add("show");
+    sheet.classList.add("show");
+    setTimeout(() => {
+      if (window._leafletMapInstance) {
+        window._leafletMapInstance.invalidateSize();
+      }
+    }, 200);
+  });
   function close() {
     scrim.classList.remove("show"); sheet.classList.remove("show");
-    setTimeout(() => (root.innerHTML = ""), 320);
+    setTimeout(() => {
+      root.innerHTML = "";
+      if (window._leafletMapInstance) {
+        window._leafletMapInstance.invalidateSize();
+      }
+    }, 320);
   }
   return close;
 }

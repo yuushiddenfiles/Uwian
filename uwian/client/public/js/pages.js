@@ -987,6 +987,7 @@ export async function pageMap(gid) {
     const center = spots.length > 0 ? [spots[0].lat, spots[0].lng] : [14.676, 121.0437];
     const map = L.map("map").setView(center, 13);
     mapInstance = map;
+    window._leafletMapInstance = map;
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
 
     markersMap.clear();
