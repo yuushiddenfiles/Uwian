@@ -6,185 +6,247 @@ export async function loadMe() { ME_ = (await api("/api/me")).user; return ME_; 
 
 /* ---------------- auth ---------------- */
 export function pageLogin() {
-  const email = h("input", { placeholder: "email", type: "email" });
-  const pw = h("input", { placeholder: "password", type: "password" });
-  return h("div", { class: "panel enter", style: "max-width:460px;margin:60px auto" },
-    h("h2", {}, "Maligayang pagbabalik"),
-    h("p", { class: "dim" }, "Ipasok ang details ng barkada membership mo."),
-    h("label", { class: "f" }, "Email"), email,
-    h("label", { class: "f" }, "Password"), pw,
-    h("div", { class: "row", style: "margin-top:18px" },
-      h("button", { class: "btn brass", onclick: async () => {
+  const email = h("input", { placeholder: "email address", type: "email", id: "login-email" });
+  const pw    = h("input", { placeholder: "password", type: "password", id: "login-pw" });
+  return h("div", { class: "auth-card enter" },
+    h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:8px" },
+      h("div", { style: "width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6c7fff,#a78bfa);display:grid;place-items:center;flex:none" },
+        h("svg", { viewBox: "0 0 32 32", width: "22", height: "22", fill: "none", stroke: "#fff", "stroke-width": "2.2", "stroke-linejoin": "round" },
+          h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
+      h("span", { style: "font:700 24px 'Space Grotesk',sans-serif;background:linear-gradient(135deg,#6c7fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" }, "uwian")),
+    h("h2", {}, "Welcome back"),
+    h("p", { class: "sub" }, "Log in to your account to continue."),
+    h("label", { class: "f", for: "login-email" }, "Email"), email,
+    h("label", { class: "f", for: "login-pw" }, "Password"), pw,
+    h("button", { class: "btn primary", style: "width:100%;margin-top:20px;justify-content:center", onclick: async () => {
         try { await api("/api/login", { email: email.value, password: pw.value }); location.hash = "/groups"; }
         catch (e) { toast(e.message, true); pw.classList.add("shake"); setTimeout(() => pw.classList.remove("shake"), 500); }
-      } }, "Tao, tara"),
-      h("a", { href: "#/signup", class: "dim" }, "Bago ka ba? Gumawa ng account")),
-    h("hr", { class: "plank" }),
-    h("p", { class: "dim" }, "Demo: ana@barkada.demo … ela@barkada.demo / BarkadaDemo!2026"));
+      } }, "Sign in"),
+    h("hr"),
+    h("p", { style: "text-align:center;margin-top:14px;font-size:14px;color:var(--text-2)" },
+      "Don't have an account? ", h("a", { href: "#/signup", style: "color:var(--indigo)" }, "Sign up")),
+    h("hr"),
+    h("p", { class: "demo" }, "Demo: ana@barkada.demo … ela@barkada.demo / BarkadaDemo!2026"));
 }
 
 export function pageSignup() {
-  const name = h("input", { placeholder: "Pangalan" });
-  const email = h("input", { placeholder: "email", type: "email" });
-  const pw = h("input", { placeholder: "password (8+)", type: "password" });
-  const bday = h("input", { type: "date" });
-  return h("div", { class: "panel enter", style: "max-width:460px;margin:60px auto" },
-    h("h2", {}, "Sumali sa barkada"),
-    h("p", { class: "dim" }, "Kailangan 18 pataas. Self-declared ang birthdate — ipapaliwanag sa documentation kung paano ito tinatrato, hindi totoong age verification."),
-    h("label", { class: "f" }, "Pangalan"), name,
-    h("label", { class: "f" }, "Email"), email,
-    h("label", { class: "f" }, "Password"), pw,
-    h("label", { class: "f" }, "Birthdate (18+)"), bday,
-    h("button", { class: "btn brass", style: "margin-top:18px", onclick: async () => {
-      try { await api("/api/signup", { name: name.value, email: email.value, password: pw.value, birthdate: bday.value }); location.hash = "/groups"; }
-      catch (e) { toast(e.message, true); }
-    } }, "Gumawa ng account"));
+  const name  = h("input", { placeholder: "Your name", id: "su-name" });
+  const email = h("input", { placeholder: "email address", type: "email", id: "su-email" });
+  const pw    = h("input", { placeholder: "password (8+ characters)", type: "password", id: "su-pw" });
+  const bday  = h("input", { type: "date", id: "su-bday" });
+  return h("div", { class: "auth-card enter" },
+    h("h2", {}, "Create an account"),
+    h("p", { class: "sub" }, "Must be 18 or older. Birthdate is self-declared — see docs/privacy.md for details."),
+    h("label", { class: "f", for: "su-name" }, "Name"), name,
+    h("label", { class: "f", for: "su-email" }, "Email"), email,
+    h("label", { class: "f", for: "su-pw" }, "Password"), pw,
+    h("label", { class: "f", for: "su-bday" }, "Birthdate (18+)"), bday,
+    h("button", { class: "btn primary", style: "width:100%;margin-top:20px;justify-content:center", onclick: async () => {
+        try {
+          await api("/api/signup", { name: name.value, email: email.value, password: pw.value, birthdate: bday.value });
+          location.hash = "/groups";
+        }
+        catch (e) { toast(e.message, true); }
+      } }, "Create account"),
+    h("p", { style: "text-align:center;margin-top:14px;font-size:14px;color:var(--text-2)" },
+      "Already have an account? ", h("a", { href: "#/login", style: "color:var(--indigo)" }, "Sign in")));
 }
 
 /* ---------------- groups list ---------------- */
 export async function pageGroups() {
   const gs = await api("/api/groups");
   const box = h("div", { class: "enter" },
-    h("div", { class: "panel" }, h("h2", {}, "Mga barkada ko"),
-      gs.length === 0 ? h("p", { class: "dim" }, "Wala pang grupo.") : null,
-      ...gs.map((g) => h("div", { class: "list-row card-hover", style: "cursor:pointer", onclick: () => (location.hash = `/g/${g.id}`) },
-        avatar(g.name), h("div", { class: "grow" }, h("b", {}, g.name),
-          h("div", { class: "dim" }, g.role === "admin" ? "admin ka dito" : "member")),
-        h("span", { class: "chip brass" }, g.role)))),
     h("div", { class: "panel" },
-      h("h3", {}, "Bagong grupo"),
-      (() => { const n = h("input", { placeholder: "ngalan ng barkada" });
-        return h("div", { class: "row" }, n, h("button", { class: "btn brass", onclick: async () => {
-          if (!n.value.trim()) return toast("May pangalan na.", true);
-          const r = await api("/api/groups", { name: n.value.trim() }); location.hash = `/g/${r.id}`;
-        } }, "Bumuo ng grupo")); })()));
+      h("div", { class: "row spread", style: "margin-bottom:4px" },
+        h("h2", {}, "My Crews"),
+        (() => {
+          const n = h("input", { placeholder: "New crew name…", id: "new-group-name", style: "max-width:220px" });
+          return h("div", { class: "row" }, n,
+            h("button", { class: "btn primary", onclick: async () => {
+                if (!n.value.trim()) return toast("Give your crew a name first.", true);
+                const r = await api("/api/groups", { name: n.value.trim() });
+                location.hash = `/g/${r.id}`;
+              } }, "+ New crew"));
+        })()),
+      gs.length === 0
+        ? h("div", { class: "hero-empty" },
+            h("div", { class: "hero-icon" }, "🍻"),
+            h("h3", {}, "No crews yet"),
+            h("p", {}, "Create your first crew or ask a friend to share an invite link."))
+        : h("div", {},
+            ...gs.map((g) => h("div", {
+              class: "list-row card-hover", style: "cursor:pointer",
+              onclick: () => (location.hash = `/g/${g.id}`)
+            },
+              avatar(g.name),
+              h("div", { class: "grow" },
+                h("b", {}, g.name),
+                h("div", { class: "dim" }, g.role === "admin" ? "You're an admin" : "Member")),
+              h("span", { class: "chip " + (g.role === "admin" ? "primary" : "") }, g.role))))));
   return box;
 }
 
 /* ---------------- group home ---------------- */
 export async function pageGroup(gid) {
-  const d = await api(`/api/groups/${gid}`);
+  const d      = await api(`/api/groups/${gid}`);
   const ledger = await api(`/api/groups/${gid}/ledger`);
-  const spots = await api(`/api/groups/${gid}/spots`);
-  d.spotsList = spots;
+  const spots  = await api(`/api/groups/${gid}/spots`);
+  d.spotsList  = spots;
   const isAdmin = d.members.find((m) => m.user_id === me().id)?.role === "admin";
-
   const upcoming = d.sessions.filter((s) => s.status !== "closed").slice(0, 3);
   const el = h("div", { class: "enter" });
 
+  // header
   el.append(h("div", { class: "panel" },
     h("div", { class: "row spread" },
-      h("h2", {}, d.group.name),
+      h("div", {},
+        h("h2", {}, d.group.name),
+        h("p", { class: "dim", style: "margin-top:-6px" }, `${d.members.length} members`)),
       h("div", { class: "row" },
-        h("button", { class: "btn ghost", onclick: () => inviteFlow(gid) }, "Imbitahan"),
-        isAdmin ? h("button", { class: "btn", onclick: () => sessionForm(gid, d) }, "+ Inuman") : null))));
+        h("button", { class: "btn ghost", onclick: () => inviteFlow(gid) }, "✉ Invite"),
+        isAdmin ? h("button", { class: "btn primary", onclick: () => sessionForm(gid, d) }, "+ Session") : null))));
 
   // vouch queue
   if (d.pending.length) el.append(h("div", { class: "panel" },
-    h("h2", {}, "Vouch queue"),
-    ...d.pending.map((p) => h("div", { class: "list-row" }, avatar(p.name),
-      h("div", { class: "grow" }, h("b", {}, p.name), h("div", { class: "dim" }, `${p.vouches}/${d.group.vouches_required} vouch`)),
+    h("h2", {}, "Vouch Queue"),
+    ...d.pending.map((p) => h("div", { class: "list-row" },
+      avatar(p.name),
+      h("div", { class: "grow" },
+        h("b", {}, p.name),
+        h("div", { class: "dim" }, `${p.vouches}/${d.group.vouches_required} vouch${p.vouches !== 1 ? "es" : ""}`)),
       h("button", { class: "btn good", onclick: async () => {
-        const r = await api(`/api/groups/${gid}/vouch/${p.user_id}`, {});
-        toast(r.accepted ? "Pasok na siya!" : `Yakap na ${r.have}/${r.need}`); pageGroupRerender(gid);
-      } }, "I-vouch")))));
+          const r = await api(`/api/groups/${gid}/vouch/${p.user_id}`, {});
+          toast(r.accepted ? "They're in! Welcome to the crew." : `Vouched! ${r.have}/${r.need} so far.`);
+          pageGroupRerender(gid);
+        } }, "Vouch in")))));
 
   // sessions
-  el.append(h("div", { class: "panel" }, h("h2", {}, "Mga inuman"),
-    upcoming.length ? null : h("p", { class: "dim" }, "Walang nakadelanheng inuman. Mag-settle up lang ng dating tab."),
-    ...upcoming.map((s) => h("div", { class: "list-row card-hover", style: "cursor:pointer", onclick: () => (location.hash = `/s/${s.id}`) },
-      h("div", { class: "grow" }, h("b", {}, new Date(s.starts_at + "Z").toLocaleString()),
+  el.append(h("div", { class: "panel" },
+    h("h2", {}, "Sessions"),
+    upcoming.length === 0
+      ? h("div", { class: "hero-empty", style: "padding:32px 0" },
+          h("div", { class: "hero-icon", style: "width:56px;height:56px;font-size:24px;margin-bottom:12px" }, "🍺"),
+          h("p", {}, "No upcoming sessions."))
+      : null,
+    ...upcoming.map((s) => h("div", {
+      class: "list-row card-hover", style: "cursor:pointer",
+      onclick: () => (location.hash = `/s/${s.id}`)
+    },
+      h("div", { class: "grow" },
+        h("b", {}, new Date(s.starts_at + "Z").toLocaleString()),
         h("div", { class: "dim" }, statusLabel(s.status))),
-      h("span", { class: "chip brass" }, statusLabel(s.status)))),
-    ...d.sessions.filter((s) => s.status === "closed").slice(0, 3).map((s) => h("div", { class: "list-row", style: "opacity:.7;cursor:pointer", onclick: () => (location.hash = `/s/${s.id}`) },
-      h("div", { class: "grow" }, new Date(s.starts_at + "Z").toLocaleDateString(), h("span", { class: "chip" }, "tapos na"))))));
+      h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status)))),
+    d.sessions.filter((s) => s.status === "closed").slice(0, 3).map((s) =>
+      h("div", { class: "list-row", style: "opacity:.6;cursor:pointer", onclick: () => (location.hash = `/s/${s.id}`) },
+        h("div", { class: "grow" }, new Date(s.starts_at + "Z").toLocaleDateString()),
+        h("span", { class: "chip" }, "Closed")))));
 
-  // ledger summary (S4)
-  el.append(h("div", { class: "panel" }, h("h2", {}, "Kabuuan ng utang (lahat ng inuman)"),
-    ledger.length === 0 ? h("p", { class: "stamp", style: "color:var(--green);font-weight:700;font-size:18px" }, "✔ WALANG UTANG. Solid.") :
-      h("div", { class: "receipt" },
-        ...ledger.map((t) => h("div", { class: "line" }, h("span", {}, `${nameOf(d, t.from)} → ${nameOf(d, t.to)}`), h("span", {}, fmtPeso(t.amount_centavos)))),
-        h("div", { class: "line total" }, h("span", {}, `${ledger.length} transfer ang pinaka-maliit`), h("span", {}, "")))));
+  // ledger
+  el.append(h("div", { class: "panel" },
+    h("h2", {}, "Outstanding Balances"),
+    ledger.length === 0
+      ? h("p", { class: "stamp", style: "color:var(--emerald);font:700 17px var(--font-display);display:flex;align-items:center;gap:8px" },
+          h("span", {}, "✔"), "All settled up!")
+      : h("div", { class: "receipt" },
+          ...ledger.map((t) => h("div", { class: "line" },
+            h("span", {}, `${nameOf(d, t.from)} → ${nameOf(d, t.to)}`),
+            h("span", { class: "money" }, fmtPeso(t.amount_centavos)))),
+          h("div", { class: "line total" },
+            h("span", {}, `${ledger.length} transfer${ledger.length !== 1 ? "s" : ""} (minimum)`),
+            h("span", {})))));
 
   // members & direction tags
-  el.append(h("div", { class: "panel" }, h("h2", {}, "Mga kasama at direksyon"),
-    ...d.members.map((m) => h("div", { class: "list-row" }, avatar(m.name),
-      h("div", { class: "grow" }, h("b", {}, m.name),
-        m.can_drink ? null : h("span", { class: "chip" }, "hindi umiinom"),
-        m.strikes > 0 && isAdmin ? h("span", { class: "chip red" }, `${m.strikes} strike`) : null),
+  el.append(h("div", { class: "panel" },
+    h("h2", {}, "Members & Directions"),
+    ...d.members.map((m) => h("div", { class: "list-row" },
+      avatar(m.name),
+      h("div", { class: "grow" },
+        h("b", {}, m.name),
+        " ",
+        m.can_drink ? null : h("span", { class: "chip" }, "Non-drinker"),
+        " ",
+        m.strikes > 0 && isAdmin ? h("span", { class: "chip red" }, `${m.strikes} strike${m.strikes !== 1 ? "s" : ""}`) : null),
       h("select", { style: "width:auto", onchange: async (e) => {
-        if (m.user_id !== me().id) return toast("Sarili mo lang ang pwede mong tag-an.", true), e.target.blur();
-        await api("/api/me/direction", { group_id: gid, direction_tag_id: e.target.value ? Number(e.target.value) : null }, "PUT");
-        toast("Salamat — mas madaling mag-pair ng buddy.");
-      } },
-        h("option", { value: "" }, "walang direksyon"),
+          if (m.user_id !== me().id) return toast("You can only set your own direction tag.", true), e.target.blur();
+          await api("/api/me/direction", { group_id: gid, direction_tag_id: e.target.value ? Number(e.target.value) : null }, "PUT");
+          toast("Direction updated — easier buddy pairing.");
+        } },
+        h("option", { value: "" }, "No direction"),
         ...d.tags.map((t) => h("option", { value: t.id, selected: m.direction_tag_id === t.id }, t.label))))),
     isAdmin ? h("div", { class: "row", style: "margin-top:12px" },
-      (() => { const l = h("input", { placeholder: "bagong direksyon (Norte/Timog…)", style: "max-width:220px" });
+      (() => {
+        const l = h("input", { placeholder: "Add direction tag (e.g. North, South)…", style: "max-width:240px" });
         return [l, h("button", { class: "btn", onclick: async () => {
-          await api(`/api/groups/${gid}/tags`, { label: l.value }); pageGroupRerender(gid);
-        } }, "+ tag")]; })()) : null));
+            if (!l.value.trim()) return;
+            await api(`/api/groups/${gid}/tags`, { label: l.value.trim() });
+            l.value = ""; pageGroupRerender(gid);
+          } }, "+ Tag")];
+      })()) : null));
 
-  // map teaser + settings
+  // map + settings
   el.append(h("div", { class: "grid2" },
     h("div", { class: "panel card-hover", style: "cursor:pointer", onclick: () => (location.hash = `/map/${gid}`) },
-      h("h2", {}, "Tambayan map"),
-      h("p", { class: "dim" }, `${spots.length} spot${spots.some((s) => s.stale) ? " · may kailangang i-verify" : ""}`),
-      h("p", {}, "Buksan pamamagitan ng mapa ng inyong mga paborito.")),
-    isAdmin ? h("div", { class: "panel" }, h("h2", {}, "Settings"),
-      settingsPanel(gid, d)) : null));
+      h("h2", {}, "Hangout Map"),
+      h("p", { class: "dim" },
+        `${spots.length} spot${spots.length !== 1 ? "s" : ""}${spots.some((s) => s.stale) ? " · some need re-confirming" : ""}`),
+      h("p", { style: "margin-top:10px;color:var(--indigo);font-size:14px" }, "Open map →")),
+    isAdmin ? h("div", { class: "panel" }, h("h2", {}, "Group Settings"), settingsPanel(gid, d)) : null));
   return el;
 }
 
-const statusLabel = (s) => ({ planning: "planning", open: "bukás ang tab", wrapped: "uwian na", closed: "tapos na" }[s] ?? s);
+const statusLabel = (s) => ({ planning: "Planning", open: "Tab open", wrapped: "Uwian time", closed: "Closed" }[s] ?? s);
 const nameOf = (d, uid) => d.members.find((m) => m.user_id === Number(uid))?.name ?? d.allNames?.[uid] ?? `User ${uid}`;
 
 function settingsPanel(gid, d) {
   const vq = h("select", { style: "width:auto" },
-    h("option", { value: 1, selected: d.group.vouches_required === 1 }, "1 vouch"),
-    h("option", { value: 2, selected: d.group.vouches_required === 2 }, "2 vouch"));
+    h("option", { value: 1, selected: d.group.vouches_required === 1 }, "1 vouch to join"),
+    h("option", { value: 2, selected: d.group.vouches_required === 2 }, "2 vouches to join"));
   const buddyMin = h("input", { type: "number", value: d.group.buddy_notify_min, style: "width:90px" });
   const adminMin = h("input", { type: "number", value: d.group.admin_notify_min, style: "width:90px" });
   return h("div", {},
-    h("label", { class: "f" }, "Kailangang vouch para sumali"), vq,
-    h("label", { class: "f" }, "Alerta sa buddy (minuto pagkatapos ng deadline)"), buddyMin,
-    h("label", { class: "f" }, "Escalation sa admin (minuto)"), adminMin,
-    h("button", { class: "btn brass", style: "margin-top:14px", onclick: async () => {
-      await api(`/api/groups/${gid}/settings`, { vouches_required: Number(vq.value), buddy_notify_min: Number(buddyMin.value), admin_notify_min: Number(adminMin.value) }, "PATCH");
-      toast("Nai-save ang settings.");
-    } }, "I-save"));
+    h("label", { class: "f" }, "Vouches required to join"), vq,
+    h("label", { class: "f" }, "Buddy alert delay (minutes after deadline)"), buddyMin,
+    h("label", { class: "f" }, "Admin escalation delay (minutes)"), adminMin,
+    h("button", { class: "btn primary", style: "margin-top:16px", onclick: async () => {
+        await api(`/api/groups/${gid}/settings`, { vouches_required: Number(vq.value), buddy_notify_min: Number(buddyMin.value), admin_notify_min: Number(adminMin.value) }, "PATCH");
+        toast("Settings saved.");
+      } }, "Save settings"));
 }
 
 async function inviteFlow(gid) {
   const r = await api(`/api/groups/${gid}/invite`, {});
-  openSheet("Invitation", h("div", {},
-    h("p", { class: "dim" }, "I-share ang link na ito sa taong kilala ninyo. Dadaan siya sa vouch bago makapasok — basta’t hindi basta estranghero."),
-    h("div", { class: "inset", style: "font-family:var(--font-mono)" }, `${location.origin}${r.invite_url}`),
-    h("button", { class: "btn", style: "margin-top:12px", onclick: () => { navigator.clipboard?.writeText(`${location.origin}${r.invite_url}`); toast("Nakopya!"); } }, "Kopyahin")));
+  openSheet("Invite to crew", h("div", {},
+    h("p", { class: "dim", style: "margin-bottom:12px" }, "Share this link with someone you trust. They'll need a vouch from an existing member before they can join."),
+    h("div", { class: "inset", style: "font-family:var(--font-mono);font-size:13px;word-break:break-all" }, `${location.origin}${r.invite_url}`),
+    h("button", { class: "btn primary", style: "margin-top:14px", onclick: () => {
+        navigator.clipboard?.writeText(`${location.origin}${r.invite_url}`);
+        toast("Link copied!");
+      } }, "Copy link")));
 }
 
 function sessionForm(gid, d) {
-  const when = h("input", { type: "datetime-local" });
-  const spotSel = h("select", {}, h("option", { value: "" }, "— walang spot —"), ...d.spotsList?.map?.((s) => h("option", { value: s.id }, s.name)) ?? []);
-  const ddSel = h("select", {}, h("option", { value: "" }, "wala pang DD"), ...d.members.map((m) => h("option", { value: m.user_id }, m.name)));
-  openSheet("Bagong inuman", h("div", {},
-    h("label", { class: "f" }, "Kailan"), when,
-    h("label", { class: "f" }, "Saan (pump muna sa map)"), spotSel,
-    h("label", { class: "f" }, "Designated driver (malayo sa alak, awtomatiko)"), ddSel,
-    h("p", { class: "dim" }, "Ang DD ay awtomatikong hindi kasama sa lahat ng alcohol item. Kaya rin siyang baguhin mamaya."),
-    h("button", { class: "btn brass", onclick: async () => {
-      const r = await api(`/api/groups/${gid}/sessions`, { starts_at: when.value, designated_driver_id: ddSel.value ? Number(ddSel.value) : null });
-      location.hash = `/s/${r.id}`;
-    } }, "Itakda ang inuman")));
+  const when   = h("input", { type: "datetime-local" });
+  const spotSel = h("select", {}, h("option", { value: "" }, "— no spot selected —"), ...(d.spotsList?.map?.((s) => h("option", { value: s.id }, s.name)) ?? []));
+  const ddSel  = h("select", {}, h("option", { value: "" }, "No designated driver"), ...d.members.map((m) => h("option", { value: m.user_id }, m.name)));
+  openSheet("New session", h("div", {},
+    h("label", { class: "f" }, "When"), when,
+    h("label", { class: "f" }, "Location (add on map first)"), spotSel,
+    h("label", { class: "f" }, "Designated driver (auto-excluded from all alcohol items)"), ddSel,
+    h("p", { class: "dim", style: "margin-top:8px" }, "The DD is automatically skipped on every alcohol expense. You can change them later."),
+    h("button", { class: "btn primary", style: "margin-top:16px", onclick: async () => {
+        if (!when.value) return toast("Pick a date and time.", true);
+        const r = await api(`/api/groups/${gid}/sessions`, { starts_at: when.value, designated_driver_id: ddSel.value ? Number(ddSel.value) : null });
+        location.hash = `/s/${r.id}`;
+      } }, "Create session")));
 }
 
 function pageGroupRerender(gid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/g/${gid}`)); }
 
 /* ---------------- session screen ---------------- */
 export async function pageSession(sid) {
-  const d = await api(`/api/sessions/${sid}`);
+  const d   = await api(`/api/sessions/${sid}`);
   const gid = d.session.group_id;
-  const gd = await api(`/api/groups/${gid}`);
+  const gd  = await api(`/api/groups/${gid}`);
   const isAdmin = gd.members.find((m) => m.user_id === me().id)?.role === "admin";
   const nameOfU = (uid) => gd.members.find((m) => m.user_id === Number(uid))?.name ?? d.session.designated_driver_name ?? `#${uid}`;
   const el = h("div", { class: "enter" });
@@ -192,268 +254,339 @@ export async function pageSession(sid) {
   // header card
   el.append(h("div", { class: "panel" },
     h("div", { class: "row spread" },
-      h("div", {}, h("h2", {}, new Date(d.session.starts_at + "Z").toLocaleString()),
+      h("div", {},
+        h("h2", {}, new Date(d.session.starts_at + "Z").toLocaleString()),
         d.spot ? h("p", { class: "dim" }, `📍 ${d.spot.name}`) : null),
-      h("span", { class: "chip brass" }, statusLabel(d.session.status))),
-    d.session.designated_driver_id ? h("div", { class: "inset", style: "margin-top:8px" },
-      h("b", { style: "color:var(--green)" }, "🚗 Designated driver: "), nameOfU(d.session.designated_driver_id),
-      h("span", { class: "dim" }, " — hindi siya kasama sa anumang alak. Awtomatiko, hindi kalimutan.")) : null));
+      h("span", { class: `status-bar ${d.session.status}` }, statusLabel(d.session.status))),
+    d.session.designated_driver_id
+      ? h("div", { class: "inset", style: "margin-top:12px;display:flex;align-items:center;gap:8px" },
+          h("span", { style: "color:var(--emerald)" }, "🚗"),
+          h("span", {}, h("b", {}, "Designated driver: "), nameOfU(d.session.designated_driver_id)),
+          h("span", { class: "dim" }, "— excluded from all alcohol items automatically."))
+      : null));
 
   // RSVP
   const my = d.rsvps.find((r) => r.user_id === me().id);
-  el.append(h("div", { class: "panel" }, h("h2", {}, "Sino darating"),
-    h("div", { class: "row", style: "margin-bottom:10px" },
+  el.append(h("div", { class: "panel" },
+    h("h2", {}, "Who's coming"),
+    h("div", { class: "row", style: "margin-bottom:14px" },
       ...["going", "maybe", "cant"].map((st) => h("button", {
-        class: `btn ${my?.status === st ? "brass" : ""}`, onclick: async () => {
-          await api(`/api/sessions/${sid}/rsvp`, { status: st }); pageSessionRerender(sid);
-        } }, { going: "Darating", maybe: "Baka", cant: "Hindi kaya" }[st]))),
+        class: `btn ${my?.status === st ? "primary" : ""}`,
+        onclick: async () => { await api(`/api/sessions/${sid}/rsvp`, { status: st }); pageSessionRerender(sid); }
+      }, { going: "✔ Going", maybe: "Maybe", cant: "✖ Can't" }[st]))),
     h("div", { class: "receipt" },
       ...gd.members.filter((m) => m.status === "active").map((m) => {
         const r = d.rsvps.find((x) => x.user_id === m.user_id);
-        return h("div", { class: "line" }, h("span", {}, m.name + (m.user_id === me().id ? " (kayo)" : "")),
-          h("span", {}, r ? { going: "✔ darating", maybe: "? baka", cant: "✖ hindi" }[r.status] : "—"));
+        return h("div", { class: "line" },
+          h("span", {}, m.name + (m.user_id === me().id ? " (you)" : "")),
+          h("span", {}, r ? { going: "✔ Going", maybe: "? Maybe", cant: "✖ Can't" }[r.status] : "—"));
       }))));
 
-  // tabs: Tab | Settle | Uwian | Hangganan
-  const tabBar = h("div", { class: "tabbar" });
+  // tabs
+  const tabBar  = h("div", { class: "tabbar" });
   const tabBody = h("div", {});
-  const tabs = { tab: "Hatian", settle: "Settle up", uwian: "Uwian", limit: "Hangganan" };
+  const tabs    = { tab: "Tab", settle: "Settle up", uwian: "Uwian", limit: "My Limit" };
   let cur = "tab";
   for (const [key, label] of Object.entries(tabs)) {
-    const b = h("button", { class: "tab", onclick: () => { cur = key; render(); } }, label);
+    const b = h("button", { class: "tab", onclick: () => { cur = key; renderTab(); } }, label);
     b.dataset.k = key; tabBar.append(b);
   }
   el.append(tabBar, tabBody);
-  function render() {
+
+  function renderTab() {
     [...tabBar.children].forEach((b) => b.classList.toggle("on", b.dataset.k === cur));
     tabBody.innerHTML = "";
-    tabBody.append(cur === "tab" ? tabHatian() : cur === "settle" ? tabSettle() : cur === "uwian" ? tabUwian() : tabHangganan());
+    tabBody.append(cur === "tab" ? tabExpenses() : cur === "settle" ? tabSettle() : cur === "uwian" ? tabUwian() : tabLimit());
   }
 
-  /* ---- Hatian tab ---- */
-  function tabHatian() {
+  /* ---- Expenses tab ---- */
+  function tabExpenses() {
     const wrap = h("div", { class: "panel" });
     if (d.session.status !== "closed")
       wrap.append(addExpenseForm(d, sid, nameOfU, () => pageSessionRerender(sid)));
-    else wrap.append(h("p", { class: "dim" }, "Sarado na ang tab. " + (isAdmin ? "Pwede mong i-reopen para mag-edit." : "Kausapin ang admin kung may mali.")));
+    else
+      wrap.append(h("div", { class: "inset", style: "margin-bottom:14px" },
+        h("p", { class: "dim" }, "Tab is closed. " + (isAdmin ? "You can reopen it if needed." : "Contact an admin if something's wrong."))));
     const total = d.expenses.reduce((s, e) => s + e.amount_centavos, 0);
-    wrap.append(h("h2", {}, "Ngayong gabi"),
-      h("div", { class: "receipt" },
-        ...d.expenses.map((e) => {
-          const parts = Object.keys(d.shares[e.id] ?? {});
-          return h("div", {},
-            h("div", { class: "line" }, h("span", {}, `${e.is_alcohol ? "🍺" : "🍽"} ${e.description}`),
-              h("span", {}, `${fmtPeso(e.amount_centavos)} — bayad ni ${e.payer_name ?? nameOfU(e.paid_by)}`)),
-            h("div", { class: "dim", style: "padding:2px 0 8px;color:#6b5c44" },
-              `kasama: ${parts.map(nameOfU).join(", ") || "—"}` +
-              (e.edited_after_close ? " · ⟨ini-edit pagkatapos i-lock⟩" : ""));
-        }),
-        h("div", { class: "line total" }, h("span", {}, "KABUUAN"), h("span", {}, fmtPeso(total)))));
+    wrap.append(
+      h("h2", {}, "Tonight's tab"),
+      d.expenses.length === 0
+        ? h("p", { class: "dim" }, "No expenses logged yet.")
+        : h("div", { class: "receipt" },
+            ...d.expenses.map((e) => {
+              const parts = Object.keys(d.shares[e.id] ?? {});
+              return h("div", {},
+                h("div", { class: "line" },
+                  h("span", {}, `${e.is_alcohol ? "🍺" : "🍽"} ${e.description}`),
+                  h("span", {}, `${fmtPeso(e.amount_centavos)} — paid by ${e.payer_name ?? nameOfU(e.paid_by)}`)),
+                h("div", { class: "dim", style: "padding:2px 0 8px;font-size:12px" },
+                  `Split with: ${parts.map(nameOfU).join(", ") || "—"}` +
+                  (e.edited_after_close ? " · ⟨edited after close⟩" : "")));
+            }),
+            h("div", { class: "line total" }, h("span", {}, "TOTAL"), h("span", { class: "money" }, fmtPeso(total)))));
     return wrap;
   }
 
   /* ---- Settle tab ---- */
   function tabSettle() {
-    const wrap = h("div", { class: "panel" }, h("h2", {}, "Hatian — pinakakaunting transfer"));
+    const wrap = h("div", { class: "panel" }, h("h2", {}, "Settle up"));
     if (isAdmin && d.session.status !== "closed")
-      wrap.append(h("button", { class: "btn brass", onclick: async () => {
-        await api(`/api/sessions/${sid}/close-tab`, {}); toast("Naipatupô ang tab. Walang ma-e-edit nang walang reopen."); pageSessionRerender(sid);
-      } }, "Isara ang tab ✍"));
-    if (!d.settlements.length) return wrap.append(h("p", { class: "dim" }, "Wala pang settlements — isara ang tab kapag tapos na ang gabi.")), wrap;
+      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:16px", onclick: async () => {
+          await api(`/api/sessions/${sid}/close-tab`, {});
+          toast("Tab closed — no more edits without reopening.");
+          pageSessionRerender(sid);
+        } }, "Close tab ✍"));
+    if (!d.settlements.length)
+      return wrap.append(h("p", { class: "dim" }, "No settlements yet — close the tab when the night's done.")), wrap;
     for (const t of d.settlements) {
       const mine_payer = t.from_user === me().id, mine_recv = t.to_user === me().id;
-      const row = h("div", { class: "list-row" }, avatar(t.from_name ?? nameOfU(t.from_user)),
-        h("div", { class: "grow" }, h("b", {}, `${t.from_name ?? nameOfU(t.from_user)} → ${t.to_name ?? nameOfU(t.to_user)}`),
+      const row = h("div", { class: "list-row" },
+        avatar(t.from_name ?? nameOfU(t.from_user)),
+        h("div", { class: "grow" },
+          h("b", {}, `${t.from_name ?? nameOfU(t.from_user)} → ${t.to_name ?? nameOfU(t.to_user)}`),
+          " ",
           h("span", { class: `chip ${t.status === "confirmed" ? "green" : t.status === "disputed" ? "red" : t.status === "paid_claimed" ? "amber" : ""}` },
-            { open: "bukás", paid_claimed: "sinabing bayad na", confirmed: "✔ confirmed", disputed: "disputed" }[t.status]),
+            { open: "Open", paid_claimed: "Claimed paid", confirmed: "✔ Confirmed", disputed: "Disputed" }[t.status]),
           t.note ? h("div", { class: "dim" }, `"${t.note}"`) : null),
         h("span", { class: "money" }, fmtPeso(t.amount_centavos)));
       if (mine_payer && t.status === "open")
-        row.append(h("button", { class: "btn good", onclick: async () => { await api(`/api/settlements/${t.id}/claim-paid`, {}); pageSessionRerender(sid); } }, "Nagbayad na ako"));
+        row.append(h("button", { class: "btn good", onclick: async () => {
+            await api(`/api/settlements/${t.id}/claim-paid`, {});
+            pageSessionRerender(sid);
+          } }, "I've paid"));
       if (mine_recv && t.status === "paid_claimed")
         row.append(
-          h("button", { class: "btn good", onclick: async () => { await api(`/api/settlements/${t.id}/confirm`, {}); toast("Salamat. Ayos na."); pageSessionRerender(sid); } }, "Oo, natanggap ko"),
-          h("button", { class: "btn bad", onclick: () => disputeForm(t.id, sid) }, "Hindi, may problema"));
+          h("button", { class: "btn good", onclick: async () => {
+              await api(`/api/settlements/${t.id}/confirm`, {});
+              toast("Confirmed. All good.");
+              pageSessionRerender(sid);
+            } }, "Confirm received"),
+          h("button", { class: "btn bad", onclick: () => disputeForm(t.id, sid) }, "Dispute"));
       wrap.append(row);
     }
     if (isAdmin && d.session.status === "closed")
-      wrap.append(h("button", { class: "btn ghost", style: "margin-top:12px", onclick: async () => {
-        const r = await api(`/api/sessions/${sid}/reopen`, {}); toast(r.note); pageSessionRerender(sid);
-      } }, "I-reopen ang tab (void ang unpaid, mananatili ang confirmed)"));
+      wrap.append(h("button", { class: "btn ghost", style: "margin-top:14px", onclick: async () => {
+          const r = await api(`/api/sessions/${sid}/reopen`, {});
+          toast(r.note);
+          pageSessionRerender(sid);
+        } }, "Reopen tab (voids unpaid, keeps confirmed)"));
     return wrap;
   }
 
   /* ---- Uwian tab ---- */
   function tabUwian() {
-    const wrap = h("div", { class: "panel" }, h("h2", {}, "Uwian — pauwi tayo ng maayos"));
+    const wrap = h("div", { class: "panel" }, h("h2", {}, "Uwian — get everyone home safe"));
     if (isAdmin && d.session.status === "open")
-      wrap.append(h("button", { class: "btn brass", onclick: async () => {
-        const deadline = new Date(Date.now() + 45 * 60000).toISOString().slice(0, 19).replace("T", " ");
-        await api(`/api/sessions/${sid}`, { status: "wrapped", uwian_deadline: deadline }, "PATCH");
-        toast("Uwian na! Na-pair ang mga buddy base sa direksyon."); pageSessionRerender(sid);
-      } }, "Uwian na 🏠"));
+      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:16px", onclick: async () => {
+          const deadline = new Date(Date.now() + 45 * 60000).toISOString().slice(0, 19).replace("T", " ");
+          await api(`/api/sessions/${sid}`, { status: "wrapped", uwian_deadline: deadline }, "PATCH");
+          toast("Uwian time! Buddies paired by direction.");
+          pageSessionRerender(sid);
+        } }, "🏠 Uwian na!"));
     const myCi = d.checkins.find((c) => c.user_id === me().id);
     if (!myCi?.home_confirmed_at) {
       const modeSel = h("select", { style: "width:auto" }, ...Object.entries(MODES).map(([k, v]) => h("option", { value: k }, v)));
-      wrap.append(h("div", { class: "row inset" },
-        h("b", {}, "Paano ka uuwi?"), modeSel,
+      wrap.append(h("div", { class: "inset row", style: "margin-bottom:16px" },
+        h("b", {}, "How are you getting home?"), modeSel,
         h("button", { class: "btn good", onclick: async () => {
-          await api(`/api/sessions/${sid}/checkin`, { mode: modeSel.value });
-          toast("Naka-check-in ka. Ingatan ang daan."); pageSessionRerender(sid);
-        } }, "Nakauwi na ako ✔")));
+            await api(`/api/sessions/${sid}/checkin`, { mode: modeSel.value });
+            toast("Checked in! Stay safe out there.");
+            pageSessionRerender(sid);
+          } }, "I'm home ✔")));
     }
-    // roster with lamps
-    wrap.append(h("h3", { style: "margin-top:16px" }, "Sino nakauwi na"),
+    // roster
+    wrap.append(h("h3", { style: "margin:16px 0 8px" }, "Who's home"),
       ...gd.members.filter((m) => m.status === "active").map((m) => {
-        const ci = d.checkins.find((c) => c.user_id === m.user_id);
+        const ci   = d.checkins.find((c) => c.user_id === m.user_id);
         const rsvp = d.rsvps.find((r) => r.user_id === m.user_id);
         if (rsvp?.status === "cant") return null;
         const row = h("div", { class: "list-row" }, avatar(m.name), lampFor(ci),
           h("div", { class: "grow" }, m.name,
             ci?.mode ? h("span", { class: "dim" }, ` · ${MODES[ci.mode]}`) : null,
-            ci?.ride_offer_from ? h("span", { class: "chip green" }, "may nag-alok ng sakay") : null),
+            ci?.ride_offer_from ? h("span", { class: "chip green", style: "margin-left:6px" }, "Ride offered") : null),
           ci?.flag_stage >= 2 && !ci?.home_confirmed_at
             ? h("button", { class: "btn", onclick: async () => {
                 const pair = d.buddy_pairs.find((p) => [p.user_a, p.user_b, p.user_c].includes(m.user_id));
-                if (!pair) return toast("Wala kayang buddy pair — admin tawagan.", true);
+                if (!pair) return toast("No buddy pair — contact admin.", true);
                 await api(`/api/buddies/${sid}/${pair.user_a}/${pair.user_b}/clear-flag`, {});
-                toast("Na-clear ang flag. Salamat sa pagtingin sa isa’t isa."); pageSessionRerender(sid);
-              } }, "Nakausap ko na, ok siya")
+                toast("Flag cleared. Thanks for checking in on each other.");
+                pageSessionRerender(sid);
+              } }, "Spoke to them, all good")
             : null);
-        // friendly ride offer for self-drivers who aren't the DD
         if (ci?.mode === "own_drive" && d.session.designated_driver_id !== m.user_id && !ci.ride_offer_from && m.user_id !== me().id)
           row.append(h("button", { class: "btn ghost", onclick: async () => {
-            await api(`/api/buddies/${sid}/${m.user_id}/0/offer-ride`, {}); toast("Nag-alok ka ng sakay. Maraming salamat."); pageSessionRerender(sid);
-          } }, "May saklaw ka ba?"));
+              await api(`/api/buddies/${sid}/${m.user_id}/0/offer-ride`, {});
+              toast("Ride offered. Legend.");
+              pageSessionRerender(sid);
+            } }, "Offer them a ride?"));
         return row;
       }));
     // buddies
-    if (d.buddy_pairs.length) wrap.append(h("h3", { style: "margin-top:16px" }, "Mga buddy (parehong direksyon)"),
-      h("div", { class: "receipt" }, ...d.buddy_pairs.map((p) =>
-        h("div", { class: "line" }, h("span", {}, p.names.join(" + ")), h("span", {}, "isa’t isa’yansiyas")))));
-    wrap.append(h("p", { class: "dim" }, "Paalala: hindi rescue service ang app na ito. Ang escalation ay paalala lamang na tumawag. Kung tunay na emergency, tawagan ang iyong lokal na hotline."));
+    if (d.buddy_pairs.length)
+      wrap.append(
+        h("h3", { style: "margin:16px 0 8px" }, "Buddy pairs (by direction)"),
+        h("div", { class: "receipt" },
+          ...d.buddy_pairs.map((p) => h("div", { class: "line" }, h("span", {}, p.names.join(" + ")), h("span", {})))));
+    wrap.append(h("p", { class: "dim", style: "margin-top:16px;font-size:12px;border-top:1px solid var(--border);padding-top:12px" },
+      "Reminder: this app is not a rescue service. Escalation is just a nudge to check in. In a real emergency, call your local emergency number."));
     return wrap;
   }
 
-  /* ---- Hangganan tab (private!) ---- */
-  function tabHangganan() {
-    const wrap = h("div", { class: "panel" }, h("h2", {}, "Hangganan mo"),
-      h("p", { class: "dim" }, "Pribado ito — ikaw lang ang makakakita ng bilang mo, kahit ang admin. Reminder lang ito sa sariling limitasyon; hindi ito kalkulador ng alcohol at hindi sukatan ng pagkalasing."));
+  /* ---- My Limit tab (private!) ---- */
+  function tabLimit() {
+    const wrap = h("div", { class: "panel" },
+      h("h2", {}, "My Limit"),
+      h("p", { class: "dim" }, "Private — only you can see your count, even admins can't. This is a personal reminder, not an alcohol calculator."));
     const board = h("div", { class: "tally-board" });
-    const limIn = h("input", { type: "number", min: 1, style: "width:90px" });
-    const stamp = h("span", { class: "stamp", hidden: true, style: "font:700 26px var(--font-display);color:var(--red);border:3px solid var(--red);border-radius:8px;padding:2px 10px;transform:rotate(-8deg)" }, "PRIBADO — IKAW LANG");
+    const limIn = h("input", { type: "number", min: 1, style: "width:80px" });
+
     async function refresh() {
       const r = await api(`/api/sessions/${sid}/limit`);
       board.innerHTML = "";
       const show = Math.max(r.lim ?? 0, r.count, 8);
       for (let i = 1; i <= Math.min(show, 12); i++)
-        board.append(h("div", { class: `tally ${i <= r.count ? "full" : "empty"}` }, i <= r.count ? "𝖷" : "·"));
+        board.append(h("div", { class: `tally ${i <= r.count ? "full" : "empty"}` }, i <= r.count ? "✕" : "·"));
       const pct = r.lim ? r.count / r.lim : 0;
-      if (pct >= 0.8) board.append(h("div", { class: "chip " + (pct >= 1 ? "red" : "amber") },
-        pct >= 1 ? "Abot ka na sa hangganan mo. Ayusin na ang pang-uwi?" : "Malapit ka na. Ayusin na ang pang-uwi?"));
-      if (pct >= 0.8) board.append(h("button", { class: "btn", onclick: () => { cur = "uwian"; render(); } }, "Check-in na"));
+      if (pct >= 0.8) board.append(h("div", { class: `chip ${pct >= 1 ? "red" : "amber"}`, style: "align-self:center;margin-left:4px" },
+        pct >= 1 ? "At your limit — sort out your ride?" : "Getting close — sort out your ride?"));
+      if (pct >= 0.8) board.append(h("button", { class: "btn good", style: "align-self:center", onclick: () => { cur = "uwian"; renderTab(); } }, "Check in now"));
     }
+
     const push = h("button", { class: "round-push", onclick: async () => {
-      const r = await api(`/api/sessions/${sid}/limit/tap`, {});
-      if (navigator.vibrate) navigator.vibrate(30);
-      if (r.level) toast(r.level === "at_limit" ? "Abot hangganan — ayusin na ang pang-uwi?" : "Malapit ka na sa hangganan mo.");
-      refresh();
-    } }, "+ 1 round");
-    wrap.append(h("div", { class: "row spread" }, board, stamp),
-      h("div", { class: "row", style: "margin-top:14px" }, push,
-        h("label", { class: "f", style: "margin:0" }, "Limitasyon ko (rounds)"), limIn,
-        h("button", { class: "btn", onclick: async () => { await api(`/api/sessions/${sid}/limit`, { limit: limIn.value ? Number(limIn.value) : null }, "PUT"); refresh(); toast("Na-update ang hangganan mo."); } }, "Itakda")));
-    stamp.hidden = false;
+        const r = await api(`/api/sessions/${sid}/limit/tap`, {});
+        if (navigator.vibrate) navigator.vibrate(30);
+        if (r.level) toast(r.level === "at_limit" ? "You've hit your limit — sort your ride home." : "Getting close to your limit.");
+        refresh();
+      } }, "+ 1 round");
+
+    wrap.append(
+      h("div", { style: "display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-top:16px" },
+        push,
+        h("div", { class: "grow" },
+          board,
+          h("div", { class: "row", style: "margin-top:16px;flex-wrap:wrap" },
+            h("label", { class: "f", style: "margin:0;white-space:nowrap" }, "My limit (rounds)"),
+            limIn,
+            h("button", { class: "btn", onclick: async () => {
+                await api(`/api/sessions/${sid}/limit`, { limit: limIn.value ? Number(limIn.value) : null }, "PUT");
+                refresh(); toast("Limit updated.");
+              } }, "Set")))));
     refresh();
     return wrap;
   }
 
-  render();
+  renderTab();
   return el;
 }
 
 function addExpenseForm(d, sid, nameOfU, done) {
-  const desc = h("input", { placeholder: "ano ito? (beer bucket, sisig…)" });
-  const amt = h("input", { placeholder: "halaga ₱", inputmode: "decimal", style: "max-width:130px" });
-  const payer = h("select", { style: "width:auto" }, ...d.members.map((m) => h("option", { value: m.user_id, selected: m.user_id === me().id }, m.name)));
+  const desc  = h("input", { placeholder: "What was it? (e.g. beer bucket, sisig…)" });
+  const amt   = h("input", { placeholder: "Amount ₱", inputmode: "decimal", style: "max-width:130px" });
+  const payer = h("select", { style: "width:auto" },
+    ...d.members.map((m) => h("option", { value: m.user_id, selected: m.user_id === me().id }, m.name)));
   let isAlcohol = true;
-  const togg = h("span", { class: "toggle on", onclick: () => { isAlcohol = !isAlcohol; togg.classList.toggle("on", isAlcohol); note.textContent = isAlcohol ? alcoholNote(d) : "Pagkain at non-alcohol: lahat ng naroon ang kabahagi." } },
-    h("span", { class: "slot" }, h("span", { class: "knob" })), h("span", {}, "alak"));
-  const note = h("p", { class: "dim" }, alcoholNote(d));
+  const note  = h("p", { class: "dim" }, alcoholNote(d));
+  const togg  = h("span", { class: "toggle on", onclick: () => {
+      isAlcohol = !isAlcohol;
+      togg.classList.toggle("on", isAlcohol);
+      note.textContent = isAlcohol ? alcoholNote(d) : "Food/non-alcohol: everyone attending splits it.";
+    } },
+    h("span", { class: "slot" }, h("span", { class: "knob" })),
+    h("span", { class: "label-text" }, "Alcohol"));
+
   function alcoholNote(sess) {
     const dd = sess.session.designated_driver_name;
-    return dd ? `Awtomatiko: hindi kasama si ${dd} sa alak, kasama rin ang hindi umiinom. Bago pa man — i-adjust sa ibaba.` : "Markahang alak: awtomatikong hindi kasama ang designated driver.";
+    return dd
+      ? `Auto-split: ${dd} is excluded from alcohol, as are non-drinkers. Adjust below if needed.`
+      : "Marked as alcohol: DD will be excluded automatically.";
   }
+
   const checks = h("div", { class: "row" }, ...d.members.map((m) => {
     const cb = h("input", { type: "checkbox", checked: true, style: "width:auto" });
     cb.dataset.uid = m.user_id;
-    return h("label", { class: "chip", style: "display:inline-flex;gap:6px;align-items:center" }, cb, m.name);
+    return h("label", { class: "chip", style: "display:inline-flex;gap:6px;align-items:center;cursor:pointer" }, cb, m.name);
   }));
-  return h("div", { class: "inset", style: "margin-bottom:14px" },
+
+  return h("div", { class: "inset", style: "margin-bottom:16px" },
     h("div", { class: "row" }, desc, amt, payer, togg),
-    h("div", { class: "row", style: "margin-top:8px" }, h("span", { class: "dim" }, "Kasama sa bahagi:"), checks),
+    h("div", { class: "row", style: "margin-top:10px" }, h("span", { class: "dim" }, "Split with:"), checks),
     note,
-    h("button", { class: "btn brass", style: "margin-top:10px", onclick: async () => {
-      const cents = pesoToCents(amt.value);
-      if (!cents) return toast("Halaga: numero lang, hal. 450 o 450.50", true);
-      const chosen = [...checks.querySelectorAll("input")].filter((c) => c.checked).map((c) => c.dataset.uid);
-      await api(`/api/sessions/${sid}/expenses`, { amount_centavos: cents, description: desc.value || "item", is_alcohol: isAlcohol ? 1 : 0, paid_by: Number(payer.value), participants: chosen });
-      toast("Naitala ang gastusin."); done();
-    } }, "Idagdag sa tab"));
+    h("button", { class: "btn primary", style: "margin-top:12px", onclick: async () => {
+        const cents = pesoToCents(amt.value);
+        if (!cents) return toast("Enter a valid amount, e.g. 450 or 450.50", true);
+        const chosen = [...checks.querySelectorAll("input")].filter((c) => c.checked).map((c) => c.dataset.uid);
+        await api(`/api/sessions/${sid}/expenses`, {
+          amount_centavos: cents,
+          description: desc.value || "item",
+          is_alcohol: isAlcohol ? 1 : 0,
+          paid_by: Number(payer.value),
+          participants: chosen,
+        });
+        toast("Expense added to tab."); done();
+      } }, "Add to tab"));
 }
 
 function disputeForm(id, sid) {
-  const note = h("textarea", { placeholder: "Ano ang problema? Makikita ito ng admin." });
-  openSheet("I-dispute ang transfer", h("div", {}, note,
-    h("button", { class: "btn bad", style: "margin-top:12px", onclick: async () => {
-      if (!note.value.trim()) return toast("Isulat ang dahilan.", true);
-      await api(`/api/settlements/${id}/dispute`, { note: note.value }); toast("Na-mark as disputed. Nakita na ng admin."); pageSessionRerender(sid);
-    } }, "I-dispute")));
+  const note = h("textarea", { placeholder: "Describe the issue — the admin will see this." });
+  openSheet("Dispute transfer", h("div", {}, note,
+    h("button", { class: "btn bad", style: "margin-top:14px", onclick: async () => {
+        if (!note.value.trim()) return toast("Please describe the issue first.", true);
+        await api(`/api/settlements/${id}/dispute`, { note: note.value });
+        toast("Marked as disputed. Admins have been notified.");
+        pageSessionRerender(sid);
+      } }, "Submit dispute")));
 }
 
 function pageSessionRerender(sid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/s/${sid}`)); }
 
-/* ---------------- tambayan map ---------------- */
+/* ---------------- hangout map ---------------- */
 export async function pageMap(gid) {
   const spots = await api(`/api/groups/${gid}/spots`);
-  const gd = await api(`/api/groups/${gid}`);
+  const gd    = await api(`/api/groups/${gid}`);
   const nameOfU = (uid) => gd.members.find((m) => m.user_id === Number(uid))?.name ?? `#${uid}`;
   const el = h("div", { class: "enter" },
-    h("div", { class: "panel" }, h("h2", {}, "Tambayan map"),
-      h("p", { class: "dim" }, "I-double-click ang mapa para mag-drop ng bagong spot. Leaflet + OpenStreetMap — walang API key.")),
+    h("div", { class: "panel" },
+      h("h2", {}, "Hangout Map"),
+      h("p", { class: "dim" }, "Double-click the map to drop a new spot. Powered by Leaflet + OpenStreetMap — no API key needed.")),
     h("div", { class: "map-frame" }, h("div", { id: "map" })),
-    h("div", { class: "panel" }, h("h2", {}, "Mga spot"),
+    h("div", { class: "panel" },
+      h("h2", {}, "Spots"),
+      spots.length === 0
+        ? h("p", { class: "dim" }, "No spots added yet. Double-click the map to add one.")
+        : null,
       ...spots.map((sp) => h("div", { class: "list-row" },
-        h("div", { class: "pin-spot" + (sp.stale ? " pin-stale" : ""), style: "flex:none" }),
-        h("div", { class: "grow" }, h("b", {}, sp.name),
-          h("div", { class: "dim" }, `${sp.price_range ?? ""} · sarado ${sp.closes_at ?? "?"} · ${sp.notes ?? ""}`),
-          h("div", { class: "dim" }, `huling confirm: ${timeAgo(sp.last_confirmed_at)}${sp.stale ? " · UNVERIFIED — 60+ araw" : ""}`)),
+        h("div", { class: "pin-spot" + (sp.stale ? " pin-stale" : ""), style: "flex:none;border-radius:50%" }),
+        h("div", { class: "grow" },
+          h("b", {}, sp.name),
+          h("div", { class: "dim" }, `${sp.price_range ?? ""} · closes ${sp.closes_at ?? "?"} · ${sp.notes ?? ""}`),
+          h("div", { class: "dim" }, `Last confirmed: ${timeAgo(sp.last_confirmed_at)}${sp.stale ? " · ⚠ UNVERIFIED — 60+ days" : ""}`)),
         h("div", { class: "row" },
-          h("button", { class: "btn good", onclick: () => confirmSpot(sp.id, "yes") }, "Bukas pa rin ✔"),
-          h("button", { class: "btn", onclick: () => confirmSpot(sp.id, "changed") }, "May bago"),
-          h("button", { class: "btn bad", onclick: () => confirmSpot(sp.id, "no") }, "Sarado na"))))));
+          h("button", { class: "btn good", onclick: () => confirmSpot(sp.id, "yes") }, "Still open ✔"),
+          h("button", { class: "btn", onclick: () => confirmSpot(sp.id, "changed") }, "Changed"),
+          h("button", { class: "btn bad", onclick: () => confirmSpot(sp.id, "no") }, "Closed"))))));
   requestAnimationFrame(() => {
     const map = L.map("map").setView([14.676, 121.0437], 13);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
     for (const sp of spots) {
-      const icon = L.divIcon({ className: "", html: `<div class="pin-spot${sp.stale ? " pin-stale" : ""}"></div>`, iconSize: [26, 26], iconAnchor: [13, 26] });
+      const icon = L.divIcon({ className: "", html: `<div class="pin-spot${sp.stale ? " pin-stale" : ""}"></div>`, iconSize: [22, 22], iconAnchor: [11, 22] });
       L.marker([sp.lat, sp.lng], { icon }).addTo(map)
-        .bindPopup(`<b>${sp.name}</b><br>${sp.notes ?? ""}<br><i>${sp.stale ? "unverified — kumpirmahin na" : "ni " + nameOfU(sp.added_by)}</i>`);
+        .bindPopup(`<b>${sp.name}</b><br>${sp.notes ?? ""}<br><i>${sp.stale ? "Unverified — please confirm" : "Added by " + nameOfU(sp.added_by)}</i>`);
     }
     map.on("dblclick", async (e) => {
-      const nm = prompt("Pangalan ng spot:"); if (!nm) return;
+      const nm = prompt("Spot name:"); if (!nm) return;
       await api(`/api/groups/${gid}/spots`, { name: nm, lat: e.latlng.lat, lng: e.latlng.lng, price_range: "$$", closes_at: "02:00", notes: "" });
-      toast("Naidagdag ang spot sa mapa."); pageMapRerender(gid);
+      toast("Spot added to map.");
+      pageMapRerender(gid);
     });
   });
   async function confirmSpot(id, answer) {
     let closes_at = null, new_details = null;
     if (answer === "changed") {
-      closes_at = prompt("Bagong oras ng pagsara (HH:MM, iwanan kung di-bago)?") || null;
-      new_details = prompt("Iba pang bago? (optional)") || null;
+      closes_at   = prompt("New closing time (HH:MM, leave blank if unchanged)?") || null;
+      new_details = prompt("Any other changes? (optional)") || null;
     }
     await api(`/api/spots/${id}/confirm`, { answer, closes_at, new_details });
-    toast(answer === "no" ? "Na-mark na sarado. Salamat sa pag-update." : "Salamat — fresh na ang spot.");
+    toast(answer === "no" ? "Spot marked as closed. Thanks for the update!" : "Thanks — spot freshness updated.");
     pageMapRerender(gid);
   }
   return el;
@@ -463,15 +596,26 @@ function pageMapRerender(gid) { location.hash = ""; requestAnimationFrame(() => 
 /* ---------------- notifications drawer ---------------- */
 export async function bellDrawer() {
   const notifs = await api("/api/me/notifications");
-  openSheet("Mga mensahe", h("div", {},
-    notifs.length === 0 ? h("p", { class: "dim" }, "Malinis ang lahat. ✔") : null,
+  openSheet("Notifications", h("div", {},
+    notifs.length === 0 ? h("p", { class: "dim" }, "All clear. ✔") : null,
     ...notifs.map((n) => {
       const p = JSON.parse(n.payload);
       return h("div", { class: "list-row" },
         h("span", { class: `lamp ${n.kind === "escalation" || n.kind === "buddy_alert" ? "flag3" : n.kind === "nudge" ? "flag1" : "home"}` }),
-        h("div", { class: "grow" }, h("b", {}, { uwian_reminder: "Uwian paalala", buddy_alert: "Buddy alert", escalation: "Escalation", nudge: "Hangganan", vouch: "Vouch", dispute: "Dispute", payment_claim: "Bayad", ride_request: "Sakay?", ride_offer: "May alok" }[n.kind] ?? n.kind),
+        h("div", { class: "grow" },
+          h("b", {}, {
+            uwian_reminder: "Uwian reminder",
+            buddy_alert:    "Buddy alert",
+            escalation:     "Escalation",
+            nudge:          "Limit nudge",
+            vouch:          "Vouch",
+            dispute:        "Dispute",
+            payment_claim:  "Payment",
+            ride_request:   "Ride request",
+            ride_offer:     "Ride offer",
+          }[n.kind] ?? n.kind),
           h("div", { class: "dim" }, p.message ?? "")),
-        h("button", { class: "btn", onclick: async () => { await api(`/api/notifications/${n.id}/read`, {}); bellRefresh(); } }, "Basahin"));
+        h("button", { class: "btn", onclick: async () => { await api(`/api/notifications/${n.id}/read`, {}); bellRefresh(); } }, "Dismiss"));
     })));
 }
 function bellRefresh() { location.hash = ""; requestAnimationFrame(() => (location.hash = location.hash || "/groups")); }

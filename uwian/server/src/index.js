@@ -3,7 +3,7 @@
 // returned to their owner, including for admins. No endpoint exposes another
 // person's count. See docs/privacy.md.
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import express from "express";
 import cookieSession from "cookie-session";
 import { db } from "./db.js";
@@ -16,17 +16,17 @@ app.use(express.json());
 app.use(cookieSession({ name: "uwian", keys: [process.env.UWIAN_SECRET ?? "dev-secret-change-me"], maxAge: 30 * 864e5 }));
 
 const me = (req) => req.session.uid ? db.prepare("SELECT id,name,email,can_drink FROM users WHERE id=?").get(req.session.uid) : null;
-const requireAuth = (req, res, next) => (me(req) ? next() : res.status(401).json({ error: "Mag-log in muna." }));
+const requireAuth = (req, res, next) => (me(req) ? next() : res.status(401).json({ error: "Please log in first." }));
 const membership = (groupId, uid) =>
   db.prepare("SELECT * FROM group_members WHERE group_id=? AND user_id=? AND status='active'").get(groupId, uid);
 const requireMember = (req, res, next) => {
   const u = me(req); const g = Number(req.params.gid);
-  return membership(g, u.id) ? next() : res.status(403).json({ error: "Hindi ka kasama ng grupo na ito." });
+  return membership(g, u.id) ? next() : res.status(403).json({ error: "You are not a member of this group." });
 };
 const requireAdmin = (req, res, next) => {
   const u = me(req); const g = Number(req.params.gid);
   const m = membership(g, u.id);
-  return m && m.role === "admin" ? next() : res.status(403).json({ error: "Admin lang pwede." });
+  return m && m.role === "admin" ? next() : res.status(403).json({ error: "Admins only." });
 };
 const notify = (userId, kind, payload) =>
   db.prepare("INSERT INTO notifications (user_id,kind,payload) VALUES (?,?,?)").run(userId, kind, JSON.stringify(payload));
@@ -36,10 +36,10 @@ const audit = (sessionId, actorId, action, detail) =>
 // ---------- auth ----------
 app.post("/api/signup", (req, res) => {
   const { name, email, password, birthdate } = req.body ?? {};
-  if (!name || !email || !password) return res.status(400).json({ error: "Kulang ang impo." });
-  if (password.length < 8) return res.status(400).json({ error: "Password: 8+ characters." });
-  if (!ageOk(birthdate)) return res.status(400).json({ error: "Kailangan 18 pataas para gumamit. (Self-declared — tingnan docs/privacy.md)" });
-  if (db.prepare("SELECT id FROM users WHERE email=?").get(email)) return res.status(409).json({ error: "Nagagamit na ang email na iyan." });
+  if (!name || !email || !password) return res.status(400).json({ error: "Missing required fields." });
+  if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters." });
+  if (!ageOk(birthdate)) return res.status(400).json({ error: "You must be 18 or older to use this app. (Self-declared — see docs/privacy.md)" });
+  if (db.prepare("SELECT id FROM users WHERE email=?").get(email)) return res.status(409).json({ error: "That email is already in use." });
   const r = db.prepare("INSERT INTO users (name,email,password_hash,birthdate) VALUES (?,?,?,?)")
     .run(name, email, hashPw(password), birthdate);
   req.session.uid = r.lastInsertRowid;
@@ -47,7 +47,7 @@ app.post("/api/signup", (req, res) => {
 });
 app.post("/api/login", (req, res) => {
   const u = db.prepare("SELECT * FROM users WHERE email=?").get(req.body?.email);
-  if (!u || !checkPw(req.body.password ?? "", u.password_hash)) return res.status(401).json({ error: "Mali ang email o password." });
+  if (!u || !checkPw(req.body.password ?? "", u.password_hash)) return res.status(401).json({ error: "Incorrect email or password." });
   req.session.uid = u.id; res.json({ ok: true });
 });
 app.post("/api/logout", (req, res) => { req.session = null; res.json({ ok: true }); });
@@ -66,7 +66,7 @@ app.get("/api/groups", requireAuth, (req, res) => {
 // Invite link: creates a pending guest row when the invited user opens it.
 app.post("/api/groups/:gid/invite", requireMember, (req, res) => {
   const code = db.prepare("SELECT * FROM groups WHERE id=?").get(Number(req.params.gid));
-  res.json({ invite_url: `/join/${code.id}`, note: "I-share sa barkada lang. Dadaan sa vouch bago makapasok." });
+  res.json({ invite_url: `/join/${code.id}`, note: "Share only with people you trust. They'll need vouching before they get in." });
 });
 app.post("/api/groups/:gid/join", requireAuth, (req, res) => {
   const gid = Number(req.params.gid);
@@ -74,26 +74,26 @@ app.post("/api/groups/:gid/join", requireAuth, (req, res) => {
   const existing = db.prepare("SELECT * FROM group_members WHERE group_id=? AND user_id=?").get(gid, req.session.uid);
   if (existing) return res.json({ status: existing.status });
   db.prepare("INSERT INTO group_members (group_id,user_id,role,status) VALUES (?,?,'member','pending_guest')").run(gid, req.session.uid);
-  res.json({ status: "pending_guest", message: "Hihintayin ang vouch ng mga kasama." });
+  res.json({ status: "pending_guest", message: "Waiting for a member to vouch for you." });
 });
 app.post("/api/groups/:gid/vouch/:guestUid", requireMember, (req, res) => {
   const gid = Number(req.params.gid), guest = Number(req.params.guestUid), voucher = req.session.uid;
   const v = db.prepare("SELECT can_vouch FROM group_members WHERE group_id=? AND user_id=?").get(gid, voucher);
-  if (!v.can_vouch) return res.status(403).json({ error: "Wala nang karapatang mag-vouch ang account mo sa grupong ito. (S6 strikes)" });
-  if (voucher === guest) return res.status(400).json({ error: "Hindi mo sarili mo pwedeng i-vouch." });
+  if (!v.can_vouch) return res.status(403).json({ error: "Your vouching privileges have been revoked in this group. (2+ strikes)" });
+  if (voucher === guest) return res.status(400).json({ error: "You cannot vouch for yourself." });
   db.prepare("INSERT OR IGNORE INTO vouches (group_id,guest_user_id,voucher_id) VALUES (?,?,?)").run(gid, guest, voucher);
   const need = db.prepare("SELECT vouches_required FROM groups WHERE id=?").get(gid).vouches_required;
   const have = db.prepare("SELECT COUNT(*) c FROM vouches WHERE group_id=? AND guest_user_id=?").get(gid, guest).c;
   if (have >= need) {
     db.prepare("UPDATE group_members SET status='active' WHERE group_id=? AND user_id=?").run(gid, guest);
-    notify(guest, "vouch", { group_id: gid, accepted: true, message: "Pasok ka na sa grupo. Welcome!" });
+    notify(guest, "vouch", { group_id: gid, accepted: true, message: "You've been vouched in! Welcome to the group." });
   }
   res.json({ have, need, accepted: have >= need });
 });
 // S6: admin removes member with written reason → vouchers get strikes.
 app.post("/api/groups/:gid/remove/:uid", requireAdmin, (req, res) => {
   const gid = Number(req.params.gid), uid = Number(req.params.uid), reason = (req.body?.reason ?? "").trim();
-  if (!reason) return res.status(400).json({ error: "Kailangan ng nakasulat na dahilan." });
+  if (!reason) return res.status(400).json({ error: "A written reason is required." });
   db.prepare("UPDATE group_members SET status='removed' WHERE group_id=? AND user_id=?").run(gid, uid);
   const vouchers = db.prepare("SELECT voucher_id FROM vouches WHERE group_id=? AND guest_user_id=?").all(gid, uid);
   for (const { voucher_id } of vouchers) {
@@ -114,7 +114,7 @@ app.post("/api/groups/:gid/sessions", requireMember, (req, res) => {
 });
 app.patch("/api/sessions/:sid", requireAuth, (req, res) => {
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(Number(req.params.sid));
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const { status, designated_driver_id, uwian_deadline } = req.body;
   if (status === "open" && uwian_deadline === undefined) {
     db.prepare("UPDATE sessions SET status='open', designated_driver_id=COALESCE(?,designated_driver_id) WHERE id=?")
@@ -129,7 +129,7 @@ app.patch("/api/sessions/:sid", requireAuth, (req, res) => {
 app.post("/api/sessions/:sid/rsvp", requireAuth, (req, res) => {
   const sid = Number(req.params.sid);
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(sid);
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const st = ["going", "maybe", "cant"].includes(req.body.status) ? req.body.status : "maybe";
   db.prepare(`INSERT INTO rsvps (session_id,user_id,status) VALUES (?,?,?)
     ON CONFLICT(session_id,user_id) DO UPDATE SET status=excluded.status, updated_at=datetime('now')`)
@@ -146,13 +146,13 @@ app.post("/api/sessions/:sid/expenses", requireAuth, (req, res) => {
   const sid = Number(req.params.sid);
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(sid);
   const m = membership(s.group_id, req.session.uid);
-  if (!m) return res.status(403).json({ error: "Bawal." });
-  if (s.status === "closed") return res.status(409).json({ error: "Sarado na ang tab — hilingin sa admin na i-reopen." });
+  if (!m) return res.status(403).json({ error: "Access denied." });
+  if (s.status === "closed") return res.status(409).json({ error: "Tab is closed — ask an admin to reopen it." });
   const { amount_centavos, description, is_alcohol = 0, paid_by, participants } = req.body;
-  if (!Number.isInteger(amount_centavos) || amount_centavos < 0) return res.status(400).json({ error: "Integer centavos lang." });
+  if (!Number.isInteger(amount_centavos) || amount_centavos < 0) return res.status(400).json({ error: "Amount must be a non-negative integer (centavos)." });
   let ppl = participants;
   if (!ppl || ppl.length === 0) {
-    // Friendly auto-defaults: alcohol excludes DD + non-drinkers; food includes everyone in.
+    // Friendly auto-defaults: alcohol excludes DD + non-drinkers; food includes everyone.
     const isIn = isInSession(sid);
     const drinkers = Object.fromEntries(db.prepare("SELECT id,can_drink FROM users").all().map((u) => [String(u.id), !!u.can_drink]));
     ppl = Object.keys(isIn).filter((uid) => isIn[uid]
@@ -173,9 +173,9 @@ app.post("/api/sessions/:sid/expenses", requireAuth, (req, res) => {
 app.put("/api/expenses/:eid", requireAuth, (req, res) => {
   const e = db.prepare("SELECT * FROM expenses WHERE id=?").get(Number(req.params.eid));
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(e.session_id);
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const afterClose = s.status === "closed" ? 1 : 0;
-  if (afterClose && !requireAdminGate(s)) return res.status(403).json({ error: "Pag sarado na ang tab, admin lang ang pwedeng mag-edit (i-reopen muna)." });
+  if (afterClose && !requireAdminGate(s)) return res.status(403).json({ error: "Tab is closed — only admins can edit (reopen first)." });
   function requireAdminGate(sess) { const mm = membership(sess.group_id, req.session.uid); return mm && mm.role === "admin"; }
   const { amount_centavos, participants, description } = req.body;
   const shares = splitExpense(amount_centavos, participants);
@@ -224,27 +224,27 @@ app.post("/api/sessions/:sid/reopen", requireAdmin, (req, res) => {
     db.prepare("UPDATE sessions SET status='open', closed_tab_at=NULL WHERE id=?").run(sid);
     audit(sid, req.session.uid, "tab_reopened", {});
   })();
-  res.json({ ok: true, note: "Ang mga naka-confirm na bayad nanatili. Iba pa, bubuoin ulit pag-close." });
+  res.json({ ok: true, note: "Confirmed payments are preserved. Everything else will be recalculated on close." });
 });
 // payment confirmation flow: payer claims → receiver confirms/disputes
 app.post("/api/settlements/:id/claim-paid", requireAuth, (req, res) => {
   const t = db.prepare("SELECT * FROM settlements WHERE id=?").get(Number(req.params.id));
-  if (t.from_user !== req.session.uid) return res.status(403).json({ error: "Ang nagbabayad lang pwedeng mag-claim." });
+  if (t.from_user !== req.session.uid) return res.status(403).json({ error: "Only the payer can claim payment." });
   db.prepare("UPDATE settlements SET status='paid_claimed' WHERE id=?").run(t.id);
-  notify(t.to_user, "payment_claim", { settlement_id: t.id, message: "Sabi ng kabarkada mo, bayad na raw. Confirm mo na." });
+  notify(t.to_user, "payment_claim", { settlement_id: t.id, message: "Someone says they've paid you. Please confirm." });
   res.json({ ok: true });
 });
 app.post("/api/settlements/:id/confirm", requireAuth, (req, res) => {
   const t = db.prepare("SELECT * FROM settlements WHERE id=?").get(Number(req.params.id));
-  if (t.to_user !== req.session.uid) return res.status(403).json({ error: "Ang tumatanggap lang pwedeng kumpirmahin." });
+  if (t.to_user !== req.session.uid) return res.status(403).json({ error: "Only the recipient can confirm payment." });
   db.prepare("UPDATE settlements SET status='confirmed' WHERE id=?").run(t.id);
   res.json({ ok: true });
 });
 app.post("/api/settlements/:id/dispute", requireAuth, (req, res) => {
   const t = db.prepare("SELECT * FROM settlements WHERE id=?").get(Number(req.params.id));
-  if (![t.from_user, t.to_user].includes(req.session.uid)) return res.status(403).json({ error: "Dalawa lang ang may-kati dito." });
+  if (![t.from_user, t.to_user].includes(req.session.uid)) return res.status(403).json({ error: "Only the two parties can dispute this." });
   const note = (req.body?.note ?? "").trim();
-  if (!note) return res.status(400).json({ error: "Isulat kung bakit disputed para makita ng admin." });
+  if (!note) return res.status(400).json({ error: "Please describe the issue so the admin can see it." });
   db.prepare("UPDATE settlements SET status='disputed', note=? WHERE id=?").run(note, t.id);
   const admins = db.prepare("SELECT user_id FROM group_members WHERE group_id=? AND role='admin' AND status='active'")
     .all(db.prepare("SELECT group_id FROM sessions WHERE id=?").get(t.session_id).group_id);
@@ -265,7 +265,7 @@ function pairUp(s) {
   const byTag = {};
   for (const uid of going) {
     const gm = db.prepare("SELECT direction_tag_id FROM group_members WHERE group_id=? AND user_id=?").get(s.group_id, uid);
-    const key = gm.direction_tag_id ?? "walang-direksyon";
+    const key = gm.direction_tag_id ?? "no-direction";
     (byTag[key] ??= []).push(uid);
   }
   db.prepare("DELETE FROM buddy_pairs WHERE session_id=?").run(s.id);
@@ -281,14 +281,14 @@ function pairUp(s) {
       if (grp.length >= 2) db.prepare("INSERT INTO buddy_pairs (session_id,user_a,user_b,user_c) VALUES (?,?,?,?)")
         .run(s.id, grp[0], grp[1], grp[2] ?? null);
       else if (grp.length === 1) db.prepare("INSERT INTO buddy_pairs (session_id,user_a,user_b) VALUES (?,?,-1)")
-        .run(s.id, grp[0]); // placeholder self-pair so nobody is orphaned (UI shows "wala pang buddy — hingi sa admin")
+        .run(s.id, grp[0]); // placeholder self-pair so nobody is orphaned (UI shows "no buddy yet — ask an admin")
     }
   }
 }
 app.post("/api/sessions/:sid/checkin", requireAuth, (req, res) => {
   const sid = Number(req.params.sid);
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(sid);
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const mode = req.body.mode ?? "other";
   db.prepare(`INSERT INTO checkins (session_id,user_id,mode,home_confirmed_at) VALUES (?,?,?, datetime('now'))
     ON CONFLICT(session_id,user_id) DO UPDATE SET mode=excluded.mode, home_confirmed_at=datetime('now'), flag_stage=0`)
@@ -296,16 +296,16 @@ app.post("/api/sessions/:sid/checkin", requireAuth, (req, res) => {
   // friendly nudge: own-drive while not being THE designated driver → ask for ride offers, never block
   if (mode === "own_drive" && s.designated_driver_id !== req.session.uid) {
     const mates = db.prepare("SELECT user_id FROM rsvps WHERE session_id=? AND status='going' AND user_id!=?").all(sid, req.session.uid);
-    for (const mt of mates) notify(mt.user_id, "ride_request", { session_id: sid, message: "Magda-drive siya. May saklaw ka ba?" });
+    for (const mt of mates) notify(mt.user_id, "ride_request", { session_id: sid, message: "Someone is driving. Can you offer a ride?" });
   }
   res.json({ ok: true });
 });
 app.post("/api/buddies/:sid/:a/:b/clear-flag", requireAuth, (req, res) => {
   const sid = Number(req.params.sid);
   const pair = db.prepare("SELECT * FROM buddy_pairs WHERE session_id=? AND user_a=? AND user_b=?").get(sid, Number(req.params.a), Number(req.params.b));
-  if (!pair) return res.status(404).json({ error: "Wala ang pair na iyan." });
+  if (!pair) return res.status(404).json({ error: "Buddy pair not found." });
   const members = [pair.user_a, pair.user_b, pair.user_c].filter((x) => x != null && x > 0);
-  if (!members.includes(req.session.uid)) return res.status(403).json({ error: "Buddy lang ng pair na iyan." });
+  if (!members.includes(req.session.uid)) return res.status(403).json({ error: "Only members of this buddy pair can clear the flag." });
   const other = members.find((x) => x !== req.session.uid);
   db.prepare("UPDATE checkins SET flag_stage=0, flag_cleared_by=? WHERE session_id=? AND user_id=? AND home_confirmed_at IS NULL")
     .run(req.session.uid, sid, other);
@@ -328,15 +328,15 @@ export function runEscalation(now = new Date()) {
       if (stage <= c.flag_stage) continue;
       db.prepare(`INSERT INTO checkins (session_id,user_id,flag_stage) VALUES (?,?,?)
         ON CONFLICT(session_id,user_id) DO UPDATE SET flag_stage=excluded.flag_stage`).run(s.id, user_id, stage);
-      if (stage === 1) notify(user_id, "uwian_reminder", { message: "Umuwi ka na ba? I-tap ang check-in." });
+      if (stage === 1) notify(user_id, "uwian_reminder", { message: "Have you made it home? Tap check-in." });
       if (stage === 2) {
         const pair = db.prepare("SELECT * FROM buddy_pairs WHERE session_id=? AND (user_a=? OR user_b=? OR user_c=?)").get(s.id, user_id, user_id, user_id);
         for (const b of [pair?.user_a, pair?.user_b, pair?.user_c].filter((x) => x && x !== user_id && x > 0))
-          notify(b, "buddy_alert", { message: "Hindi pa nagco-check-in ang buddy mo.", user_id });
+          notify(b, "buddy_alert", { message: "Your buddy hasn't checked in yet.", user_id });
       }
       if (stage === 3) {
         const admins = db.prepare("SELECT user_id FROM group_members WHERE group_id=? AND role='admin' AND status='active'").all(s.group_id);
-        for (const a of admins) notify(a.user_id, "escalation", { session_id: s.id, user_id, message: "Wala pa ring balita. Tingnan ang group page." });
+        for (const a of admins) notify(a.user_id, "escalation", { session_id: s.id, user_id, message: "No sign of life. Check the group page." });
       }
     }
   }
@@ -358,8 +358,8 @@ app.post("/api/sessions/:sid/limit/tap", requireAuth, (req, res) => {
   const row = db.prepare("SELECT lim,count FROM limit_counters WHERE session_id=? AND user_id=?").get(sid, req.session.uid);
   const level = row.lim ? (row.count >= row.lim ? "at_limit" : row.count >= Math.ceil(row.lim * 0.8) ? "approaching" : null) : null;
   if (level) notify(req.session.uid, "nudge", { message: level === "at_limit"
-    ? "Abot ka na sa hangganan mo. Ayusin na ang pang-uwi?"
-    : "Malapit ka na sa hangganan mo. Ayusin na ang pang-uwi?", open_checkin: true });
+    ? "You've hit your limit. Sort out your ride home?"
+    : "You're getting close to your limit. Sort out your ride home?", open_checkin: true });
   res.json({ count: row.count, lim: row.lim, level }); // returned ONLY to this user's own request
 });
 app.get("/api/sessions/:sid/limit", requireAuth, (req, res) => {
@@ -384,7 +384,7 @@ app.post("/api/groups/:gid/spots", requireMember, (req, res) => {
 });
 app.post("/api/spots/:id/confirm", requireAuth, (req, res) => {
   const sp = db.prepare("SELECT * FROM spots WHERE id=?").get(Number(req.params.id));
-  if (!membership(sp.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(sp.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const answer = ["yes", "no", "changed"].includes(req.body.answer) ? req.body.answer : "yes";
   db.prepare("INSERT INTO spot_confirmations (spot_id,user_id,answer,new_details) VALUES (?,?,?,?)")
     .run(sp.id, req.session.uid, answer, req.body.new_details ?? null);
@@ -401,7 +401,7 @@ const withNames = (sql) => (params) => {
 app.get("/api/sessions/:sid", requireAuth, (req, res) => {
   const sid = Number(req.params.sid);
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(sid);
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const { expenses, shares } = sessionExpenses(sid);
   const names = Object.fromEntries(db.prepare("SELECT id,name FROM users").all().map((u) => [u.id, u.name]));
   res.json({
@@ -463,30 +463,30 @@ app.patch("/api/groups/:gid/settings", requireAdmin, (req, res) => {
 });
 app.post("/api/groups/:gid/tags", requireAdmin, (req, res) => {
   const label = (req.body?.label ?? "").trim();
-  if (!label) return res.status(400).json({ error: "Kulang ang pangalan ng direksyon." });
+  if (!label) return res.status(400).json({ error: "Direction tag name is required." });
   const r = db.prepare("INSERT INTO direction_tags (group_id,label) VALUES (?,?)").run(Number(req.params.gid), label);
   res.json({ id: r.lastInsertRowid });
 });
 app.put("/api/me/direction", requireAuth, (req, res) => {
   // member picks their own direction tag per group
   const gid = Number(req.body?.group_id), tagId = req.body?.direction_tag_id ?? null;
-  if (!membership(gid, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(gid, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   db.prepare("UPDATE group_members SET direction_tag_id=? WHERE group_id=? AND user_id=?").run(tagId, gid, req.session.uid);
   res.json({ ok: true });
 });
 app.post("/api/buddies/:sid/:a/:b/offer-ride", requireAuth, (req, res) => {
-  // friendly response to "may magda-drive": someone offers a ride (never blocks anyone)
+  // friendly response to "someone is driving": someone offers a ride (never blocks anyone)
   const sid = Number(req.params.sid);
   const s = db.prepare("SELECT * FROM sessions WHERE id=?").get(sid);
-  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Bawal." });
+  if (!membership(s.group_id, req.session.uid)) return res.status(403).json({ error: "Access denied." });
   const uid = Number(req.params.a);
   db.prepare("UPDATE checkins SET ride_offer_from=? WHERE session_id=? AND user_id=?").run(req.session.uid, sid, uid);
-  notify(uid, "ride_offer", { message: "May nag-alok ng sakay sa iyo.", session_id: sid });
+  notify(uid, "ride_offer", { message: "Someone offered you a ride.", session_id: sid });
   res.json({ ok: true });
 });
 
 const PORT = process.env.PORT ?? 3000;
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && (import.meta.url === `file://${process.argv[1]}` || import.meta.url === pathToFileURL(process.argv[1]).href)) {
   // serve the client (plain ES modules + one vendored lib for the map)
   const here = path.dirname(fileURLToPath(import.meta.url));
   app.use(express.static(path.join(here, "../../client/public")));

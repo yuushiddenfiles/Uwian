@@ -1,8 +1,6 @@
 // tiny helpers: api fetch, dom builder, money format, toast, sheet drawer
 export const $ = (sel, el = document) => el.querySelector(sel);
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
 export function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -15,6 +13,7 @@ export function h(tag, attrs = {}, ...kids) {
     if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(kid));
   return el;
 }
+
 export const fmtPeso = (cents) => {
   const sign = cents < 0 ? "-" : "";
   const a = Math.abs(cents);
@@ -49,7 +48,7 @@ export function toast(msg, isErr = false) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
 }
 
-// bottom-sheet drawer that slides up like a real drawer
+// bottom-sheet drawer
 export function openSheet(title, contentEl) {
   const root = $("#sheet-root");
   root.innerHTML = "";
@@ -74,17 +73,25 @@ export function avatar(name) {
 export function lampFor(checkin) {
   if (!checkin || !checkin.home_confirmed_at) {
     const st = checkin?.flag_stage ?? 0;
-    return h("span", { class: `lamp flag${st || 1}`, title: st >= 3 ? "Wala pang balita — nag-escalate" : st === 2 ? "Na-alert ang buddy" : "Hindi pa nagco-check-in" });
+    return h("span", { class: `lamp flag${st || 1}`, title: st >= 3 ? "No sign of life — escalated to admin" : st === 2 ? "Buddy was alerted" : "Hasn't checked in yet" });
   }
-  return h("span", { class: "lamp home", title: "Nakauwi na" });
+  return h("span", { class: "lamp home", title: "Made it home ✔" });
 }
 
-export const MODES = { walk: "naglakad", jeep: "jeep", grab: "Grab", taxi: "taxi", friend_drive: "sinakay ng kaibigan", own_drive: "magda-drive", other: "iba" };
+export const MODES = {
+  walk:         "Walking",
+  jeep:         "Jeep",
+  grab:         "Grab",
+  taxi:         "Taxi",
+  friend_drive: "Ride from friend",
+  own_drive:    "Driving myself",
+  other:        "Other",
+};
 
 export const timeAgo = (iso) => {
-  if (!iso) return "wala pa";
+  if (!iso) return "never";
   const days = Math.floor((Date.now() - new Date(iso + "Z")) / 864e5);
-  if (days <= 0) return "ngayon lang";
-  if (days === 1) return "kahapon";
-  return `${days} araw na ang nakalipas`;
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  return `${days} days ago`;
 };
