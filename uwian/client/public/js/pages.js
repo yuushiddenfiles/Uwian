@@ -4,193 +4,280 @@ let ME_ = null;
 export const me = () => ME_;
 export async function loadMe() { ME_ = (await api("/api/me")).user; return ME_; }
 
-/* ---------------- auth ---------------- */
+/* helper: initials avatar using the crew-av style */
+function crewAv(name) {
+  const parts = (name ?? "?").trim().split(" ");
+  const init = (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+  return h("div", { class: "crew-av" }, init);
+}
+
+/* helper: first initial of first name */
+function firstInit(name) {
+  return (name ?? "?").trim()[0].toUpperCase();
+}
+
+/* ════════════════════════════════════
+   AUTH
+   ════════════════════════════════════ */
 export function pageLogin() {
-  const email = h("input", { placeholder: "email address", type: "email", id: "login-email" });
-  const pw    = h("input", { placeholder: "password", type: "password", id: "login-pw" });
+  const email = h("input", { placeholder: "Email address", type: "email", id: "login-email", autocomplete: "email" });
+  const pw    = h("input", { placeholder: "Password", type: "password", id: "login-pw", autocomplete: "current-password" });
   return h("div", { class: "auth-card enter" },
-    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:6px" },
-      h("div", { style: "width:36px;height:36px;border-radius:8px;background:var(--accent-dim);border:1px solid #f0c88a;display:grid;place-items:center;flex:none" },
+    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:20px" },
+      h("div", { style: "width:38px;height:38px;border-radius:10px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
         h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.4", "stroke-linejoin": "round", "aria-hidden": "true" },
           h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
-      h("span", { style: "font:700 17px 'DM Sans',system-ui,sans-serif;color:var(--accent-text)" }, "uwian")),
+      h("span", { style: "font:700 18px 'DM Sans',system-ui,sans-serif;color:var(--accent-text);letter-spacing:-0.3px" }, "uwian")),
     h("h2", {}, "Welcome back"),
-    h("p", { class: "sub" }, "Log in to your account to continue."),
+    h("p", { class: "sub" }, "Sign in to find your crew and join a session."),
     h("label", { class: "f", for: "login-email" }, "Email"), email,
     h("label", { class: "f", for: "login-pw" }, "Password"), pw,
-    h("button", { class: "btn primary", style: "width:100%;margin-top:20px;justify-content:center", onclick: async () => {
+    h("button", { class: "btn primary", style: "width:100%;margin-top:22px;justify-content:center;padding:12px", onclick: async () => {
         try { await api("/api/login", { email: email.value, password: pw.value }); location.hash = "/groups"; }
         catch (e) { toast(e.message, true); pw.classList.add("shake"); setTimeout(() => pw.classList.remove("shake"), 500); }
       } }, "Sign in"),
     h("hr"),
-    h("p", { style: "text-align:center;margin-top:14px;font-size:14px;color:var(--text-2)" },
-      "Don't have an account? ", h("a", { href: "#/signup", style: "color:var(--indigo)" }, "Sign up")),
+    h("p", { style: "text-align:center;margin-top:16px;font-size:14px;color:var(--text-2)" },
+      "New here? ", h("a", { href: "#/signup", style: "color:var(--accent-text);font-weight:600" }, "Create an account")),
     h("hr"),
-    h("p", { class: "demo" }, "Demo: ana@barkada.demo … ela@barkada.demo / BarkadaDemo!2026"));
+    h("p", { class: "demo" }, "Demo accounts: ana@barkada.demo … ela@barkada.demo\nPassword: BarkadaDemo!2026"));
 }
 
 export function pageSignup() {
-  const name  = h("input", { placeholder: "Your name", id: "su-name" });
-  const email = h("input", { placeholder: "email address", type: "email", id: "su-email" });
-  const pw    = h("input", { placeholder: "password (8+ characters)", type: "password", id: "su-pw" });
+  const name  = h("input", { placeholder: "Your full name", id: "su-name", autocomplete: "name" });
+  const email = h("input", { placeholder: "Email address", type: "email", id: "su-email", autocomplete: "email" });
+  const pw    = h("input", { placeholder: "Password (8+ characters)", type: "password", id: "su-pw", autocomplete: "new-password" });
   const bday  = h("input", { type: "date", id: "su-bday" });
   return h("div", { class: "auth-card enter" },
+    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:20px" },
+      h("div", { style: "width:38px;height:38px;border-radius:10px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
+        h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.4", "stroke-linejoin": "round", "aria-hidden": "true" },
+          h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
+      h("span", { style: "font:700 18px 'DM Sans',system-ui,sans-serif;color:var(--accent-text);letter-spacing:-0.3px" }, "uwian")),
     h("h2", {}, "Create an account"),
     h("p", { class: "sub" }, "Must be 18 or older. Birthdate is self-declared — see docs/privacy.md for details."),
     h("label", { class: "f", for: "su-name" }, "Name"), name,
     h("label", { class: "f", for: "su-email" }, "Email"), email,
     h("label", { class: "f", for: "su-pw" }, "Password"), pw,
     h("label", { class: "f", for: "su-bday" }, "Birthdate (18+)"), bday,
-    h("button", { class: "btn primary", style: "width:100%;margin-top:20px;justify-content:center", onclick: async () => {
+    h("button", { class: "btn primary", style: "width:100%;margin-top:22px;justify-content:center;padding:12px", onclick: async () => {
         try {
           await api("/api/signup", { name: name.value, email: email.value, password: pw.value, birthdate: bday.value });
           location.hash = "/groups";
         }
         catch (e) { toast(e.message, true); }
       } }, "Create account"),
-    h("p", { style: "text-align:center;margin-top:14px;font-size:14px;color:var(--text-2)" },
-      "Already have an account? ", h("a", { href: "#/login", style: "color:var(--indigo)" }, "Sign in")));
+    h("p", { style: "text-align:center;margin-top:16px;font-size:14px;color:var(--text-2)" },
+      "Already have an account? ", h("a", { href: "#/login", style: "color:var(--accent-text);font-weight:600" }, "Sign in")));
 }
 
-/* ---------------- groups list ---------------- */
+/* ════════════════════════════════════
+   GROUPS LIST (Dashboard)
+   ════════════════════════════════════ */
 export async function pageGroups() {
   const gs = await api("/api/groups");
-  const box = h("div", { class: "enter" },
-    h("div", { class: "panel" },
-      h("div", { class: "row spread", style: "margin-bottom:4px" },
-        h("h2", {}, "My Crews"),
-        (() => {
-          const n = h("input", { placeholder: "New crew name…", id: "new-group-name", style: "max-width:220px" });
-          return h("div", { class: "row" }, n,
-            h("button", { class: "btn primary", onclick: async () => {
-                if (!n.value.trim()) return toast("Give your crew a name first.", true);
-                const r = await api("/api/groups", { name: n.value.trim() });
-                location.hash = `/g/${r.id}`;
-              } }, "+ New crew"));
-        })()),
-      gs.length === 0
-        ? h("div", { class: "hero-empty" },
-            h("div", { class: "hero-icon" }, "🍻"),
-            h("h3", {}, "No crews yet"),
-            h("p", {}, "Create your first crew or ask a friend to share an invite link."))
-        : h("div", {},
-            ...gs.map((g) => h("div", {
-              class: "list-row card-hover", style: "cursor:pointer",
-              onclick: () => (location.hash = `/g/${g.id}`)
-            },
-              avatar(g.name),
+  const firstName = me()?.name?.split(" ")[0] ?? "there";
+  const el = h("div", { class: "enter" });
+
+  /* page hero */
+  el.append(h("div", { class: "page-hero" },
+    h("p", { class: "greeting" }, greetingByHour()),
+    h("h1", {}, `Hey, ${firstName} 👋`),
+    h("p", { class: "sub" }, "Find a session, join your crew, or start something new."),
+    h("div", { class: "page-actions" },
+      h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"))));
+
+  /* crews section */
+  if (gs.length === 0) {
+    el.append(h("div", { class: "hero-empty" },
+      h("div", { class: "hero-icon" }, "🍻"),
+      h("h3", {}, "No crews yet"),
+      h("p", {}, "Create your first crew above, or ask a friend to share an invite link.")));
+  } else {
+    el.append(
+      h("div", { class: "section-head" },
+        h("h2", {}, `${gs.length} crew${gs.length !== 1 ? "s" : ""}`)),
+      h("div", { class: "crew-grid" },
+        ...gs.map((g) => {
+          const parts = (g.name ?? "").trim().split(" ");
+          const init  = (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+          const card  = h("div", {
+            class: "crew-card", tabindex: "0", role: "link",
+            "aria-label": `Open crew ${g.name}`,
+            onclick: () => (location.hash = `/g/${g.id}`),
+            onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") location.hash = `/g/${g.id}`; }
+          },
+            h("div", { class: "crew-card-top" },
+              h("div", { class: "crew-av" }, init),
               h("div", { class: "grow" },
-                h("b", {}, g.name),
-                h("div", { class: "dim" }, g.role === "admin" ? "You're an admin" : "Member")),
-              h("span", { class: "chip " + (g.role === "admin" ? "primary" : "") }, g.role))))));
-  return box;
+                h("div", { class: "crew-card-name" }, g.name),
+                h("div", { class: "crew-card-meta" }, g.role === "admin" ? "You're an admin" : "Member"))),
+            h("div", { class: "crew-card-foot" },
+              h("span", { class: "role-chip" }, g.role),
+              h("span", { class: "crew-card-arrow", "aria-hidden": "true" }, "→")));
+          return card;
+        })));
+  }
+
+  return el;
+
+  function newCrewSheet() {
+    const n = h("input", { placeholder: "e.g. Barkada Sabado", id: "new-group-name", autocomplete: "off" });
+    openSheet("New crew", h("div", {},
+      h("p", { style: "font-size:14px;color:var(--text-2);margin-bottom:16px" }, "Give your crew a name. You can invite members after."),
+      h("label", { class: "f", for: "new-group-name" }, "Crew name"), n,
+      h("button", { class: "btn primary", style: "width:100%;margin-top:18px;justify-content:center;padding:12px", onclick: async () => {
+          if (!n.value.trim()) return toast("Give your crew a name first.", true);
+          const r = await api("/api/groups", { name: n.value.trim() });
+          location.hash = `/g/${r.id}`;
+        } }, "Create crew")));
+    setTimeout(() => n.focus(), 80);
+  }
 }
 
-/* ---------------- group home ---------------- */
+function greetingByHour() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+/* ════════════════════════════════════
+   GROUP HOME
+   ════════════════════════════════════ */
 export async function pageGroup(gid) {
   const d      = await api(`/api/groups/${gid}`);
   const ledger = await api(`/api/groups/${gid}/ledger`);
   const spots  = await api(`/api/groups/${gid}/spots`);
   d.spotsList  = spots;
   const isAdmin = d.members.find((m) => m.user_id === me().id)?.role === "admin";
-  const upcoming = d.sessions.filter((s) => s.status !== "closed").slice(0, 3);
+  const upcoming = d.sessions.filter((s) => s.status !== "closed").slice(0, 4);
   const el = h("div", { class: "enter" });
 
-  // header
-  el.append(h("div", { class: "panel" },
-    h("div", { class: "row spread" },
-      h("div", {},
-        h("h2", {}, d.group.name),
-        h("p", { class: "dim", style: "margin-top:-6px" }, `${d.members.length} members`)),
-      h("div", { class: "row" },
-        h("button", { class: "btn ghost", onclick: () => inviteFlow(gid) }, "✉ Invite"),
-        isAdmin ? h("button", { class: "btn primary", onclick: () => sessionForm(gid, d) }, "+ Session") : null))));
+  /* ── group header card ── */
+  const parts = (d.group.name ?? "").trim().split(" ");
+  const init  = (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+  el.append(h("div", { class: "group-header" },
+    h("div", { class: "group-header-av" }, init),
+    h("div", { class: "group-header-body" },
+      h("h1", {}, d.group.name),
+      h("div", { class: "member-count" }, `${d.members.length} member${d.members.length !== 1 ? "s" : ""}`)),
+    h("div", { class: "group-header-actions" },
+      h("button", { class: "btn ghost sm", onclick: () => inviteFlow(gid) }, "✉ Invite"),
+      isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null)));
 
-  // vouch queue
-  if (d.pending.length) el.append(h("div", { class: "panel" },
-    h("h2", {}, "Vouch Queue"),
-    ...d.pending.map((p) => h("div", { class: "list-row" },
-      avatar(p.name),
-      h("div", { class: "grow" },
-        h("b", {}, p.name),
-        h("div", { class: "dim" }, `${p.vouches}/${d.group.vouches_required} vouch${p.vouches !== 1 ? "es" : ""}`)),
-      h("button", { class: "btn good", onclick: async () => {
-          const r = await api(`/api/groups/${gid}/vouch/${p.user_id}`, {});
-          toast(r.accepted ? "They're in! Welcome to the crew." : `Vouched! ${r.have}/${r.need} so far.`);
-          pageGroupRerender(gid);
-        } }, "Vouch in")))));
+  /* ── vouch queue ── */
+  if (d.pending.length) {
+    const vouchPanel = h("div", { class: "panel" },
+      h("div", { class: "section-head", style: "margin:0 0 12px" },
+        h("h2", {}, "Vouch queue"),
+        h("span", { class: "chip amber" }, `${d.pending.length} pending`)));
+    d.pending.forEach((p) => {
+      vouchPanel.append(h("div", { class: "vouch-row" },
+        avatar(p.name),
+        h("div", { class: "vouch-info" },
+          h("strong", {}, p.name),
+          h("span", {}, `${p.vouches}/${d.group.vouches_required} vouch${p.vouches !== 1 ? "es" : ""} so far`)),
+        h("button", { class: "btn good sm", onclick: async () => {
+            const r = await api(`/api/groups/${gid}/vouch/${p.user_id}`, {});
+            toast(r.accepted ? "They're in! Welcome to the crew." : `Vouched! ${r.have}/${r.need} so far.`);
+            pageGroupRerender(gid);
+          } }, "Vouch in")));
+    });
+    el.append(vouchPanel);
+  }
 
-  // sessions
+  /* ── sessions ── */
   el.append(h("div", { class: "panel" },
-    h("h2", {}, "Sessions"),
+    h("div", { class: "section-head", style: "margin:0 0 14px" },
+      h("h2", {}, "Sessions"),
+      isAdmin ? h("button", { class: "btn primary sm", onclick: () => sessionForm(gid, d) }, "+ Session") : null),
     upcoming.length === 0
       ? h("div", { class: "hero-empty", style: "padding:32px 0" },
-          h("div", { class: "hero-icon", style: "width:56px;height:56px;font-size:24px;margin-bottom:12px" }, "🍺"),
-          h("p", {}, "No upcoming sessions."))
-      : null,
-    ...upcoming.map((s) => h("div", {
-      class: "list-row card-hover", style: "cursor:pointer",
-      onclick: () => (location.hash = `/s/${s.id}`)
-    },
-      h("div", { class: "grow" },
-        h("b", {}, new Date(s.starts_at + "Z").toLocaleString()),
-        h("div", { class: "dim" }, statusLabel(s.status))),
-      h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status)))),
-    d.sessions.filter((s) => s.status === "closed").slice(0, 3).map((s) =>
-      h("div", { class: "list-row", style: "opacity:.6;cursor:pointer", onclick: () => (location.hash = `/s/${s.id}`) },
-        h("div", { class: "grow" }, new Date(s.starts_at + "Z").toLocaleDateString()),
-        h("span", { class: "chip" }, "Closed")))));
+          h("div", { class: "hero-icon", style: "width:48px;height:48px;font-size:20px;margin-bottom:10px" }, "🍺"),
+          h("p", {}, isAdmin ? "No sessions yet — hit + Session to plan one." : "No upcoming sessions."))
+      : h("div", {},
+          ...upcoming.map((s) => {
+            const icon = { planning: "📋", open: "🍻", wrapped: "🏠", closed: "✔" }[s.status] ?? "📅";
+            return h("div", {
+              class: "session-card", role: "link", tabindex: "0",
+              onclick: () => (location.hash = `/s/${s.id}`),
+              onkeydown: (e) => { if (e.key === "Enter") location.hash = `/s/${s.id}`; }
+            },
+              h("div", { class: "session-card-icon" }, icon),
+              h("div", { class: "session-card-body" },
+                h("div", { class: "session-card-title" }, new Date(s.starts_at + "Z").toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })),
+                h("div", { class: "session-card-sub" }, statusLabel(s.status))),
+              h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status)));
+          })),
+    d.sessions.filter((s) => s.status === "closed").length > 0
+      ? h("div", { style: "padding-top:12px;border-top:1px solid var(--border);margin-top:8px" },
+          h("p", { class: "dim", style: "font-size:13px;margin-bottom:8px" }, "Past sessions"),
+          ...d.sessions.filter((s) => s.status === "closed").slice(0, 3).map((s) =>
+            h("div", { class: "list-row clickable", onclick: () => (location.hash = `/s/${s.id}`) },
+              h("div", { class: "grow" },
+                h("span", {}, new Date(s.starts_at + "Z").toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })),
+                h("span", { class: "dim", style: "margin-left:8px" }, "Closed")),
+              h("span", { style: "color:var(--text-3);font-size:13px" }, "→"))))
+      : null));
 
-  // ledger
+  /* ── ledger ── */
   el.append(h("div", { class: "panel" },
-    h("h2", {}, "Outstanding Balances"),
+    h("h2", {}, "Outstanding balances"),
     ledger.length === 0
-      ? h("p", { class: "stamp", style: "color:var(--emerald);font:700 17px var(--font-display);display:flex;align-items:center;gap:8px" },
-          h("span", {}, "✔"), "All settled up!")
+      ? h("div", { style: "display:flex;align-items:center;gap:10px;padding:12px 0;color:var(--green)" },
+          h("span", { style: "font-size:20px" }, "✔"),
+          h("span", { style: "font:600 15px var(--font)" }, "All settled up!"))
       : h("div", { class: "receipt" },
           ...ledger.map((t) => h("div", { class: "line" },
             h("span", {}, `${nameOf(d, t.from)} → ${nameOf(d, t.to)}`),
             h("span", { class: "money" }, fmtPeso(t.amount_centavos)))),
           h("div", { class: "line total" },
-            h("span", {}, `${ledger.length} transfer${ledger.length !== 1 ? "s" : ""} (minimum)`),
+            h("span", {}, `${ledger.length} transfer${ledger.length !== 1 ? "s" : ""} (min)`),
             h("span", {})))));
 
-  // members & direction tags
+  /* ── members ── */
   el.append(h("div", { class: "panel" },
-    h("h2", {}, "Members & Directions"),
+    h("h2", {}, "Members & directions"),
     ...d.members.map((m) => h("div", { class: "list-row" },
       avatar(m.name),
       h("div", { class: "grow" },
-        h("b", {}, m.name),
-        " ",
-        m.can_drink ? null : h("span", { class: "chip" }, "Non-drinker"),
-        " ",
-        m.strikes > 0 && isAdmin ? h("span", { class: "chip red" }, `${m.strikes} strike${m.strikes !== 1 ? "s" : ""}`) : null),
-      h("select", { style: "width:auto", onchange: async (e) => {
+        h("span", { style: "font:500 14px var(--font)" }, m.name),
+        m.user_id === me().id ? h("span", { class: "chip", style: "margin-left:8px" }, "you") : null,
+        m.can_drink ? null : h("span", { class: "chip", style: "margin-left:6px" }, "Non-drinker"),
+        m.strikes > 0 && isAdmin ? h("span", { class: "chip red", style: "margin-left:6px" }, `${m.strikes} strike${m.strikes !== 1 ? "s" : ""}`) : null),
+      h("select", { style: "width:auto;max-width:160px", onchange: async (e) => {
           if (m.user_id !== me().id) return toast("You can only set your own direction tag.", true), e.target.blur();
           await api("/api/me/direction", { group_id: gid, direction_tag_id: e.target.value ? Number(e.target.value) : null }, "PUT");
-          toast("Direction updated — easier buddy pairing.");
+          toast("Direction updated.");
         } },
         h("option", { value: "" }, "No direction"),
         ...d.tags.map((t) => h("option", { value: t.id, selected: m.direction_tag_id === t.id }, t.label))))),
-    isAdmin ? h("div", { class: "row", style: "margin-top:12px" },
+    isAdmin ? h("div", { class: "row", style: "margin-top:14px;padding-top:14px;border-top:1px solid var(--border)" },
       (() => {
-        const l = h("input", { placeholder: "Add direction tag (e.g. North, South)…", style: "max-width:240px" });
-        return [l, h("button", { class: "btn", onclick: async () => {
+        const l = h("input", { placeholder: "Add direction tag (e.g. North, QC)…" });
+        return [l, h("button", { class: "btn sm", onclick: async () => {
             if (!l.value.trim()) return;
             await api(`/api/groups/${gid}/tags`, { label: l.value.trim() });
             l.value = ""; pageGroupRerender(gid);
           } }, "+ Tag")];
       })()) : null));
 
-  // map + settings
+  /* ── map + settings row ── */
   el.append(h("div", { class: "grid2" },
     h("div", { class: "panel card-hover", style: "cursor:pointer", onclick: () => (location.hash = `/map/${gid}`) },
-      h("h2", {}, "Hangout Map"),
+      h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:8px" },
+        h("span", { style: "font-size:22px" }, "📍"),
+        h("h2", { style: "margin-bottom:0" }, "Hangout Map")),
       h("p", { class: "dim" },
         `${spots.length} spot${spots.length !== 1 ? "s" : ""}${spots.some((s) => s.stale) ? " · some need re-confirming" : ""}`),
-      h("p", { style: "margin-top:10px;color:var(--indigo);font-size:14px" }, "Open map →")),
-    isAdmin ? h("div", { class: "panel" }, h("h2", {}, "Group Settings"), settingsPanel(gid, d)) : null));
+      h("p", { style: "margin-top:12px;color:var(--accent-text);font:600 13px var(--font)" }, "Open map →")),
+    isAdmin ? h("div", { class: "panel" },
+      h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:16px" },
+        h("span", { style: "font-size:22px" }, "⚙️"),
+        h("h2", { style: "margin-bottom:0" }, "Group settings")),
+      settingsPanel(gid, d)) : null));
+
   return el;
 }
 
@@ -207,7 +294,7 @@ function settingsPanel(gid, d) {
     h("label", { class: "f" }, "Vouches required to join"), vq,
     h("label", { class: "f" }, "Buddy alert delay (minutes after deadline)"), buddyMin,
     h("label", { class: "f" }, "Admin escalation delay (minutes)"), adminMin,
-    h("button", { class: "btn primary", style: "margin-top:16px", onclick: async () => {
+    h("button", { class: "btn primary", style: "margin-top:16px;width:100%;justify-content:center", onclick: async () => {
         await api(`/api/groups/${gid}/settings`, { vouches_required: Number(vq.value), buddy_notify_min: Number(buddyMin.value), admin_notify_min: Number(adminMin.value) }, "PATCH");
         toast("Settings saved.");
       } }, "Save settings"));
@@ -216,9 +303,9 @@ function settingsPanel(gid, d) {
 async function inviteFlow(gid) {
   const r = await api(`/api/groups/${gid}/invite`, {});
   openSheet("Invite to crew", h("div", {},
-    h("p", { class: "dim", style: "margin-bottom:12px" }, "Share this link with someone you trust. They'll need a vouch from an existing member before they can join."),
-    h("div", { class: "inset", style: "font-family:var(--font-mono);font-size:13px;word-break:break-all" }, `${location.origin}${r.invite_url}`),
-    h("button", { class: "btn primary", style: "margin-top:14px", onclick: () => {
+    h("p", { style: "font-size:14px;color:var(--text-2);margin-bottom:14px" }, "Share this link with someone you trust. They'll need a vouch from an existing member before they can join."),
+    h("div", { class: "inset", style: "font-family:var(--mono);font-size:13px;word-break:break-all;margin-bottom:14px" }, `${location.origin}${r.invite_url}`),
+    h("button", { class: "btn primary", style: "width:100%;justify-content:center", onclick: () => {
         navigator.clipboard?.writeText(`${location.origin}${r.invite_url}`);
         toast("Link copied!");
       } }, "Copy link")));
@@ -226,14 +313,14 @@ async function inviteFlow(gid) {
 
 function sessionForm(gid, d) {
   const when   = h("input", { type: "datetime-local" });
-  const spotSel = h("select", {}, h("option", { value: "" }, "— no spot selected —"), ...(d.spotsList?.map?.((s) => h("option", { value: s.id }, s.name)) ?? []));
+  const spotSel = h("select", {}, h("option", { value: "" }, "— no spot —"), ...(d.spotsList?.map?.((s) => h("option", { value: s.id }, s.name)) ?? []));
   const ddSel  = h("select", {}, h("option", { value: "" }, "No designated driver"), ...d.members.map((m) => h("option", { value: m.user_id }, m.name)));
   openSheet("New session", h("div", {},
     h("label", { class: "f" }, "When"), when,
     h("label", { class: "f" }, "Location (add on map first)"), spotSel,
-    h("label", { class: "f" }, "Designated driver (auto-excluded from all alcohol items)"), ddSel,
-    h("p", { class: "dim", style: "margin-top:8px" }, "The DD is automatically skipped on every alcohol expense. You can change them later."),
-    h("button", { class: "btn primary", style: "margin-top:16px", onclick: async () => {
+    h("label", { class: "f" }, "Designated driver (excluded from alcohol items)"), ddSel,
+    h("p", { class: "dim", style: "margin-top:8px;font-size:13px" }, "The DD is automatically skipped on every alcohol expense."),
+    h("button", { class: "btn primary", style: "margin-top:18px;width:100%;justify-content:center", onclick: async () => {
         if (!when.value) return toast("Pick a date and time.", true);
         const r = await api(`/api/groups/${gid}/sessions`, { starts_at: when.value, designated_driver_id: ddSel.value ? Number(ddSel.value) : null });
         location.hash = `/s/${r.id}`;
@@ -242,7 +329,9 @@ function sessionForm(gid, d) {
 
 function pageGroupRerender(gid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/g/${gid}`)); }
 
-/* ---------------- session screen ---------------- */
+/* ════════════════════════════════════
+   SESSION SCREEN
+   ════════════════════════════════════ */
 export async function pageSession(sid) {
   const d   = await api(`/api/sessions/${sid}`);
   const gid = d.session.group_id;
@@ -251,38 +340,43 @@ export async function pageSession(sid) {
   const nameOfU = (uid) => gd.members.find((m) => m.user_id === Number(uid))?.name ?? d.session.designated_driver_name ?? `#${uid}`;
   const el = h("div", { class: "enter" });
 
-  // header card
+  /* header */
   el.append(h("div", { class: "panel" },
-    h("div", { class: "row spread" },
+    h("div", { class: "row spread", style: "margin-bottom:14px" },
       h("div", {},
-        h("h2", {}, new Date(d.session.starts_at + "Z").toLocaleString()),
-        d.spot ? h("p", { class: "dim" }, `📍 ${d.spot.name}`) : null),
+        h("p", { style: "font:500 13px var(--font);color:var(--text-2);margin-bottom:4px" },
+          h("a", { href: `#/g/${gid}`, style: "color:var(--accent-text);text-decoration:none" }, gd.group?.name ?? "Crew"), " · session"),
+        h("h1", { style: "font:700 20px var(--font);color:var(--text);letter-spacing:-0.3px" },
+          new Date(d.session.starts_at + "Z").toLocaleString([], { weekday: "long", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }))),
       h("span", { class: `status-bar ${d.session.status}` }, statusLabel(d.session.status))),
+    d.spot ? h("p", { style: "font-size:14px;color:var(--text-2)" }, `📍 ${d.spot.name}`) : null,
     d.session.designated_driver_id
-      ? h("div", { class: "inset", style: "margin-top:12px;display:flex;align-items:center;gap:8px" },
-          h("span", { style: "color:var(--emerald)" }, "🚗"),
-          h("span", {}, h("b", {}, "Designated driver: "), nameOfU(d.session.designated_driver_id)),
-          h("span", { class: "dim" }, "— excluded from all alcohol items automatically."))
+      ? h("div", { class: "inset", style: "margin-top:14px;display:flex;align-items:center;gap:10px" },
+          h("span", { style: "font-size:18px" }, "🚗"),
+          h("span", {}, h("b", {}, "DD: "), nameOfU(d.session.designated_driver_id)),
+          h("span", { class: "dim" }, "— excluded from alcohol items"))
       : null));
 
-  // RSVP
+  /* RSVP */
   const my = d.rsvps.find((r) => r.user_id === me().id);
   el.append(h("div", { class: "panel" },
     h("h2", {}, "Who's coming"),
-    h("div", { class: "row", style: "margin-bottom:14px" },
-      ...["going", "maybe", "cant"].map((st) => h("button", {
-        class: `btn ${my?.status === st ? "primary" : ""}`,
-        onclick: async () => { await api(`/api/sessions/${sid}/rsvp`, { status: st }); pageSessionRerender(sid); }
-      }, { going: "✔ Going", maybe: "Maybe", cant: "✖ Can't" }[st]))),
+    h("div", { class: "rsvp-bar" },
+      ...[["going", "✔ Going"], ["maybe", "? Maybe"], ["cant", "✖ Can't"]].map(([st, label]) =>
+        h("button", {
+          class: `btn ${my?.status === st ? "primary" : ""}`,
+          onclick: async () => { await api(`/api/sessions/${sid}/rsvp`, { status: st }); pageSessionRerender(sid); }
+        }, label))),
     h("div", { class: "receipt" },
       ...gd.members.filter((m) => m.status === "active").map((m) => {
         const r = d.rsvps.find((x) => x.user_id === m.user_id);
         return h("div", { class: "line" },
           h("span", {}, m.name + (m.user_id === me().id ? " (you)" : "")),
-          h("span", {}, r ? { going: "✔ Going", maybe: "? Maybe", cant: "✖ Can't" }[r.status] : "—"));
+          h("span", { style: r?.status === "going" ? "color:var(--green);font-weight:600" : r?.status === "cant" ? "color:var(--red)" : "" },
+            r ? { going: "✔ Going", maybe: "? Maybe", cant: "✖ Can't" }[r.status] : "—"));
       }))));
 
-  // tabs
+  /* tabs */
   const tabBar  = h("div", { class: "tabbar" });
   const tabBody = h("div", {});
   const tabs    = { tab: "Tab", settle: "Settle up", uwian: "Uwian", limit: "My Limit" };
@@ -299,14 +393,14 @@ export async function pageSession(sid) {
     tabBody.append(cur === "tab" ? tabExpenses() : cur === "settle" ? tabSettle() : cur === "uwian" ? tabUwian() : tabLimit());
   }
 
-  /* ---- Expenses tab ---- */
+  /* ── Expenses tab ── */
   function tabExpenses() {
     const wrap = h("div", { class: "panel" });
     if (d.session.status !== "closed")
       wrap.append(addExpenseForm(d, sid, nameOfU, () => pageSessionRerender(sid)));
     else
-      wrap.append(h("div", { class: "inset", style: "margin-bottom:14px" },
-        h("p", { class: "dim" }, "Tab is closed. " + (isAdmin ? "You can reopen it if needed." : "Contact an admin if something's wrong."))));
+      wrap.append(h("div", { class: "inset", style: "margin-bottom:16px" },
+        h("p", { class: "dim" }, "Tab is closed. " + (isAdmin ? "You can reopen it below." : "Contact an admin if something's wrong."))));
     const total = d.expenses.reduce((s, e) => s + e.amount_centavos, 0);
     wrap.append(
       h("h2", {}, "Tonight's tab"),
@@ -327,11 +421,11 @@ export async function pageSession(sid) {
     return wrap;
   }
 
-  /* ---- Settle tab ---- */
+  /* ── Settle tab ── */
   function tabSettle() {
     const wrap = h("div", { class: "panel" }, h("h2", {}, "Settle up"));
     if (isAdmin && d.session.status !== "closed")
-      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:16px", onclick: async () => {
+      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:18px", onclick: async () => {
           await api(`/api/sessions/${sid}/close-tab`, {});
           toast("Tab closed — no more edits without reopening.");
           pageSessionRerender(sid);
@@ -347,25 +441,25 @@ export async function pageSession(sid) {
           " ",
           h("span", { class: `chip ${t.status === "confirmed" ? "green" : t.status === "disputed" ? "red" : t.status === "paid_claimed" ? "amber" : ""}` },
             { open: "Open", paid_claimed: "Claimed paid", confirmed: "✔ Confirmed", disputed: "Disputed" }[t.status]),
-          t.note ? h("div", { class: "dim" }, `"${t.note}"`) : null),
+          t.note ? h("div", { class: "dim", style: "margin-top:4px" }, `"${t.note}"`) : null),
         h("span", { class: "money" }, fmtPeso(t.amount_centavos)));
       if (mine_payer && t.status === "open")
-        row.append(h("button", { class: "btn good", onclick: async () => {
+        row.append(h("button", { class: "btn good sm", onclick: async () => {
             await api(`/api/settlements/${t.id}/claim-paid`, {});
             pageSessionRerender(sid);
           } }, "I've paid"));
       if (mine_recv && t.status === "paid_claimed")
         row.append(
-          h("button", { class: "btn good", onclick: async () => {
+          h("button", { class: "btn good sm", onclick: async () => {
               await api(`/api/settlements/${t.id}/confirm`, {});
               toast("Confirmed. All good.");
               pageSessionRerender(sid);
             } }, "Confirm received"),
-          h("button", { class: "btn bad", onclick: () => disputeForm(t.id, sid) }, "Dispute"));
+          h("button", { class: "btn bad sm", onclick: () => disputeForm(t.id, sid) }, "Dispute"));
       wrap.append(row);
     }
     if (isAdmin && d.session.status === "closed")
-      wrap.append(h("button", { class: "btn ghost", style: "margin-top:14px", onclick: async () => {
+      wrap.append(h("button", { class: "btn ghost", style: "margin-top:14px;width:100%;justify-content:center", onclick: async () => {
           const r = await api(`/api/sessions/${sid}/reopen`, {});
           toast(r.note);
           pageSessionRerender(sid);
@@ -373,11 +467,14 @@ export async function pageSession(sid) {
     return wrap;
   }
 
-  /* ---- Uwian tab ---- */
+  /* ── Uwian tab ── */
   function tabUwian() {
-    const wrap = h("div", { class: "panel" }, h("h2", {}, "Uwian — get everyone home safe"));
+    const wrap = h("div", { class: "panel" },
+      h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:16px" },
+        h("span", { style: "font-size:22px" }, "🏠"),
+        h("h2", { style: "margin-bottom:0" }, "Uwian — get everyone home safe")));
     if (isAdmin && d.session.status === "open")
-      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:16px", onclick: async () => {
+      wrap.append(h("button", { class: "btn primary", style: "margin-bottom:18px;width:100%;justify-content:center", onclick: async () => {
           const deadline = new Date(Date.now() + 45 * 60000).toISOString().slice(0, 19).replace("T", " ");
           await api(`/api/sessions/${sid}`, { status: "wrapped", uwian_deadline: deadline }, "PATCH");
           toast("Uwian time! Buddies paired by direction.");
@@ -386,7 +483,7 @@ export async function pageSession(sid) {
     const myCi = d.checkins.find((c) => c.user_id === me().id);
     if (!myCi?.home_confirmed_at) {
       const modeSel = h("select", { style: "width:auto" }, ...Object.entries(MODES).map(([k, v]) => h("option", { value: k }, v)));
-      wrap.append(h("div", { class: "inset row", style: "margin-bottom:16px" },
+      wrap.append(h("div", { class: "inset row", style: "margin-bottom:18px" },
         h("b", {}, "How are you getting home?"), modeSel,
         h("button", { class: "btn good", onclick: async () => {
             await api(`/api/sessions/${sid}/checkin`, { mode: modeSel.value });
@@ -394,8 +491,7 @@ export async function pageSession(sid) {
             pageSessionRerender(sid);
           } }, "I'm home ✔")));
     }
-    // roster
-    wrap.append(h("h3", { style: "margin:16px 0 8px" }, "Who's home"),
+    wrap.append(h("h3", { style: "margin:0 0 10px" }, "Who's home"),
       ...gd.members.filter((m) => m.status === "active").map((m) => {
         const ci   = d.checkins.find((c) => c.user_id === m.user_id);
         const rsvp = d.rsvps.find((r) => r.user_id === m.user_id);
@@ -405,7 +501,7 @@ export async function pageSession(sid) {
             ci?.mode ? h("span", { class: "dim" }, ` · ${MODES[ci.mode]}`) : null,
             ci?.ride_offer_from ? h("span", { class: "chip green", style: "margin-left:6px" }, "Ride offered") : null),
           ci?.flag_stage >= 2 && !ci?.home_confirmed_at
-            ? h("button", { class: "btn", onclick: async () => {
+            ? h("button", { class: "btn sm", onclick: async () => {
                 const pair = d.buddy_pairs.find((p) => [p.user_a, p.user_b, p.user_c].includes(m.user_id));
                 if (!pair) return toast("No buddy pair — contact admin.", true);
                 await api(`/api/buddies/${sid}/${pair.user_a}/${pair.user_b}/clear-flag`, {});
@@ -414,29 +510,30 @@ export async function pageSession(sid) {
               } }, "Spoke to them, all good")
             : null);
         if (ci?.mode === "own_drive" && d.session.designated_driver_id !== m.user_id && !ci.ride_offer_from && m.user_id !== me().id)
-          row.append(h("button", { class: "btn ghost", onclick: async () => {
+          row.append(h("button", { class: "btn ghost sm", onclick: async () => {
               await api(`/api/buddies/${sid}/${m.user_id}/0/offer-ride`, {});
               toast("Ride offered. Legend.");
               pageSessionRerender(sid);
             } }, "Offer them a ride?"));
         return row;
       }));
-    // buddies
     if (d.buddy_pairs.length)
       wrap.append(
-        h("h3", { style: "margin:16px 0 8px" }, "Buddy pairs (by direction)"),
+        h("h3", { style: "margin:18px 0 10px" }, "Buddy pairs (by direction)"),
         h("div", { class: "receipt" },
           ...d.buddy_pairs.map((p) => h("div", { class: "line" }, h("span", {}, p.names.join(" + ")), h("span", {})))));
-    wrap.append(h("p", { class: "dim", style: "margin-top:16px;font-size:12px;border-top:1px solid var(--border);padding-top:12px" },
-      "Reminder: this app is not a rescue service. Escalation is just a nudge to check in. In a real emergency, call your local emergency number."));
+    wrap.append(h("p", { class: "dim", style: "margin-top:18px;font-size:12px;border-top:1px solid var(--border);padding-top:14px" },
+      "This app is not a rescue service. Escalation is just a nudge to check in. In a real emergency, call your local emergency number."));
     return wrap;
   }
 
-  /* ---- My Limit tab (private!) ---- */
+  /* ── My Limit tab ── */
   function tabLimit() {
     const wrap = h("div", { class: "panel" },
-      h("h2", {}, "My Limit"),
-      h("p", { class: "dim" }, "Private — only you can see your count, even admins can't. This is a personal reminder, not an alcohol calculator."));
+      h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:6px" },
+        h("span", { style: "font-size:22px" }, "🎚"),
+        h("h2", { style: "margin-bottom:0" }, "My Limit")),
+      h("p", { class: "dim", style: "margin-bottom:18px" }, "Private — only you can see this. A personal reminder, not an alcohol calculator."));
     const board = h("div", { class: "tally-board" });
     const limIn = h("input", { type: "number", min: 1, style: "width:80px" });
 
@@ -448,8 +545,8 @@ export async function pageSession(sid) {
         board.append(h("div", { class: `tally ${i <= r.count ? "full" : "empty"}` }, i <= r.count ? "✕" : "·"));
       const pct = r.lim ? r.count / r.lim : 0;
       if (pct >= 0.8) board.append(h("div", { class: `chip ${pct >= 1 ? "red" : "amber"}`, style: "align-self:center;margin-left:4px" },
-        pct >= 1 ? "At your limit — sort out your ride?" : "Getting close — sort out your ride?"));
-      if (pct >= 0.8) board.append(h("button", { class: "btn good", style: "align-self:center", onclick: () => { cur = "uwian"; renderTab(); } }, "Check in now"));
+        pct >= 1 ? "At your limit — sort your ride?" : "Getting close — sort your ride?"));
+      if (pct >= 0.8) board.append(h("button", { class: "btn good sm", style: "align-self:center", onclick: () => { cur = "uwian"; renderTab(); } }, "Check in now"));
     }
 
     const push = h("button", { class: "round-push", onclick: async () => {
@@ -460,14 +557,14 @@ export async function pageSession(sid) {
       } }, "+ 1 round");
 
     wrap.append(
-      h("div", { style: "display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-top:16px" },
+      h("div", { style: "display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;margin-top:4px" },
         push,
         h("div", { class: "grow" },
           board,
           h("div", { class: "row", style: "margin-top:16px;flex-wrap:wrap" },
             h("label", { class: "f", style: "margin:0;white-space:nowrap" }, "My limit (rounds)"),
             limIn,
-            h("button", { class: "btn", onclick: async () => {
+            h("button", { class: "btn sm", onclick: async () => {
                 await api(`/api/sessions/${sid}/limit`, { limit: limIn.value ? Number(limIn.value) : null }, "PUT");
                 refresh(); toast("Limit updated.");
               } }, "Set")))));
@@ -481,11 +578,11 @@ export async function pageSession(sid) {
 
 function addExpenseForm(d, sid, nameOfU, done) {
   const desc  = h("input", { placeholder: "What was it? (e.g. beer bucket, sisig…)" });
-  const amt   = h("input", { placeholder: "Amount ₱", inputmode: "decimal", style: "max-width:130px" });
+  const amt   = h("input", { placeholder: "Amount ₱", inputmode: "decimal", style: "max-width:140px" });
   const payer = h("select", { style: "width:auto" },
     ...d.members.map((m) => h("option", { value: m.user_id, selected: m.user_id === me().id }, m.name)));
   let isAlcohol = true;
-  const note  = h("p", { class: "dim" }, alcoholNote(d));
+  const note  = h("p", { class: "dim", style: "margin-top:8px;font-size:13px" }, alcoholNote(d));
   const togg  = h("span", { class: "toggle on", onclick: () => {
       isAlcohol = !isAlcohol;
       togg.classList.toggle("on", isAlcohol);
@@ -497,21 +594,21 @@ function addExpenseForm(d, sid, nameOfU, done) {
   function alcoholNote(sess) {
     const dd = sess.session.designated_driver_name;
     return dd
-      ? `Auto-split: ${dd} is excluded from alcohol, as are non-drinkers. Adjust below if needed.`
+      ? `Auto-split: ${dd} is excluded from alcohol, as are non-drinkers.`
       : "Marked as alcohol: DD will be excluded automatically.";
   }
 
-  const checks = h("div", { class: "row" }, ...d.members.map((m) => {
+  const checks = h("div", { class: "row", style: "flex-wrap:wrap;gap:8px" }, ...d.members.map((m) => {
     const cb = h("input", { type: "checkbox", checked: true, style: "width:auto" });
     cb.dataset.uid = m.user_id;
-    return h("label", { class: "chip", style: "display:inline-flex;gap:6px;align-items:center;cursor:pointer" }, cb, m.name);
+    return h("label", { class: "chip", style: "display:inline-flex;gap:6px;align-items:center;cursor:pointer;padding:5px 10px" }, cb, m.name);
   }));
 
-  return h("div", { class: "inset", style: "margin-bottom:16px" },
+  return h("div", { class: "inset", style: "margin-bottom:18px" },
     h("div", { class: "row" }, desc, amt, payer, togg),
     h("div", { class: "row", style: "margin-top:10px" }, h("span", { class: "dim" }, "Split with:"), checks),
     note,
-    h("button", { class: "btn primary", style: "margin-top:12px", onclick: async () => {
+    h("button", { class: "btn primary", style: "margin-top:14px;width:100%;justify-content:center", onclick: async () => {
         const cents = pesoToCents(amt.value);
         if (!cents) return toast("Enter a valid amount, e.g. 450 or 450.50", true);
         const chosen = [...checks.querySelectorAll("input")].filter((c) => c.checked).map((c) => c.dataset.uid);
@@ -527,9 +624,9 @@ function addExpenseForm(d, sid, nameOfU, done) {
 }
 
 function disputeForm(id, sid) {
-  const note = h("textarea", { placeholder: "Describe the issue — the admin will see this." });
+  const note = h("textarea", { placeholder: "Describe the issue — the admin will see this.", style: "min-height:100px" });
   openSheet("Dispute transfer", h("div", {}, note,
-    h("button", { class: "btn bad", style: "margin-top:14px", onclick: async () => {
+    h("button", { class: "btn bad", style: "margin-top:14px;width:100%;justify-content:center", onclick: async () => {
         if (!note.value.trim()) return toast("Please describe the issue first.", true);
         await api(`/api/settlements/${id}/dispute`, { note: note.value });
         toast("Marked as disputed. Admins have been notified.");
@@ -539,31 +636,35 @@ function disputeForm(id, sid) {
 
 function pageSessionRerender(sid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/s/${sid}`)); }
 
-/* ---------------- hangout map ---------------- */
+/* ════════════════════════════════════
+   HANGOUT MAP
+   ════════════════════════════════════ */
 export async function pageMap(gid) {
   const spots = await api(`/api/groups/${gid}/spots`);
   const gd    = await api(`/api/groups/${gid}`);
   const nameOfU = (uid) => gd.members.find((m) => m.user_id === Number(uid))?.name ?? `#${uid}`;
   const el = h("div", { class: "enter" },
     h("div", { class: "panel" },
-      h("h2", {}, "Hangout Map"),
-      h("p", { class: "dim" }, "Double-click the map to drop a new spot. Powered by Leaflet + OpenStreetMap — no API key needed.")),
+      h("div", { style: "display:flex;align-items:center;gap:12px;margin-bottom:6px" },
+        h("span", { style: "font-size:22px" }, "📍"),
+        h("h1", { style: "font:700 22px var(--font);letter-spacing:-0.3px" }, "Hangout Map")),
+      h("p", { class: "dim" }, "Double-click the map to drop a new spot. Powered by Leaflet + OpenStreetMap.")),
     h("div", { class: "map-frame" }, h("div", { id: "map" })),
     h("div", { class: "panel" },
       h("h2", {}, "Spots"),
       spots.length === 0
-        ? h("p", { class: "dim" }, "No spots added yet. Double-click the map to add one.")
+        ? h("p", { class: "dim" }, "No spots yet. Double-click the map to add one.")
         : null,
       ...spots.map((sp) => h("div", { class: "list-row" },
-        h("div", { class: "pin-spot" + (sp.stale ? " pin-stale" : ""), style: "flex:none;border-radius:50%" }),
+        h("div", { class: "pin-spot" + (sp.stale ? " pin-stale" : ""), style: "flex:none;border-radius:50%;width:14px;height:14px" }),
         h("div", { class: "grow" },
           h("b", {}, sp.name),
           h("div", { class: "dim" }, `${sp.price_range ?? ""} · closes ${sp.closes_at ?? "?"} · ${sp.notes ?? ""}`),
           h("div", { class: "dim" }, `Last confirmed: ${timeAgo(sp.last_confirmed_at)}${sp.stale ? " · ⚠ UNVERIFIED — 60+ days" : ""}`)),
         h("div", { class: "row" },
-          h("button", { class: "btn good", onclick: () => confirmSpot(sp.id, "yes") }, "Still open ✔"),
-          h("button", { class: "btn", onclick: () => confirmSpot(sp.id, "changed") }, "Changed"),
-          h("button", { class: "btn bad", onclick: () => confirmSpot(sp.id, "no") }, "Closed"))))));
+          h("button", { class: "btn good sm", onclick: () => confirmSpot(sp.id, "yes") }, "Still open ✔"),
+          h("button", { class: "btn sm", onclick: () => confirmSpot(sp.id, "changed") }, "Changed"),
+          h("button", { class: "btn bad sm", onclick: () => confirmSpot(sp.id, "no") }, "Closed"))))));
   requestAnimationFrame(() => {
     const map = L.map("map").setView([14.676, 121.0437], 13);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
@@ -593,11 +694,15 @@ export async function pageMap(gid) {
 }
 function pageMapRerender(gid) { location.hash = ""; requestAnimationFrame(() => (location.hash = `/map/${gid}`)); }
 
-/* ---------------- notifications drawer ---------------- */
+/* ════════════════════════════════════
+   NOTIFICATIONS
+   ════════════════════════════════════ */
 export async function bellDrawer() {
   const notifs = await api("/api/me/notifications");
   openSheet("Notifications", h("div", {},
-    notifs.length === 0 ? h("p", { class: "dim" }, "All clear. ✔") : null,
+    notifs.length === 0 ? h("div", { style: "text-align:center;padding:24px 0;color:var(--text-2)" },
+      h("div", { style: "font-size:28px;margin-bottom:8px" }, "✔"),
+      h("p", {}, "All clear — nothing to see here.")) : null,
     ...notifs.map((n) => {
       const p = JSON.parse(n.payload);
       return h("div", { class: "list-row" },
@@ -614,8 +719,8 @@ export async function bellDrawer() {
             ride_request:   "Ride request",
             ride_offer:     "Ride offer",
           }[n.kind] ?? n.kind),
-          h("div", { class: "dim" }, p.message ?? "")),
-        h("button", { class: "btn", onclick: async () => { await api(`/api/notifications/${n.id}/read`, {}); bellRefresh(); } }, "Dismiss"));
+          h("div", { class: "dim", style: "margin-top:2px" }, p.message ?? "")),
+        h("button", { class: "btn sm", onclick: async () => { await api(`/api/notifications/${n.id}/read`, {}); bellRefresh(); } }, "Dismiss"));
     })));
 }
 function bellRefresh() { location.hash = ""; requestAnimationFrame(() => (location.hash = location.hash || "/groups")); }
