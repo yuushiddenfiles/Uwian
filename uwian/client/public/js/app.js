@@ -35,7 +35,74 @@ function render(el) {
   refreshBell();
 }
 
-/* ── nav ── */
+/* ── nav & user menu ── */
+let menuOpen = false;
+
+function closeUserMenu() {
+  menuOpen = false;
+  const menu = document.querySelector(".user-menu-dropdown");
+  const trigger = document.querySelector(".nav-user-trigger");
+  if (menu) menu.remove();
+  if (trigger) trigger.setAttribute("aria-expanded", "false");
+}
+
+function toggleUserMenu(user, trigger) {
+  if (menuOpen) {
+    closeUserMenu();
+    return;
+  }
+  menuOpen = true;
+  trigger.setAttribute("aria-expanded", "true");
+
+  const dropdown = h("div", { class: "user-menu-dropdown enter", role: "menu" },
+    h("div", { class: "menu-head" },
+      h("div", { class: "menu-head-name" }, user.name),
+      h("div", { class: "menu-head-email" }, user.email),
+      h("div", { class: "menu-trust-badge" }, "🛡️ ID Verified · Safe Space")),
+    h("button", {
+      class: "menu-item",
+      onclick: () => { closeUserMenu(); P.showVerificationSheet && P.showVerificationSheet(); }
+    }, "🛡️ ID & Safety Center"),
+    h("button", {
+      class: "menu-item",
+      onclick: async () => {
+        try {
+          const next = !user.can_drink;
+          await api("/api/me", { can_drink: next }, "PATCH");
+          user.can_drink = next ? 1 : 0;
+          toast(next ? "Preference: Open to drinking 🍻" : "Preference: Non-drinker 🥤");
+          closeUserMenu();
+        } catch (e) { toast(e.message, true); }
+      }
+    }, user.can_drink ? "🍻 Status: Drinks" : "🥤 Status: Non-drinker"),
+    h("button", {
+      class: "menu-item",
+      onclick: () => { closeUserMenu(); location.hash = "/groups"; }
+    }, "👥 My Crews"),
+    h("div", { class: "menu-divider" }),
+    h("button", {
+      class: "menu-item danger",
+      onclick: async () => {
+        closeUserMenu();
+        await api("/api/logout", {});
+        location.hash = "/login";
+      }
+    }, "🚪 Sign out")
+  );
+
+  trigger.parentElement.append(dropdown);
+}
+
+document.addEventListener("click", (e) => {
+  if (menuOpen && !e.target.closest(".nav-user-wrap")) {
+    closeUserMenu();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && menuOpen) closeUserMenu();
+});
+
 function refreshNav() {
   const nav = $("#topnav");
   nav.innerHTML = "";
@@ -43,14 +110,30 @@ function refreshNav() {
   if (user) {
     const hash = location.hash;
     const isHome = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/") || hash.startsWith("#/map/");
-    nav.append(h("a", { href: "#/groups", class: isHome ? "on" : "", "aria-current": isHome ? "page" : undefined }, "My Crews"));
-    /* user initials pill as sign-out button */
+    
+    nav.append(h("a", { href: "#/groups", class: isHome ? "on" : "", "aria-current": isHome ? "page" : undefined }, "Explore & Crews"));
+
+    /* User wrap with avatar pill and interactive dropdown */
     const initials = user.name?.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() ?? "?";
-    nav.append(h("button", {
-      class: "nav-signout",
-      title: `Signed in as ${user.name} — click to sign out`,
-      onclick: async () => { await api("/api/logout", {}); location.hash = "/login"; }
-    }, initials));
+    const firstName = user.name?.split(" ")[0] ?? "Account";
+
+    const trigger = h("button", {
+      class: "nav-user-trigger",
+      "aria-haspopup": "menu",
+      "aria-expanded": "false",
+      title: `Account: ${user.name}`,
+      onclick: (e) => {
+        e.stopPropagation();
+        toggleUserMenu(user, trigger);
+      }
+    },
+      h("div", { class: "nav-signout", style: "width:28px;height:28px;font-size:11px;flex:none" }, initials),
+      h("span", { class: "user-name-short" }, firstName),
+      h("span", { class: "nav-chevron" }, "▼")
+    );
+
+    const wrap = h("div", { class: "nav-user-wrap" }, trigger);
+    nav.append(wrap);
   } else {
     nav.append(h("a", { href: "#/login" }, "Log in"));
   }

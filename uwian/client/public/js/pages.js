@@ -16,6 +16,16 @@ function firstInit(name) {
   return (name ?? "?").trim()[0].toUpperCase();
 }
 
+/* helper: safely format session timestamp */
+function fmtSessionTime(dt) {
+  if (!dt) return "Time TBD";
+  const str = String(dt).trim();
+  const iso = str.endsWith("Z") ? str : (str.includes("T") ? str + "Z" : str.replace(" ", "T") + "Z");
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "Time TBD";
+  return d.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 /* ════════════════════════════════════
    AUTH
    ════════════════════════════════════ */
@@ -72,22 +82,197 @@ export function pageSignup() {
 }
 
 /* ════════════════════════════════════
-   GROUPS LIST (Dashboard)
+   GROUPS LIST (Dashboard & Session Finder)
    ════════════════════════════════════ */
+export async function showVerificationSheet() {
+  try {
+    const v = await api("/api/me/verification");
+    const u = v.user;
+    let closeSheet;
+    closeSheet = openSheet("Identity & Safety Verification", h("div", { class: "enter" },
+      h("div", { style: "display:flex;align-items:center;gap:14px;padding:16px;background:var(--green-dim);border:1.5px solid #a8dece;border-radius:14px;margin-bottom:18px" },
+        h("div", { style: "width:42px;height:42px;border-radius:50%;background:#22A87A;color:#fff;display:grid;place-items:center;font-size:20px;flex:none" }, "✓"),
+        h("div", { style: "flex:1;min-width:0" },
+          h("div", { style: "font:700 15px var(--font);color:var(--text)" }, v.security_badge),
+          h("div", { style: "font-size:12.5px;color:var(--green);font-weight:600;margin-top:2px" }, `${v.trust_tier} · Full Access`))),
+
+      h("div", { style: "display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px" },
+        h("div", { style: "background:var(--surface-in);padding:12px;border-radius:10px;border:1px solid var(--border)" },
+          h("div", { style: "font-size:11.5px;color:var(--text-3);font-weight:600" }, "VOUCHES RECEIVED"),
+          h("div", { style: "font:700 18px var(--font);color:var(--text);margin-top:4px" }, `${v.vouches_received} vouches`)),
+        h("div", { style: "background:var(--surface-in);padding:12px;border-radius:10px;border:1px solid var(--border)" },
+          h("div", { style: "font-size:11.5px;color:var(--text-3);font-weight:600" }, "ACCOUNT STRIKES"),
+          h("div", { style: "font:700 18px var(--font);color:v.strikes ? var(--red) : var(--green);margin-top:4px" }, `${v.strikes} strikes`))),
+
+      h("h3", { style: "font:700 15px var(--font);color:var(--text);margin-bottom:10px" }, "Strict Safety Measures"),
+      h("ul", { style: "font-size:13.5px;color:var(--text-2);line-height:1.6;padding-left:18px;margin-bottom:20px" },
+        h("li", {}, h("strong", { style: "color:var(--text)" }, "Identity Verification: "), "Every member must provide verified legal name and birthdate (18+) before joining."),
+        h("li", {}, h("strong", { style: "color:var(--text)" }, "Double-Vouch Safeguard: "), "Joining new crews requires existing members to vouch for your character."),
+        h("li", {}, h("strong", { style: "color:var(--text)" }, "Safe Commute Buddy System: "), "When sessions wrap, attendees are paired by commute direction with automated arrival check-ins."),
+        h("li", {}, h("strong", { style: "color:var(--text)" }, "Two-Strike Policy: "), "Disruptive behavior or false vouches result in immediate strike and vouch revocation.")),
+
+      h("div", { style: "display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface-in);border-radius:10px;border:1px solid var(--border);margin-bottom:16px" },
+        h("div", {},
+          h("div", { style: "font:600 13.5px var(--font);color:var(--text)" }, "Drinking Preference"),
+          h("div", { style: "font-size:12px;color:var(--text-3)" }, u.can_drink ? "Excludes non-alcohol tabs automatically" : "Flagged as non-drinker")),
+        h("button", {
+          class: "btn ghost sm",
+          onclick: async () => {
+            const next = !u.can_drink;
+            await api("/api/me", { can_drink: next }, "PATCH");
+            u.can_drink = next ? 1 : 0;
+            toast(next ? "Updated: Drinks alcohol" : "Updated: Non-drinker");
+            showVerificationSheet();
+          }
+        }, u.can_drink ? "Set: Non-drinker" : "Set: Drinks")),
+
+      h("button", { class: "btn primary", style: "width:100%;justify-content:center;padding:11px", onclick: () => {
+        if (closeSheet) closeSheet();
+      } }, "Understood & Verified")));
+  } catch (e) { toast(e.message, true); }
+}
+
 export async function pageGroups() {
-  const gs = await api("/api/groups");
+  const [gs, feed] = await Promise.all([
+    api("/api/groups"),
+    api("/api/sessions/feed").catch(() => [])
+  ]);
   const firstName = me()?.name?.split(" ")[0] ?? "there";
   const el = h("div", { class: "enter" });
 
-  /* page hero */
+  /* ── Page Hero ── */
   el.append(h("div", { class: "page-hero" },
     h("p", { class: "greeting" }, greetingByHour()),
     h("h1", {}, `Hey, ${firstName} 👋`),
-    h("p", { class: "sub" }, "Find a session, join your crew, or start something new."),
+    h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
     h("div", { class: "page-actions" },
-      h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"))));
+      h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
+      h("button", { class: "btn ghost", onclick: () => showVerificationSheet() }, "🛡️ Safety & ID Rules"))));
 
-  /* crews section */
+  /* ── Trust & Security Banner ── */
+  el.append(h("div", { class: "trust-banner", role: "region", "aria-label": "Safety status" },
+    h("div", { class: "trust-icon-box" }, "🛡️"),
+    h("div", { class: "trust-banner-content" },
+      h("div", { class: "trust-banner-title" },
+        "Safe Space & Identity Protected",
+        h("span", { class: "trust-badge-pill" }, "✓ ID Verified")),
+      h("div", { class: "trust-banner-sub" },
+        "Strict verification: all hangouts require verified identity and vouched entry. Automated buddy pairing escorts everyone safely home.")),
+    h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "Details →")));
+
+  /* ── Session Discovery & Search Section ── */
+  const searchWrap = h("div", { class: "search-bar-wrap" },
+    h("span", { class: "search-icon", "aria-hidden": "true" }, "🔍"),
+    h("input", {
+      type: "search",
+      class: "search-input",
+      placeholder: "Search sessions by spot, crew, or vibe (e.g. Aling Nena's, Sabado, Norte)...",
+      id: "session-search",
+      oninput: (e) => filterSessions(e.target.value)
+    }));
+
+  let currentTab = "all";
+  const tabAll = h("button", { class: "filter-chip active", onclick: () => setTab("all") }, `All Sessions (${feed.length})`);
+  const tabTonight = h("button", { class: "filter-chip", onclick: () => setTab("active") }, "Active / Tonight");
+  const tabGoing = h("button", { class: "filter-chip", onclick: () => setTab("going") }, "You're Going");
+
+  const filterBar = h("div", { class: "filter-bar" }, tabAll, tabTonight, tabGoing);
+  const feedContainer = h("div", { class: "feed-grid", id: "feed-container" });
+
+  el.append(
+    h("div", { class: "section-head" },
+      h("h2", {}, "Discover & Upcoming Sessions"),
+      feed.length > 0 ? h("span", { class: "chip amber" }, `${feed.length} available`) : null),
+    searchWrap,
+    filterBar,
+    feedContainer
+  );
+
+  function renderFeed(items) {
+    feedContainer.innerHTML = "";
+    if (items.length === 0) {
+      feedContainer.append(h("div", { class: "hero-empty", style: "grid-column: 1 / -1; padding: 40px 16px" },
+        h("div", { class: "hero-icon" }, "🔍"),
+        h("h3", {}, "No matching sessions found"),
+        h("p", {}, "Try searching for a different spot or crew name, or create a session in one of your crews.")));
+      return;
+    }
+
+    items.forEach(s => {
+      const spotName = s.spot_name || "Tambayan TBD";
+      const statusIcon = { planning: "📋", open: "🍻", wrapped: "🏠", closed: "✔" }[s.status] ?? "📅";
+      const dateText = fmtSessionTime(s.starts_at);
+
+      const attendeesCount = s.going_count || (s.attendees?.length ?? 0);
+      const isMyGoing = s.my_rsvp === "going";
+
+      const card = h("div", {
+        class: "feed-card",
+        tabindex: "0",
+        role: "link",
+        "aria-label": `Open session at ${spotName}`,
+        onclick: () => { location.hash = `/s/${s.id}`; },
+        onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") location.hash = `/s/${s.id}`; }
+      },
+        h("div", { class: "feed-card-header" },
+          h("div", {},
+            h("div", { class: "feed-card-spot" }, `📍 ${spotName}`),
+            h("div", { class: "feed-card-crew" }, `👥 ${s.group_name}`)),
+          h("span", { class: `status-bar ${s.status}` }, `${statusIcon} ${statusLabel(s.status)}`)),
+        h("div", { class: "feed-card-body" },
+          h("div", { class: "feed-meta-row" },
+            h("div", { class: "feed-meta-item" }, "🕒 ", dateText),
+            s.price_range ? h("div", { class: "feed-meta-item" }, `· ${s.price_range}`) : null),
+          h("div", { class: "avatar-stack" },
+            ...(s.attendees || []).slice(0, 3).map(a => crewAv(a.name)),
+            h("span", { class: "avatar-stack-label" },
+              attendeesCount > 0 ? `${attendeesCount} friend${attendeesCount !== 1 ? "s" : ""} going` : "Be the first to join"))),
+        h("div", { class: "feed-card-foot" },
+          h("span", { class: "security-tag" }, "🛡️ ID Checked"),
+          isMyGoing
+            ? h("span", { class: "chip green", style: "font-weight:600" }, "✓ You're Going")
+            : h("span", { style: "font:600 13px var(--font);color:var(--accent-text)" }, "View Session →"))
+      );
+
+      feedContainer.append(card);
+    });
+  }
+
+  function setTab(tab) {
+    currentTab = tab;
+    tabAll.classList.toggle("active", tab === "all");
+    tabTonight.classList.toggle("active", tab === "active");
+    tabGoing.classList.toggle("active", tab === "going");
+    filterSessions(document.querySelector("#session-search")?.value || "");
+  }
+
+  function filterSessions(query) {
+    const q = (query || "").toLowerCase().trim();
+    let filtered = feed;
+    if (currentTab === "active") {
+      filtered = filtered.filter(s => s.status === "open" || s.status === "planning" || s.status === "wrapped");
+    } else if (currentTab === "going") {
+      filtered = filtered.filter(s => s.my_rsvp === "going");
+    }
+    if (q) {
+      filtered = filtered.filter(s =>
+        (s.spot_name && s.spot_name.toLowerCase().includes(q)) ||
+        (s.group_name && s.group_name.toLowerCase().includes(q)) ||
+        (s.spot_notes && s.spot_notes.toLowerCase().includes(q))
+      );
+    }
+    renderFeed(filtered);
+  }
+
+  // Initial render of feed
+  renderFeed(feed);
+
+  /* ── My Crews Section ── */
+  el.append(
+    h("div", { class: "section-head", style: "margin-top:28px" },
+      h("h2", {}, `My Crews (${gs.length})`),
+      h("button", { class: "btn ghost sm", onclick: () => newCrewSheet() }, "+ New crew")));
+
   if (gs.length === 0) {
     el.append(h("div", { class: "hero-empty" },
       h("div", { class: "hero-icon" }, "🍻"),
@@ -95,8 +280,6 @@ export async function pageGroups() {
       h("p", {}, "Create your first crew above, or ask a friend to share an invite link.")));
   } else {
     el.append(
-      h("div", { class: "section-head" },
-        h("h2", {}, `${gs.length} crew${gs.length !== 1 ? "s" : ""}`)),
       h("div", { class: "crew-grid" },
         ...gs.map((g) => {
           const parts = (g.name ?? "").trim().split(" ");
@@ -118,6 +301,18 @@ export async function pageGroups() {
           return card;
         })));
   }
+
+  /* ── Safety Guarantee Footer ── */
+  el.append(h("div", {
+    style: "background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;margin-top:28px;display:flex;align-items:center;gap:16px"
+  },
+    h("div", { style: "font-size:28px;flex:none" }, "🚗"),
+    h("div", { style: "flex:1;min-width:0" },
+      h("strong", { style: "display:block;font:600 14.5px var(--font);color:var(--text)" }, "Uwian Safe Arrival Guarantee"),
+      h("p", { style: "font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.45" },
+        "When hangouts conclude, our buddy escalation pairs you with friends heading your way. Real safety, zero awkwardness.")),
+    h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "How it works →")
+  ));
 
   return el;
 
@@ -206,7 +401,7 @@ export async function pageGroup(gid) {
             },
               h("div", { class: "session-card-icon" }, icon),
               h("div", { class: "session-card-body" },
-                h("div", { class: "session-card-title" }, new Date(s.starts_at + "Z").toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })),
+                h("div", { class: "session-card-title" }, fmtSessionTime(s.starts_at)),
                 h("div", { class: "session-card-sub" }, statusLabel(s.status))),
               h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status)));
           })),
