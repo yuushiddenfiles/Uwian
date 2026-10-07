@@ -30,55 +30,188 @@ function fmtSessionTime(dt) {
    AUTH
    ════════════════════════════════════ */
 export function pageLogin() {
-  const email = h("input", { placeholder: "Email address", type: "email", id: "login-email", autocomplete: "email" });
-  const pw    = h("input", { placeholder: "Password", type: "password", id: "login-pw", autocomplete: "current-password" });
-  return h("div", { class: "auth-card enter" },
-    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:20px" },
-      h("div", { style: "width:38px;height:38px;border-radius:10px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
-        h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.4", "stroke-linejoin": "round", "aria-hidden": "true" },
-          h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
-      h("span", { style: "font:700 18px 'DM Sans',system-ui,sans-serif;color:var(--accent-text);letter-spacing:-0.3px" }, "uwian")),
-    h("h2", {}, "Welcome back"),
-    h("p", { class: "sub" }, "Sign in to find your crew and join a session."),
-    h("label", { class: "f", for: "login-email" }, "Email"), email,
-    h("label", { class: "f", for: "login-pw" }, "Password"), pw,
-    h("button", { class: "btn primary", style: "width:100%;margin-top:22px;justify-content:center;padding:12px", onclick: async () => {
-        try { await api("/api/login", { email: email.value, password: pw.value }); location.hash = "/groups"; }
-        catch (e) { toast(e.message, true); pw.classList.add("shake"); setTimeout(() => pw.classList.remove("shake"), 500); }
-      } }, "Sign in"),
-    h("hr"),
-    h("p", { style: "text-align:center;margin-top:16px;font-size:14px;color:var(--text-2)" },
-      "New here? ", h("a", { href: "#/signup", style: "color:var(--accent-text);font-weight:600" }, "Create an account")),
-    h("hr"),
-    h("p", { class: "demo" }, "Demo accounts: ana@barkada.demo … ela@barkada.demo\nPassword: BarkadaDemo!2026"));
+  const email = h("input", {
+    placeholder: "name@example.com",
+    type: "email",
+    id: "login-email",
+    autocomplete: "email",
+    class: "clay-auth-input"
+  });
+
+  const pw = h("input", {
+    placeholder: "Enter password",
+    type: "password",
+    id: "login-pw",
+    autocomplete: "current-password",
+    class: "clay-auth-input"
+  });
+
+  async function handleLogin() {
+    if (!email.value.trim() || !pw.value.trim()) {
+      return toast("Please enter both email and password.", true);
+    }
+    try {
+      await api("/api/login", { email: email.value.trim(), password: pw.value.trim() });
+      location.hash = "/groups";
+    } catch (e) {
+      toast(e.message, true);
+      pw.classList.add("shake");
+      setTimeout(() => pw.classList.remove("shake"), 500);
+    }
+  }
+
+  function demoPill(name, role, emailAddr, pwStr, avInit, themeClass) {
+    return h("button", {
+      type: "button",
+      class: `auth-demo-pill ${themeClass}`,
+      onclick: () => {
+        email.value = emailAddr;
+        pw.value = pwStr;
+        toast(`Loaded ${name} credentials ✨`);
+        email.classList.add("highlight-field");
+        pw.classList.add("highlight-field");
+        setTimeout(() => {
+          email.classList.remove("highlight-field");
+          pw.classList.remove("highlight-field");
+        }, 600);
+      }
+    },
+      h("div", { class: "demo-pill-av" }, avInit),
+      h("div", { class: "demo-pill-info" },
+        h("span", { class: "demo-pill-name" }, name),
+        h("span", { class: "demo-pill-role" }, role)),
+      h("span", { class: "demo-pill-badge" }, "Use →")
+    );
+  }
+
+  return h("div", { class: "auth-container-wrap enter" },
+    h("div", { class: "auth-card clay-auth-card" },
+      /* Top header badge with 3D character pedestal */
+      h("div", { class: "auth-header-hero" },
+        h("div", { class: "auth-character-pedestal" },
+          icon3d("girl", { size: 68, class: "auth-3d-character" })),
+        h("div", { class: "auth-hero-branding" },
+          h("div", { class: "auth-brand-row" },
+            h("span", { class: "auth-brand-title" }, "uwian"),
+            h("span", { class: "auth-safe-badge icon-text-row" }, icon3d("shield", { size: 12 }), "ID Protected")),
+          h("h2", { class: "auth-title" }, "Welcome back! ☀️"),
+          h("p", { class: "auth-sub" }, "Sign in to find your crew, join a hangout, and get home safely."))),
+
+      /* Input form */
+      h("form", {
+        class: "auth-form-body",
+        onsubmit: (e) => { e.preventDefault(); handleLogin(); }
+      },
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "login-email" }, "Email address"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("mail", { size: 18 })),
+            email)),
+
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "login-pw" }, "Password"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("key", { size: 18 })),
+            pw)),
+
+        h("button", {
+          type: "submit",
+          class: "btn primary clay-pill-primary auth-submit-btn",
+          id: "auth-signin-btn"
+        }, "▶ Sign in to Uwian")
+      ),
+
+      /* Demo Quick-Fill Section */
+      h("div", { class: "auth-demo-section" },
+        h("div", { class: "auth-section-divider" },
+          h("span", {}, "Quick Demo Sign-In")),
+        h("div", { class: "auth-demo-grid" },
+          demoPill("Ana Reyes", "Barkada Host", "ana@barkada.demo", "BarkadaDemo!2026", "AR", "pill-coral"),
+          demoPill("Ela Bautista", "Crew Member", "ela@barkada.demo", "BarkadaDemo!2026", "EB", "pill-mint"))),
+
+      /* Footer Link */
+      h("div", { class: "auth-footer-nav" },
+        h("p", {}, "New here? ",
+          h("a", { href: "#/signup", class: "auth-signup-link" }, "Create an account")),
+        h("div", { class: "auth-trust-chip icon-text-row" },
+          icon3d("shield", { size: 14 }), "Strict ID Verification & Commute Pairing Guarantee"))
+    )
+  );
 }
 
 export function pageSignup() {
-  const name  = h("input", { placeholder: "Your full name", id: "su-name", autocomplete: "name" });
-  const email = h("input", { placeholder: "Email address", type: "email", id: "su-email", autocomplete: "email" });
-  const pw    = h("input", { placeholder: "Password (8+ characters)", type: "password", id: "su-pw", autocomplete: "new-password" });
-  const bday  = h("input", { type: "date", id: "su-bday" });
-  return h("div", { class: "auth-card enter" },
-    h("div", { style: "display:flex;align-items:center;gap:10px;margin-bottom:20px" },
-      h("div", { style: "width:38px;height:38px;border-radius:10px;background:var(--accent-dim);border:1.5px solid var(--accent-mid);display:grid;place-items:center;flex:none" },
-        h("svg", { viewBox: "0 0 32 32", width: "20", height: "20", fill: "none", stroke: "var(--accent)", "stroke-width": "2.4", "stroke-linejoin": "round", "aria-hidden": "true" },
-          h("path", { d: "M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z" }))),
-      h("span", { style: "font:700 18px 'DM Sans',system-ui,sans-serif;color:var(--accent-text);letter-spacing:-0.3px" }, "uwian")),
-    h("h2", {}, "Create an account"),
-    h("p", { class: "sub" }, "Must be 18 or older. Birthdate is self-declared — see docs/privacy.md for details."),
-    h("label", { class: "f", for: "su-name" }, "Name"), name,
-    h("label", { class: "f", for: "su-email" }, "Email"), email,
-    h("label", { class: "f", for: "su-pw" }, "Password"), pw,
-    h("label", { class: "f", for: "su-bday" }, "Birthdate (18+)"), bday,
-    h("button", { class: "btn primary", style: "width:100%;margin-top:22px;justify-content:center;padding:12px", onclick: async () => {
-        try {
-          await api("/api/signup", { name: name.value, email: email.value, password: pw.value, birthdate: bday.value });
-          location.hash = "/groups";
-        }
-        catch (e) { toast(e.message, true); }
-      } }, "Create account"),
-    h("p", { style: "text-align:center;margin-top:16px;font-size:14px;color:var(--text-2)" },
-      "Already have an account? ", h("a", { href: "#/login", style: "color:var(--accent-text);font-weight:600" }, "Sign in")));
+  const name  = h("input", { placeholder: "Your full name", id: "su-name", autocomplete: "name", class: "clay-auth-input" });
+  const email = h("input", { placeholder: "name@example.com", type: "email", id: "su-email", autocomplete: "email", class: "clay-auth-input" });
+  const pw    = h("input", { placeholder: "Password (8+ characters)", type: "password", id: "su-pw", autocomplete: "new-password", class: "clay-auth-input" });
+  const bday  = h("input", { type: "date", id: "su-bday", class: "clay-auth-input" });
+
+  async function handleSignup() {
+    if (!name.value.trim() || !email.value.trim() || !pw.value.trim() || !bday.value) {
+      return toast("Please fill in all fields.", true);
+    }
+    try {
+      await api("/api/signup", { name: name.value.trim(), email: email.value.trim(), password: pw.value.trim(), birthdate: bday.value });
+      location.hash = "/groups";
+    } catch (e) {
+      toast(e.message, true);
+    }
+  }
+
+  return h("div", { class: "auth-container-wrap enter" },
+    h("div", { class: "auth-card clay-auth-card" },
+      /* Top header badge with 3D character pedestal */
+      h("div", { class: "auth-header-hero" },
+        h("div", { class: "auth-character-pedestal" },
+          icon3d("boy", { size: 68, class: "auth-3d-character" })),
+        h("div", { class: "auth-hero-branding" },
+          h("div", { class: "auth-brand-row" },
+            h("span", { class: "auth-brand-title" }, "uwian"),
+            h("span", { class: "auth-safe-badge icon-text-row" }, icon3d("shield", { size: 12 }), "18+ Only")),
+          h("h2", { class: "auth-title" }, "Join your crew ✨"),
+          h("p", { class: "auth-sub" }, "Strict verification ensures every hangout is safe and vouched."))),
+
+      h("form", {
+        class: "auth-form-body",
+        onsubmit: (e) => { e.preventDefault(); handleSignup(); }
+      },
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "su-name" }, "Full Name"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("boy", { size: 18 })),
+            name)),
+
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "su-email" }, "Email Address"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("mail", { size: 18 })),
+            email)),
+
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "su-pw" }, "Password (8+ chars)"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("key", { size: 18 })),
+            pw)),
+
+        h("div", { class: "auth-input-group" },
+          h("label", { class: "auth-label", for: "su-bday" }, "Birthdate (18+)"),
+          h("div", { class: "auth-input-wrapper" },
+            h("span", { class: "auth-input-icon" }, icon3d("calendar", { size: 18 })),
+            bday)),
+
+        h("button", {
+          type: "submit",
+          class: "btn primary clay-pill-primary auth-submit-btn",
+          id: "auth-signup-btn"
+        }, "▶ Create Verified Account")
+      ),
+
+      h("div", { class: "auth-footer-nav" },
+        h("p", {}, "Already a member? ",
+          h("a", { href: "#/login", class: "auth-signup-link" }, "Sign in →")),
+        h("div", { class: "auth-trust-chip icon-text-row" },
+          icon3d("shield", { size: 14 }), "Safe Space & Commute Buddy Protection"))
+    )
+  );
 }
 
 /* ════════════════════════════════════

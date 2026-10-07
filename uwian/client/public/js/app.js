@@ -6,8 +6,10 @@ const view = $("#view");
 async function route() {
   const path = location.hash.slice(1) || "/groups";
   view.innerHTML = "";
+  const isAuth = path === "/login" || path === "/signup";
+  document.body.classList.toggle("auth-mode", isAuth);
   try {
-    if (path === "/login" || path === "/signup") return render(path === "/login" ? P.pageLogin() : P.pageSignup());
+    if (isAuth) return render(path === "/login" ? P.pageLogin() : P.pageSignup());
     if (!P.me()) { const u = await P.loadMe(); if (!u) { location.hash = "/login"; return; } }
     await api("/api/escalation-tick", {}, "POST").catch(() => {}); // lazy escalation on load
     let el;
