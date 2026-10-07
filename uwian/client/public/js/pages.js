@@ -177,8 +177,31 @@ export async function pageGroups() {
         h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))));
   el.append(heroCard);
 
+  /* ── Segmented Dashboard View Switcher (Sessions, Crews, Safety, Overview) ── */
+  let currentView = "sessions"; // "sessions" | "crews" | "safety" | "all"
+
+  const tabSessions = h("button", { class: "dash-view-tab active", onclick: () => switchView("sessions") },
+    icon3d("calendar", { size: 16 }), "Sessions & Hangouts",
+    h("span", { class: "dash-tab-badge" }, String(feed.length)));
+
+  const tabCrews = h("button", { class: "dash-view-tab", onclick: () => switchView("crews") },
+    icon3d("boy", { size: 16 }), "My Crews",
+    h("span", { class: "dash-tab-badge" }, String(gs.length)));
+
+  const tabSafety = h("button", { class: "dash-view-tab", onclick: () => switchView("safety") },
+    icon3d("shield", { size: 16 }), "Safety Center",
+    h("span", { class: "dash-tab-badge" }, "Verified"));
+
+  const tabAllViews = h("button", { class: "dash-view-tab", onclick: () => switchView("all") },
+    icon3d("target", { size: 16 }), "Overview");
+
+  const viewSwitcher = h("div", { class: "dashboard-view-tabs", role: "tablist", "aria-label": "Dashboard sections" },
+    tabSessions, tabCrews, tabSafety, tabAllViews
+  );
+  el.append(viewSwitcher);
+
   /* ── Trust & Security Banner (Smaller rounded glass card) ── */
-  el.append(h("div", { class: "glass-card trust-glass-card", role: "region", "aria-label": "Safety status" },
+  const trustCard = h("div", { class: "glass-card trust-glass-card", role: "region", "aria-label": "Safety status" },
     h("div", { class: "trust-icon-box" }, icon3d("shield", { size: 28, class: "icon-3d-float" })),
     h("div", { class: "trust-banner-content" },
       h("div", { class: "trust-banner-title" },
@@ -186,7 +209,8 @@ export async function pageGroups() {
         h("span", { class: "trust-badge-pill icon-text-row" }, icon3d("tick", { size: 12 }), "ID Verified")),
       h("div", { class: "trust-banner-sub" },
         "Strict verification: all hangouts require verified identity and vouched entry. Automated buddy pairing escorts everyone safely home.")),
-    h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "Details →")));
+    h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "Details →"));
+  el.append(trustCard);
 
   /* ── Session Discovery & Search Section ── */
   const searchWrap = h("div", { class: "search-bar-wrap" },
@@ -331,7 +355,7 @@ export async function pageGroups() {
   el.append(crewsCard);
 
   /* ── Safety Guarantee Footer (Smaller rounded glass card) ── */
-  el.append(h("div", {
+  const safetyCard = h("div", {
     class: "glass-card safety-guarantee-glass-card",
     style: "display:flex;align-items:center;gap:16px"
   },
@@ -342,9 +366,76 @@ export async function pageGroups() {
       h("p", { style: "font-size:13px;color:var(--text-2);margin-top:3px;line-height:1.45" },
         "When hangouts conclude, our buddy escalation pairs you with friends heading your way. Real safety, zero awkwardness.")),
     h("button", { class: "btn ghost sm", onclick: () => showVerificationSheet() }, "How it works →")
-  ));
+  );
+  el.append(safetyCard);
 
+  /* ── View Switching Logic ── */
+  function switchView(view) {
+    currentView = view;
+    tabSessions.classList.toggle("active", view === "sessions");
+    tabCrews.classList.toggle("active", view === "crews");
+    tabSafety.classList.toggle("active", view === "safety");
+    tabAllViews.classList.toggle("active", view === "all");
+
+    // Sync lower dock active highlights
+    document.querySelector("#dock-sessions")?.classList.toggle("active", view === "sessions");
+    document.querySelector("#dock-crews")?.classList.toggle("active", view === "crews");
+
+    if (view === "sessions") {
+      heroCard.style.display = "";
+      trustCard.style.display = "none";
+      sessionsCard.style.display = "";
+      crewsCard.style.display = "none";
+      safetyCard.style.display = "none";
+    } else if (view === "crews") {
+      heroCard.style.display = "";
+      trustCard.style.display = "none";
+      sessionsCard.style.display = "none";
+      crewsCard.style.display = "";
+      safetyCard.style.display = "none";
+    } else if (view === "safety") {
+      heroCard.style.display = "none";
+      trustCard.style.display = "";
+      sessionsCard.style.display = "none";
+      crewsCard.style.display = "none";
+      safetyCard.style.display = "";
+    } else {
+      // "all" overview
+      heroCard.style.display = "";
+      trustCard.style.display = "";
+      sessionsCard.style.display = "";
+      crewsCard.style.display = "";
+      safetyCard.style.display = "";
+    }
+  }
+
+  // Initial view default: sessions
+  switchView("sessions");
+
+  window._switchDashboardView = switchView;
   window._uwianNewCrewSheet = newCrewSheet;
+  window._planSessionSheet = () => {
+    if (gs.length === 0) {
+      toast("Create a crew first before scheduling a hangout.");
+      newCrewSheet();
+      return;
+    }
+    if (gs.length === 1) {
+      location.hash = `/g/${gs[0].id}`;
+      toast(`Opening ${gs[0].name} to schedule hangout...`);
+      return;
+    }
+    openSheet("Pick a crew for your session", h("div", {},
+      h("p", { style: "font-size:14px;color:var(--text-2);margin-bottom:14px" }, "Which crew do you want to plan this session for?"),
+      ...gs.map(g => h("button", {
+        class: "btn ghost",
+        style: "width:100%;justify-content:space-between;margin-bottom:8px;padding:12px",
+        onclick: () => {
+          location.hash = `/g/${g.id}`;
+        }
+      }, h("span", { style: "font-weight:600" }, g.name), icon("arrow", { size: 14 })))
+    ));
+  };
   return el;
 
   function newCrewSheet() {

@@ -17,8 +17,8 @@
 <body class="glass-os-theme">
 <div class="wallpaper-bg" aria-hidden="true"></div>
 
-<!-- Slim Vertical Glass Rail (Left) -->
-<aside id="glass-rail" class="glass-rail" aria-label="Sidebar Navigation">
+<!-- Slim Vertical Glass Rail (Left) - System & Safety Utility -->
+<aside id="glass-rail" class="glass-rail" aria-label="System & Safety Navigation">
   <div class="rail-top">
     <button class="logo-btn rail-icon-btn" data-link="/" aria-label="Uwian home" title="Uwian Home">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -27,20 +27,20 @@
     </button>
   </div>
   
-  <nav class="rail-nav" aria-label="Quick Links">
-    <button class="rail-btn" id="rail-search-btn" title="Search sessions" aria-label="Search">
+  <nav class="rail-nav" aria-label="System Utilities">
+    <!-- Quick Drinking Preference Toggle -->
+    <button class="rail-btn" id="rail-drink-btn" title="Toggle Drinking Preference" aria-label="Drinking Preference">
+      <img src="/img/3d/cup.png" width="22" height="22" alt="" class="icon-3d" id="rail-drink-icon">
+    </button>
+    <!-- Safe Arrival Buddy Escort status/rules -->
+    <button class="rail-btn" id="rail-buddy-btn" title="Safe Arrival & Buddy Escort" aria-label="Safe Arrival & Buddy Escort">
+      <img src="/img/3d/travel.png" width="22" height="22" alt="" class="icon-3d">
+    </button>
+    <!-- Quick Session Search -->
+    <button class="rail-btn" id="rail-search-btn" title="Search Sessions & Hangouts" aria-label="Search">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
       </svg>
-    </button>
-    <a href="#/groups" class="rail-btn" id="rail-groups-btn" title="Explore & Sessions" aria-label="Explore & Sessions">
-      <img src="/img/3d/calendar.png" width="22" height="22" alt="" class="icon-3d">
-    </a>
-    <a href="#/map" class="rail-btn" id="rail-map-btn" title="Live Hangout Map" aria-label="Live Hangout Map">
-      <img src="/img/3d/mappin.png" width="22" height="22" alt="" class="icon-3d">
-    </a>
-    <button class="rail-btn" id="rail-safety-btn" title="Safety & ID Rules" aria-label="Safety & ID Rules">
-      <img src="/img/3d/shield.png" width="22" height="22" alt="" class="icon-3d">
     </button>
   </nav>
 
@@ -64,7 +64,7 @@
 
 <main id="view" tabindex="-1" aria-label="Page content"></main>
 
-<!-- Floating Glass Dock (Bottom) -->
+<!-- Floating Glass Dock (Bottom) - Actions & Primary Navigation -->
 <div id="glass-dock" class="glass-dock" role="toolbar" aria-label="Quick Actions">
   <button class="dock-item" id="dock-new-crew" title="Create New Crew" aria-label="Create New Crew">
     <span class="dock-icon-wrap">
@@ -72,30 +72,30 @@
     </span>
     <span class="dock-label">+ Crew</span>
   </button>
-  <a href="#/groups" class="dock-item" id="dock-sessions" title="Explore Sessions" aria-label="Explore Sessions">
+  <button class="dock-item" id="dock-new-session" title="Plan New Session" aria-label="Plan New Session">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/fire.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">+ Session</span>
+  </button>
+  <button class="dock-item active" id="dock-sessions" title="Explore Hangouts & Sessions" aria-label="Explore Sessions">
     <span class="dock-icon-wrap">
       <img src="/img/3d/calendar.png" width="22" height="22" alt="" class="icon-3d">
     </span>
     <span class="dock-label">Sessions</span>
-  </a>
-  <a href="#/map" class="dock-item" id="dock-map" title="Live Hangout Map" aria-label="Live Map">
+  </button>
+  <button class="dock-item" id="dock-crews" title="My Crews & Friends" aria-label="My Crews">
+    <span class="dock-icon-wrap">
+      <img src="/img/3d/boy.png" width="22" height="22" alt="" class="icon-3d">
+    </span>
+    <span class="dock-label">My Crews</span>
+  </button>
+  <a href="#/map" class="dock-item" id="dock-map" title="Live Hangout Map Radar" aria-label="Live Map">
     <span class="dock-icon-wrap">
       <img src="/img/3d/mappin.png" width="22" height="22" alt="" class="icon-3d">
     </span>
     <span class="dock-label">Live Map</span>
   </a>
-  <button class="dock-item" id="dock-safety" title="Safety & ID Rules" aria-label="Safety Rules">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/shield.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">Safety</span>
-  </button>
-  <button class="dock-item" id="dock-search" title="Search Sessions" aria-label="Search Sessions">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/zoom.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">Search</span>
-  </button>
   <div id="dock-mobile-user-slot" class="dock-mobile-user-slot"></div>
 </div>
 

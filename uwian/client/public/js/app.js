@@ -230,6 +230,35 @@ $("#dock-new-crew")?.addEventListener("click", () => {
   }
 });
 
+$("#dock-new-session")?.addEventListener("click", () => {
+  if (window._planSessionSheet) {
+    window._planSessionSheet();
+  } else {
+    location.hash = "/groups";
+    setTimeout(() => window._planSessionSheet?.(), 350);
+  }
+});
+
+$("#dock-sessions")?.addEventListener("click", () => {
+  const onGroups = !location.hash || location.hash === "#/groups" || location.hash === "#/";
+  if (onGroups && window._switchDashboardView) {
+    window._switchDashboardView("sessions");
+  } else {
+    location.hash = "/groups";
+    setTimeout(() => window._switchDashboardView?.("sessions"), 350);
+  }
+});
+
+$("#dock-crews")?.addEventListener("click", () => {
+  const onGroups = !location.hash || location.hash === "#/groups" || location.hash === "#/";
+  if (onGroups && window._switchDashboardView) {
+    window._switchDashboardView("crews");
+  } else {
+    location.hash = "/groups";
+    setTimeout(() => window._switchDashboardView?.("crews"), 350);
+  }
+});
+
 /* Live clock ticker for the panel */
 setInterval(() => {
   const clockEl = document.querySelector("#live-clock-time");
