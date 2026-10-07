@@ -117,7 +117,7 @@ The login page features **interactive 1-click quick-fill buttons** for instant e
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/curtn/Uwian.git
+git clone https://github.com/yuushiddenfiles/Uwian.git
 cd Uwian/uwian
 
 # Install server dependencies
