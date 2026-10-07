@@ -166,16 +166,53 @@ export async function pageGroups() {
   );
   el.append(panelTopBar);
 
-  /* ── Greeting & Hero (Smaller rounded glass card) ── */
+  /* ── Greeting & Hero (Claymorphic warm peach card matching reference) ── */
   const heroCard = h("div", { class: "glass-card greeting-glass-card" },
+    h("div", { class: "greeting-avatar-col" },
+      h("div", { class: "hero-character-pedestal" },
+        icon3d("girl", { size: 68, class: "hero-3d-character" }))),
     h("div", { class: "greeting-content" },
-      h("p", { class: "greeting" }, greetingByHour()),
-      h("h1", {}, `Hey, ${firstName}`),
+      h("p", { class: "greeting" }, `${greetingByHour()} ☀️`),
+      h("h1", {}, `Hey, ${firstName}!`),
       h("p", { class: "sub" }, "Find a session, join your crew, or meet new verified friends safely."),
       h("div", { class: "page-actions" },
-        h("button", { class: "btn primary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New crew"),
-        h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))));
+        h("button", { class: "btn primary clay-pill-primary", id: "plan-session-hero-btn", onclick: () => window._planSessionSheet() }, "▶ Plan Hangout"),
+        h("button", { class: "btn secondary clay-pill-secondary", id: "new-crew-btn", onclick: () => newCrewSheet() }, "+ New Crew"),
+        h("button", { class: "btn ghost icon-text-row", onclick: () => showVerificationSheet() }, icon3d("shield", { size: 16 }), "Safety & ID Rules"))),
+    h("div", { class: "greeting-deco-col" },
+      h("div", { class: "hero-deco-pedestal" },
+        icon3d("cup", { size: 48, class: "hero-3d-deco" })))
+  );
   el.append(heroCard);
+
+  /* ── 4 Pastel Stat Cards (Row of 4 distinct clay tiles matching reference) ── */
+  const statTilesRow = h("div", { class: "pastel-stat-grid" },
+    h("div", { class: "pastel-stat-tile tile-mint", tabindex: "0", role: "button", onclick: () => switchView("sessions") },
+      h("div", { class: "tile-icon-badge" }, icon3d("calendar", { size: 28 })),
+      h("div", { class: "tile-label" }, "Hangouts Active"),
+      h("div", { class: "tile-value" }, String(feed.length || 0)),
+      h("div", { class: "tile-delta" }, "+18% this week")
+    ),
+    h("div", { class: "pastel-stat-tile tile-coral", tabindex: "0", role: "button", onclick: () => switchView("crews") },
+      h("div", { class: "tile-icon-badge" }, icon3d("boy", { size: 28 })),
+      h("div", { class: "tile-label" }, "My Crews"),
+      h("div", { class: "tile-value" }, String(gs.length || 0)),
+      h("div", { class: "tile-delta" }, "+8 this week")
+    ),
+    h("div", { class: "pastel-stat-tile tile-yellow", tabindex: "0", role: "button", onclick: () => switchView("safety") },
+      h("div", { class: "tile-icon-badge" }, icon3d("clock", { size: 28 })),
+      h("div", { class: "tile-label" }, "Safe Hours"),
+      h("div", { class: "tile-value" }, "34.6"),
+      h("div", { class: "tile-delta" }, "+6.2 this week")
+    ),
+    h("div", { class: "pastel-stat-tile tile-blue", tabindex: "0", role: "button", onclick: () => switchView("safety") },
+      h("div", { class: "tile-icon-badge" }, icon3d("fire", { size: 28 })),
+      h("div", { class: "tile-label" }, "Safety Streak"),
+      h("div", { class: "tile-value" }, "7"),
+      h("div", { class: "tile-delta" }, "days in a row")
+    )
+  );
+  el.append(statTilesRow);
 
   /* ── Segmented Dashboard View Switcher (Sessions, Crews, Safety, Overview) ── */
   let currentView = "sessions"; // "sessions" | "crews" | "safety" | "all"
@@ -266,9 +303,11 @@ export async function pageGroups() {
         onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") location.hash = `/s/${s.id}`; }
       },
         h("div", { class: "feed-card-header" },
-          h("div", {},
-            h("div", { class: "feed-card-spot icon-text-row" }, icon3d("pin", { size: 16 }), spotName),
-            h("div", { class: "feed-card-crew icon-text-row" }, icon3d("boy", { size: 14 }), s.group_name)),
+          h("div", { class: "feed-spot-lead" },
+            h("div", { class: "feed-thumbnail-badge" }, icon3d("pin", { size: 22 })),
+            h("div", { class: "feed-spot-titles" },
+              h("div", { class: "feed-card-spot" }, spotName),
+              h("div", { class: "feed-card-crew icon-text-row" }, icon3d("boy", { size: 13 }), s.group_name))),
           h("span", { class: `status-bar ${s.status}` }, statusLabel(s.status))),
         h("div", { class: "feed-card-body" },
           h("div", { class: "feed-meta-row" },
@@ -280,9 +319,11 @@ export async function pageGroups() {
               attendeesCount > 0 ? `${attendeesCount} friend${attendeesCount !== 1 ? "s" : ""} going` : "Be the first to join"))),
         h("div", { class: "feed-card-foot" },
           h("span", { class: "security-tag icon-text-row" }, icon3d("shield", { size: 14 }), "ID Checked"),
-          isMyGoing
-            ? h("span", { class: "chip green icon-text-row", style: "font-weight:600" }, icon3d("tick", { size: 12 }), "You're Going")
-            : h("span", { style: "font:600 13px var(--font);color:var(--accent-text)" }, "View Session →"))
+          h("div", { class: "feed-action-wrap" },
+            isMyGoing
+              ? h("span", { class: "chip green icon-text-row", style: "font-weight:600" }, icon3d("tick", { size: 12 }), "Going")
+              : h("span", { class: "view-link-label" }, "View"),
+            h("div", { class: "clay-round-action-btn", "aria-label": "Open session" }, "▶")))
       );
 
       feedContainer.append(card);
@@ -348,7 +389,7 @@ export async function pageGroups() {
                 h("div", { class: "crew-card-meta" }, g.role === "admin" ? "You're an admin" : "Member"))),
             h("div", { class: "crew-card-foot" },
               h("span", { class: "role-chip" }, g.role),
-              h("span", { class: "crew-card-arrow", "aria-hidden": "true" }, "→")));
+              h("div", { class: "clay-round-action-btn", "aria-label": "Open crew" }, "▶")));
           return card;
         })));
   }
@@ -380,6 +421,8 @@ export async function pageGroups() {
     // Sync lower dock active highlights
     document.querySelector("#dock-sessions")?.classList.toggle("active", view === "sessions");
     document.querySelector("#dock-crews")?.classList.toggle("active", view === "crews");
+
+    statTilesRow.style.display = "";
 
     if (view === "sessions") {
       heroCard.style.display = "";
