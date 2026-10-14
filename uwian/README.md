@@ -1,114 +1,257 @@
-# 🌅 Uwian (U-wee-ahn)
-### *Student Hangout Discovery & Safe Commute Network*
+# Uwian (U-wee-ahn)
+
+Student Hangout Discovery and Safe Commute Network
 
 [![Node.js](https://img.shields.io/badge/Node.js-v20+-green.svg?style=flat-square)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg?style=flat-square)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-19.x-blue.svg?style=flat-square)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.x-purple.svg?style=flat-square)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8.svg?style=flat-square)](https://tailwindcss.com/)
 [![SQLite](https://img.shields.io/badge/Database-better--sqlite3-blue.svg?style=flat-square)](https://github.com/WiseLibs/better-sqlite3)
 [![Leaflet](https://img.shields.io/badge/Mapping-Leaflet.js-brightgreen.svg?style=flat-square)](https://leafletjs.com/)
-[![UI Design](https://img.shields.io/badge/Design-Claymorphism%20%26%20Glass-orange.svg?style=flat-square)](https://awwwards.com/)
-[![Privacy](https://img.shields.io/badge/Architecture-Privacy--First-teal.svg?style=flat-square)](docs/privacy.md)
+[![Tests](https://img.shields.io/badge/Tests-18%20Passed-success.svg?style=flat-square)](package.json)
 
 ---
 
-## 📖 Executive Summary
+## Overview
 
-In Filipino culture, **"Uwian"** is the familiar, comforting phrase meaning *"time to head home."* 
+In Filipino culture, "Uwian" refers to heading home at the end of the day or night.
 
-College students and young adults love hanging out late into the night with their *barkada* (friend group), but heading home often comes with severe anxiety: **unsafe transit corridors, late-night harassment, lack of accountability, and social awkwardness around asking friends for safe escorts or opting out of alcohol bills.**
+For commuting university students and young adults in Metro Manila, gathering with friends (*barkada*) often ends late at night. Leaving tambayan spots presents real logistical and safety friction: unsafe transit corridors along major routes, lack of arrival accountability, peer pressure around splitting alcohol tabs, and difficulty coordinating escorts across shared transit lines.
 
-**Uwian is an end-to-end social safety and hangout platform.** It bridges social discovery with real-world physical safety: members discover and plan hangouts within vouched circles, track arrival guarantees, split tabs fairly without alcohol pressure, and ensure every single friend gets safely to their doorstep through automated commute buddy pairing.
+Uwian is a full-stack social safety and hangout platform engineered for student circles. It combines verified hangout discovery, transparent tab splitting with non-drinker protections, real-time transit corridor buddy pairing, automated arrival check-in escalation, direct and group messaging with live coordinate pins, and a dedicated platform moderation console.
 
 ---
 
-## 🎯 The Core Problem & Social Impact
+## Core Problem and Technical Solutions
 
-| The Problem | How Uwian Solves It |
+| Challenge | Engineering Solution |
 |---|---|
-| **Commute Anxiety & Late-Night Risk** | Automated **Buddy Escort & Commute Direction Pairing** matches friends traveling along similar routes/lines, with automated check-in timers. |
-| **Predators & Strangers in Hangouts** | **Two-Tier Vouch Identity System**: Every member is age-verified (18+) and must be vouched for by an existing member before gaining access. |
-| **Alcohol Peer Pressure & Unfair Tabs** | **Automatic Bill Isolation**: Non-drinkers are flagged and mathematically excluded from alcohol receipts, ending financial pressure. |
-| **Awkward "Text Me When You're Home"** | **Automated Escalation Protocol**: The system tracks safe arrival check-ins and automatically alerts buddy pairs if someone doesn't check in. |
+| Late-night transit risks and commute anxiety | Direction-aware commute buddy pairing groups students by transit route (LRT-1, MRT-3, Commonwealth, Katipunan, Taft) with automated check-in countdown timers. |
+| Unvouched strangers entering private circles | Two-tier identity verification requires 18+ birthdate validation, government or student ID document review, and mutual member vouches. |
+| Alcohol peer pressure and unfair bill splits | Mathematical bill isolation in `shared/split.js` automatically excludes non-drinkers from alcohol lines, dividing only food and non-alcoholic items among them. |
+| Bilateral debt confusion across groups | Cash settlement engine in `shared/settle.js` resolves multi-payer balances and calculates the minimal number of direct transfers using greedy cash-flow simplification. |
+| Unanswered "text me when you get home" texts | Three-stage escalation state machine triggers automated notifications to the student, then to commute buddies (+30 min), then to operators and emergency contacts (+60 min). |
+| Unregulated tambayan locations | Community spot suggestion engine lets students propose verified spots with coordinates, operating hours, and price tiers, moderated by platform operators. |
 
 ---
 
-## 🌟 Key Innovations & Features
+## Complete Feature Inventory
 
-### 1. 🛡️ Identity Protection & Double-Vouch Trust Tree
-- **Real Verification**: Requires declared legal name and verified 18+ age checks.
-- **Vouch-Gated Entry**: Users cannot freely roam into private circles without an active member vouching for their character.
-- **Two-Strike Accountability**: False vouches or misconduct report triggers an automatic strike; two strikes lead to vouch revocation and exclusion.
+### 1. Identity, Verification, and Trust System
+- **Mandatory 18+ Age Gating (`server/src/lib/authz.js`)**: Registration computes exact age from birthdate records, rejecting underage accounts.
+- **Terms of Service and Safety Agreement Gate (Migration `m005`)**: Users must accept the explicit community safety policy (`tos_accepted_at`) before accessing verification features.
+- **Three-Tier Trust Lifecycle (`server/src/db.js`, `web/src/components/sheets.jsx`)**:
+  - `unverified`: Account created, profile browsable, restricted from broadcasting live GPS and creating public sessions.
+  - `pending`: ID document submitted to the operator queue, under active review.
+  - `verified`: ID approved by staff, full access to location broadcast, spot submissions, and vouching.
+- **Document Photo Upload and Inspection (Migration `m006`)**:
+  - Client-side image selection or camera capture with HTML5 Canvas downscaling to preserve bandwidth.
+  - Stored as data URLs in SQLite for staff review. Supports Student ID, National ID, UMID, Passport, and Driver's License.
+- **Double-Vouch Trust Tree (`server/src/index.js`)**:
+  - Existing verified members can vouch for incoming members.
+  - Two-strike accountability system: misconduct or false vouch reports issue verifiable strikes; two strikes result in automatic vouch revocation.
+- **Discord-Style Handles and User Vibes (Migration `m010`)**:
+  - Unique discriminator format (`handle#12345`) for privacy-safe friend lookups.
+  - Custom vibe bios indicating campus, transit route, and hangout preferences.
 
-### 2. 🚶 Safe Commute Buddy Pairing & Escalation Engine
-- **Direction-Aware Pairing**: When a session wraps up, attendees are grouped by transit routes (e.g., LRT-1, Commonwealth, Taft, Katipunan).
-- **Automated Escalation State Machine**:
-  - `planning` ➔ `open` ➔ `wrapped` ➔ `commute_active` ➔ `home_safe`.
-  - Check-in timers automatically ping buddies; if a student fails to confirm safe arrival within the threshold window, the escalation engine triggers notifications to designated escorts.
+### 2. Hangout Sessions and Event Lifecycle
+- **Five-Stage Session State Machine (`server/src/db.js`)**:
+  - `planning`: Session created, spot designated, RSVP invitations open.
+  - `open`: Gathering is currently active at the venue.
+  - `wrapped`: Bill settled, gathering ended, commute buddy pairing initiated.
+  - `commute_active`: Members are actively in transit home; check-in timers run.
+  - `home_safe`: All attendees have checked in or escalations have completed.
+- **Custom Session Banners (Migration `m011`)**:
+  - Organizers can upload custom cover banners (`cover_url`) or use generative spot artwork based on venue category.
+- **Deep-Linked Session Chat (Migration `m008`)**:
+  - Each session automatically provisions a dedicated group conversation thread. Attendees switch directly between session details and live event chat.
 
-### 3. 💳 Algorithmic Debt Minimization & Ethical Splitting
-- **Zero-Pressure Splitting (`shared/split.js`)**: Alcohol tabs are separated from food tabs; members with `can_drink: false` are strictly omitted from alcohol liabilities.
-- **Graph-Based Cash Settle (`shared/settle.js`)**: Computes net balances across multi-payer groups and reduces bilateral transactions to the mathematical minimum number of transfers using a greedy cash-flow settlement algorithm.
+### 3. Commute Buddy Pairing and Automated Escalation
+- **Transit Route Grouping Algorithm (`server/src/index.js`)**:
+  - Clusters attendees by transit corridors: LRT-1, MRT-3, Taft Avenue, Katipunan, Commonwealth, C5, and South corridors.
+- **Buddy Pairing Math (`shared/safety.js`)**:
+  - Partitions attendees into pairs. Odd numbers automatically resolve into a trio so no individual is left traveling alone.
+- **Timed Escalation Protocol**:
+  - Step 1 (Threshold Deadline): System sends notification to the traveler requesting check-in confirmation.
+  - Step 2 (+30 minutes overdue): System flags overdue status and notifies assigned commute buddy pair with transit route details.
+  - Step 3 (+60 minutes overdue): System notifies platform operators in the moderation console and dispatches designated emergency contact alerts.
 
-### 4. 🗺️ Interactive Hangout Map (Leaflet.js)
-- Real-time map displaying approved tambayan spots, meetup locations, and active session pins with custom 3D map markers and isolated stacking contexts.
+### 4. Algorithmic Tab Splitting and Debt Minimization
+- **Non-Drinker Bill Isolation (`shared/split.js`)**:
+  - Non-drinkers (`can_drink: 0`) and designated drivers are strictly omitted from alcohol liabilities.
+  - Food items, appetizers, and venue charges are split equally among all attendees.
+- **Deterministic Centavo Accounting**:
+  - Leftover centavos from fractional division are distributed deterministically across attendees.
+  - Strict invariant: zero centavos are lost, invented, or rounded away across any headcount or split combination.
+- **Greedy Cash-Flow Minimization (`shared/settle.js`)**:
+  - Aggregates multi-payer receipts, computing net balances per participant.
+  - Reduces complex web of debts to the minimal possible bilateral payment transactions.
+- **Edit-After-Close Ledger Safety**:
+  - When a host edits expenses after closing, previously settled and paid transfers remain locked; only open transfers recompute.
 
-### 5. 🎨 Awwwards-Caliber Claymorphic & Pastel Interface
-- **Warm Porcelain & Pastel Surfaces**: Tactile, cozy design system inspired by modern soft clay neumorphism (`#FAF6F0`, `#FDECE3`, `#DCEEE5`, `#FCF1D6`).
-- **Interactive 3D Iconography**: Custom 3D clay badges (`/img/3d/*.png`) with tactile hover physics.
-- **Interactive 1-Click Demo Sign-In**: Quick-fill pastel pills on the login page for effortless evaluator testing.
-- **Glass Floating Dock & Vertical Rail**: Ergonomic utility rail for desktop and floating thumb-reachable glass dock for mobile devices.
+### 5. Hangganan: Privacy-Preserving Budget and Intoxication Nudges
+- **Private Limits**: Users set personal spending caps (in centavos) and drink limits without broadcasting them to group members.
+- **Autonomous Nudges (`server/src/index.js`)**:
+  - 80% threshold: triggers an "approaching limit" warning.
+  - 100% threshold: triggers an "at limit" warning.
+  - Stored strictly in isolated user rows to prevent social peer pressure.
+
+### 6. Interactive Geospatial Tambayan Radar
+- **Leaflet.js Map Architecture (`web/src/components/session-live-map.jsx`, `web/src/pages/map.jsx`)**:
+  - Map container isolated in a distinct stacking context to eliminate z-index leakage across modals and drawers.
+  - Custom dark and light CartoDB tile layers with theme synchronization.
+- **Verified Spot Markers**:
+  - Displays tambayan pins with operating hours, closing time countdowns, price tiers (₱ to ₱₱₱₱), and route tags.
+- **Live Attendee GPS Tracking (Migration `m009`)**:
+  - Attendees can broadcast location coordinates during active sessions.
+  - Shows GPS accuracy radius and user avatars.
+  - Pins with updates older than 2 minutes automatically fade to indicate stale positioning.
+  - Location broadcast toggle allows members to start or stop sharing coordinates instantly.
+- **Community Spot Suggestion Flow (Migration `m004`)**:
+  - Members can submit new spots with name, GPS coordinates, price bracket, closing hours, and venue notes.
+  - Enters the operator moderation queue for review before public visibility.
+
+### 7. Real-Time Chat and Geolocation Dropping
+- **Direct and Group Messaging (Migration `m003`)**:
+  - Conversation channels for both 1-on-1 direct messaging and session-wide barkada chats.
+  - Read receipts tracked via `last_read_at` with unread notification badges.
+- **Chat Location Pins (Migration `m007`)**:
+  - Verified members can drop geographic location pins directly in chat threads.
+  - Messages carry `lat` and `lng` metadata rendered as interactive map mini-previews.
+
+### 8. Find Friends and Social Discovery
+- **Swipeable Friend Discovery Stack (`web/src/components/FindFriendsStack.jsx`)**:
+  - Card deck presenting student members with animated drag and swipe dismissal.
+  - Displays user avatar, handle, mutual circles, and location bio.
+- **Bidirectional Friend System (Migration `m010`)**:
+  - Friend request dispatch, incoming request management, acceptance, and rejection states.
+
+### 9. Operator Moderation Console (`/admin`)
+- **Role-Based Staff Access (`users.role = 'admin'`)**:
+  - Distinct operator console separate from crew-level admin controls.
+- **ID Verification Queue (`web/src/pages/admin.jsx`)**:
+  - Side-by-side inspection of submitted ID photos, legal names, and birthdates.
+  - One-click approve and reject actions with operator audit notes.
+- **Spot Submission Moderation**:
+  - Review community tambayan recommendations, inspect location coordinates on map, approve or discard.
+- **Safety Incident Queue**:
+  - Review member misconduct reports, investigate session context, apply strikes, or suspend accounts.
+
+### 10. Web Audio Synthesizer Engine
+- **Tactile Sound System (`web/src/lib/sound.js`)**:
+  - Zero-asset Web Audio API synthesizer generating real-time acoustic feedback.
+  - Dedicated sound designs: tactile clicks, modal pops, subtle switch toggles, and gentle arrival chimes.
+  - Global sound toggle with local storage persistence.
 
 ---
 
-## 🏗️ Technical Architecture & Stack
+## Design System and Motion Architecture
 
-Uwian is engineered with high discipline: **ultra-fast, zero-bloat, zero heavy frameworks, and sub-50ms API response times.**
+The primary client (`uwian/web`) uses a neobrutalism blue design system documented in `DESIGN.md`:
+
+```
+Palette:
+- Primary Canvas: #eff6ff (soft light blue)
+- Primary Accent: #2563eb (cobalt blue)
+- Deep Ink:       #0a1b3a (navy contrast)
+- Card Surfaces:  #ffffff with 2px solid #000000 borders and 4px offset ink shadows
+- Glass Accents:  88% surface opacity with backdrop blur (Glass-70 standard)
+
+Typography:
+- Display Wordmark: Fraunces (wonk/soft serif)
+- Headings & Accents: Archivo Black (marquee strips) and Caveat (handwritten notes)
+- Data & Financials: Space Mono (amounts, splits, receipts, coordinates)
+- Body Copy: DM Sans (neutral interface clarity)
+```
+
+- **Interactive Hero Entrance**: Inline SVG gradient wordmarks (ElevateWord) with canvas baseline alignment, paired with an ElasticMesh interactive squishable brand stamp.
+- **WebGL PixelSnow**: Lightweight WebGL snow shader rendered behind containers, automatically halted when the user enables `prefers-reduced-motion`.
+- **TargetCursor**: Fine-pointer corner bracket interaction active across interactive surfaces.
+- **Morphing Sticky Navigation**: Fixed top header stage that morphs into a centered floating glass pill on scroll down, with staggered icon animations.
+- **Lenis Smooth Scrolling**: Decoupled smooth wheel scrolling synchronized with GSAP ScrollTrigger reveals.
+- **AccordionGallery**: Keyboard-navigable SVG vector view selector switching between Calendar, Crew, Radar, and Bento Overview.
+- **Accessibility & Contrast**: Built to WCAG AA contrast ratios, visible focus outlines, full keyboard navigation (Tab, Enter, Space, Escape modal dismissal), and reduced-motion kill-switches.
+
+---
+
+## Technical Stack
 
 ```
 uwian/
-├── client/
-│   └── public/
-│       ├── index.html         # Semantic HTML5 shell with responsive viewports
-│       ├── app.css            # 2,200+ lines of custom Vanilla CSS (Design Tokens & Claymorphism)
-│       ├── js/
-│       │   ├── app.js         # Client-side hash routing, session state, DOM renderer
-│       │   ├── pages.js       # Dynamic view components (Dashboard, Map, Sessions, Auth)
-│       │   └── util.js        # DOM helper (h), 3D icon loader, Toast notification system
-│       └── img/3d/            # Curated library of 32 custom 3D clay icons
-├── server/
-│   └── src/
-│       ├── index.js           # Express 5 REST API & session authentication
-│       ├── db.js              # SQLite schema & transactional database connection
-│       └── lib/
-│           └── authz.js       # Bcrypt password hashing & 18+ age verification logic
-├── shared/
-│   ├── split.js               # Tab division & alcohol boundary exclusion algorithm
-│   └── settle.js              # Graph-based debt minimization algorithm
-└── docs/                      # Privacy guidelines & architectural specifications
+├── server/                     # Backend API & Database
+│   ├── src/
+│   │   ├── index.js            # Express 5 REST API & session endpoints
+│   │   ├── db.js               # SQLite connection & migrations m001-m011
+│   │   └── lib/
+│   │       ├── authz.js        # Bcrypt password hashing & 18+ validation
+│   │       └── authz.test.js   # Authorization unit tests
+│   ├── seed.js                 # Database seeder for demo accounts & spots
+│   ├── make-admin.js           # CLI script to create/promote platform operators
+│   └── uwian.sqlite            # Pre-seeded SQLite database
+├── web/                        # Primary Client (React + Vite + Tailwind)
+│   ├── src/
+│   │   ├── components/         # UI Primitives, Live Map, Friend Stack, Sheets
+│   │   ├── pages/              # Dashboard, Map, Session, Messages, Admin, Auth
+│   │   ├── lib/                # API client, Geolocation, Sound, Utils
+│   │   ├── App.jsx             # Hash router, boot sequences, notifications
+│   │   └── main.jsx            # React root mount
+│   ├── package.json
+│   └── vite.config.js
+├── shared/                     # Shared Business Logic & Algorithms
+│   ├── split.js                # Bill isolation & centavo distribution algorithm
+│   ├── split.test.js           # Split unit tests & randomized invariants
+│   ├── settle.js               # Debt minimization cash-flow graph algorithm
+│   ├── settle.test.js          # Settle unit tests
+│   ├── safety.js               # Commute pairing & escalation state machine
+│   ├── safety.test.js          # Commute safety unit tests
+│   └── safety_messaging.test.js# Safety verification & chat test suite
+├── client/                     # Retired Vanilla Client (Kept for rollback reference)
+│   └── public/                 # Vanilla JS SPA, CSS tokens, 3D icon library
+├── screenshots/                # Walkthrough captures of platform workflows
+├── DESIGN.md                   # Full design system specification & motion dials
+└── package.json                # Project-level scripts
 ```
 
-### Technology Highlights:
-- **Backend**: Node.js (ES Modules) + Express 5.
-- **Database**: SQLite via `better-sqlite3` (synchronous, ACID-compliant, zero network latency).
-- **Security**: `bcryptjs` salted password hashing, `cookie-session` with cryptographic signing, and strict role-based access control.
-- **Mapping**: Leaflet.js with custom tile styling and CSS isolation layers.
-- **Client**: Vanilla ES6+ with an optimized reactive virtual-DOM helper (`h()`) for instant page transitions without bundle overhead.
+---
+
+## Database Migrations Log
+
+The SQLite database (`better-sqlite3`) initializes synchronously on startup with automated, idempotent migrations:
+
+| Migration | Purpose | Tables / Columns Added |
+|---|---|---|
+| `base` | Core system entities | `users`, `groups`, `group_members`, `sessions`, `session_rsvps`, `expenses`, `expense_splits`, `settlements`, `check_ins`, `vouches`, `hangganan_limits`, `audit_logs` |
+| `m001` | ID verification workflow | `verification_submissions` (id_type, id_number, status, reviewed_by, reviewed_at) |
+| `m002` | Safety incident reporting | `reports` (reported_id, reason, details, status, review_note) |
+| `m003` | In-app messaging | `conversations`, `conversation_members`, `messages` |
+| `m004` | Community tambayan suggestions | `spot_submissions` (name, lat, lng, price_range, closes_at, notes, status) |
+| `m005` | Terms of service gate | `users.tos_accepted_at` |
+| `m006` | ID photo document upload | `verification_submissions.id_photo` (base64 image storage) |
+| `m007` | Geolocation chat messages | `messages.kind`, `messages.lat`, `messages.lng` |
+| `m008` | Session-linked conversations | `conversations.session_id` |
+| `m009` | Live GPS location broadcast | `live_locations` (session_id, user_id, lat, lng, accuracy, active, updated_at) |
+| `m010` | User handles & friend graph | `users.handle`, `users.vibe`, `friends` (user_id, friend_id, status) |
+| `m011` | Per-session custom cover photos | `sessions.cover_url` |
 
 ---
 
-## 👥 Demo Accounts for Presentation & Evaluation
+## Demo Accounts for Evaluation
 
-The login page features **interactive 1-click quick-fill buttons** for instant evaluation:
+The login screen features 1-click quick-fill buttons for rapid evaluation:
 
-| Account | Role | Email | Password | Trust Tier |
+| Account | Role | Email | Password | Trust Status |
 |---|---|---|---|---|
-| **Ana Reyes** | Barkada Host / Admin | `ana@barkada.demo` | `BarkadaDemo!2026` | Tier 1 (ID Verified, 5 Vouches) |
-| **Ela Bautista** | Crew Member | `ela@barkada.demo` | `BarkadaDemo!2026` | Tier 1 (ID Verified, 3 Vouches) |
+| **Ana Reyes** | Barkada Host & Organizer | `ana@barkada.demo` | `BarkadaDemo!2026` | Verified (Tier 1, 5 vouches) |
+| **Ela Bautista** | Crew Member & Attendee | `ela@barkada.demo` | `BarkadaDemo!2026` | Verified (Tier 1, 3 vouches) |
+| **Uwian Dev** | Platform Operator & Moderator | `uwiandev@uwian.dev` | `BarkadaDemo!2026` | Admin (`/admin` access) |
+| **Tara Lim** | Non-Drinker & Designated Driver | `tara@barkada.demo` | `BarkadaDemo!2026` | Unverified (`can_drink: 0`) |
 
-*(You can also sign up with any new test account; age must be 18+).*
+*(You can also sign up with any new test account; birthdate must verify as 18+).*
 
 ---
 
-## 🚀 Running the Project Locally
+## Running the Project Locally
 
 ### 1. Prerequisites
 - **Node.js** v20.x or higher
@@ -120,47 +263,63 @@ The login page features **interactive 1-click quick-fill buttons** for instant e
 git clone https://github.com/yuushiddenfiles/Uwian.git
 cd Uwian/uwian
 
-# Install dependencies
+# Install dependencies for server and web client
 npm --prefix server install
 npm --prefix web install
 ```
 
-### 3. Launch Applications
+### 3. Launch Development Environment
 ```bash
-# Start backend API server (runs at http://localhost:3000)
+# Terminal 1: Launch backend API server (runs at http://localhost:3000)
 npm run dev:server
 
-# Start React + Vite Web Client (runs at http://localhost:5173)
+# Terminal 2: Launch primary React web client (runs at http://localhost:5173)
 npm run dev:web
-
-# Or build production React bundle
-npm run build:web
 ```
 
 Open your browser:
-- **Web App (React + Tailwind + ReactBits)**: `http://localhost:5173`
-- **Backend API & Ops Console**: `http://localhost:3000`
+- **Web Client**: [http://localhost:5173](http://localhost:5173)
+- **API Server & Ops Console**: [http://localhost:3000/admin](http://localhost:3000/admin)
 
-### 4. Running Unit Tests
+### 4. Production Build
+```bash
+npm run build:web
+```
+
+### 5. Running the Automated Test Suite
 ```bash
 npm run test
 ```
-*Validates password authorization, bill isolation math, messaging features, verification workflows, and cash settlement graph minimization.*
+
+Test output executes 18 unit tests across 6 suites validating core algorithms:
+- Bill isolation math and non-drinker exclusion (`shared/split.test.js`)
+- Leftover centavo deterministic invariant tests across randomized trial distributions
+- Cash settlement graph debt minimization (`shared/settle.test.js`)
+- Commute buddy pairing and trio fallback logic (`shared/safety.test.js`)
+- Safe arrival check-in escalation state machine
+- Hangganan privacy budget nudges
+- Safety reporting and verification state assertions (`shared/safety_messaging.test.js`)
+- Unread chat preview truncation and message indexing
 
 ---
 
-## 📸 Screenshots & Flow Walkthrough
-Walkthrough screenshots of verification, operator console, safety status, and neobrutalism dashboard can be found in the [`screenshots/`](../screenshots/) directory.
+## Platform Walkthrough Screenshots
+
+Walkthrough screenshots documenting the platform flows are stored in the [`screenshots/`](../screenshots/) directory:
+
+- [`step0_tos.png`](../screenshots/step0_tos.png): Mandatory Terms of Service and Safety Agreement modal.
+- [`step1_id_info.png`](../screenshots/step1_id_info.png): ID type selection and birthdate verification form.
+- [`step2_photo_upload.png`](../screenshots/step2_photo_upload.png): Document photo upload with client-side canvas capture.
+- [`step2_preview.png`](../screenshots/step2_preview.png): Document image preview prior to submission.
+- [`step3_under_review.png`](../screenshots/step3_under_review.png): Confirmation receipt and pending review badge.
+- [`ops_console_queue.png`](../screenshots/ops_console_queue.png): Platform operator verification queue on `/admin`.
+- [`ops_inspector_modal.png`](../screenshots/ops_inspector_modal.png): Side-by-side document inspection and approval modal.
+- [`unverified_dashboard.png`](../screenshots/unverified_dashboard.png): Dashboard state for unverified member.
+- [`pending_dashboard.png`](../screenshots/pending_dashboard.png): Dashboard state with verification pending banner.
+- [`verified_account_dropdown.png`](../screenshots/verified_account_dropdown.png): User profile menu with verified trust badge.
+- [`verified_profile_page.png`](../screenshots/verified_profile_page.png): Profile settings, friend list, handle, and trust tier.
+- [`pixelsnow_active.png`](../screenshots/pixelsnow_active.png): Active dashboard showing neobrutalism blue theme and PixelSnow shader.
 
 ---
 
-## 🏆 Why Uwian is an Exemplary Academic Project
-
-1. **Practical Social Utility**: Addresses a genuine safety issue faced by thousands of commuting university students every night.
-2. **Algorithmic Depth**: Not just a simple CRUD app — features graph-based debt simplification, automated escalation state machines, and boundary-aware splitting.
-3. **Engineering Craftsmanship**: Rejects heavy JavaScript dependencies in favor of lean, robust vanilla code with sub-50ms response times and custom Awwwards-grade visual design.
-4. **Privacy-Preserving Philosophy**: Strict row-level isolation guarantees that personal counters, safety preferences, and transit routes are never exposed to unauthorized parties.
-
----
-
-*Presented by the Uwian Development Team.*
+Presented by the Uwian Development Team.
