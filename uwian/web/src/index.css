@@ -1,0 +1,542 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Neobrutalism blue theme tokens (shadcn init). */
+:root {
+  --background: hsl(214, 95%, 93%);
+  --secondary-background: oklch(100% 0 0);
+  --foreground: oklch(0% 0 0);
+  --main: hsl(217, 100%, 66%);
+  --main-foreground: oklch(0% 0 0);
+  --border: oklch(0% 0 0);
+  --ring: oklch(0% 0 0);
+  --overlay: oklch(0% 0 0 / 0.8);
+  --chart-1: #5294ff;
+  --chart-2: #ff4d50;
+  --chart-3: #facc00;
+  --chart-4: #05e17a;
+  --chart-5: #7a83ff;
+  --chart-active-dot: #000;
+  /* Hard shadows glow blue: black offsets vanish on the black page. */
+  --shadow: 4px 4px 0px 0px #2b62d9;
+  --muted: hsl(214, 40%, 90%);
+  --muted-foreground: hsl(215, 25%, 32%);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(0% 0 0);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(0% 0 0);
+  --primary: hsl(217, 100%, 66%);
+  --primary-foreground: oklch(0% 0 0);
+  --secondary: oklch(100% 0 0);
+  --secondary-foreground: oklch(0% 0 0);
+  --accent: hsl(214, 95%, 88%);
+  --accent-foreground: oklch(0% 0 0);
+  --destructive: #ff4d50;
+  --input: oklch(0% 0 0);
+  --radius: 5px;
+  --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --heading: "Fraunces", Georgia, serif;
+  --script: "Caveat", "Segoe Script", cursive;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-secondary-background: var(--secondary-background);
+  --color-foreground: var(--foreground);
+  --color-main: var(--main);
+  --color-main-foreground: var(--main-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --spacing-boxShadowX: 4px;
+  --spacing-boxShadowY: 4px;
+  --spacing-reverseBoxShadowX: -4px;
+  --spacing-reverseBoxShadowY: -4px;
+  --radius-base: 5px;
+  --font-weight-base: 500;
+  --font-weight-heading: 800;
+  --font-sans: var(--sans);
+  --font-mono: "Space Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --shadow-shadow: var(--shadow);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    font-family: var(--sans);
+    font-weight: var(--font-weight-base);
+    color: var(--foreground);
+    background: var(--background);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--heading);
+    font-weight: var(--font-weight-heading);
+    letter-spacing: -0.01em;
+    font-variation-settings: "SOFT" 75, "WONK" 1;
+  }
+  /* Handwritten accents only: greetings, empty states, auth titles.
+     Never body copy, labels, or buttons. */
+  .script-accent {
+    font-family: var(--script);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  a {
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 3px solid var(--main);
+    outline-offset: 2px;
+  }
+}
+
+/* Everything below is deliberately UNLAYERED: component and vendor CSS is
+   unlayered too, and unlayered always beats layered, no matter what. */
+
+/* Marquee voice: heavy all-caps grotesque with a sticker halo. */
+.marquee-text {
+  font-family: "Archivo Black", "Archivo", system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.marquee-text .scroller,
+.marquee-text .scroller span {
+  font-family: "Archivo Black", "Archivo", system-ui, sans-serif;
+  line-height: 1.25;
+  letter-spacing: 0.05em;
+  -webkit-text-stroke: 1.5px #fff;
+  paint-order: stroke fill;
+}
+/* Brand voice for the wordmark. */
+.brand-word {
+  font-family: var(--heading);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+/* Telemetry kicker: mono micro-labels, uppercase with mechanical tracking.
+   Reason: industrial-brutalist readout voice for metadata. Sentence case
+   stays everywhere that carries real reading (body, buttons, headings). */
+.kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+/* Analog degradation: scanlines + grain over the stage, beneath content.
+   Static texture only, no motion. Opacities kept tiny to protect contrast. */
+.analog-overlay {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 4px);
+}
+/* Gallery labels inherit the display serif. */
+.ag-panel__text {
+  font-family: var(--heading);
+}
+/* Maps speak the body font, never Helvetica. Unlayered to beat Leaflet. */
+.leaflet-container {
+  font-family: var(--sans);
+}
+/* Selection + scrollbar carry the brand too. */
+::selection {
+  background: var(--main);
+  color: #000;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--main) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--main);
+  border: 2px solid #000;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Destructive surfaces carry black text: white-on-red fails AA (3.27),
+   black-on-red passes (6.43). */
+.bg-destructive.text-white {
+  color: #000;
+}
+
+/* Big containers: frosted glass at 88% surface opacity over the dark page, so
+   the snowfall stays visible around them while text contrast holds.
+   (72% went muddy once the page went black; the 70% floor still holds.)
+   Small controls, bubbles, and the map canvas stay solid. */
+.glass-70 {
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Near-black page so the snowfall reads. Solid light surfaces sit on top.
+   Set on html too (overscroll areas) with !important so no layer or
+   leftover rule can outrank the page background. */
+html,
+body {
+  background: #0a0a14 !important;
+}
+
+/* Leaflet pins: brutalist diamonds. */
+.uw-pin {
+  width: 18px;
+  height: 18px;
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: var(--main);
+  border: 2px solid #000;
+}
+.uw-pin-stale {
+  background: var(--chart-2);
+}
+.uw-pin-active {
+  background: var(--chart-3);
+}
+/* Draft pin for a not-yet-submitted position (double-click or venue search).
+   White core + accent halo so it never reads as a live spot. */
+.uw-pin-pending {
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--main);
+}
+
+/* (Deck rise keyframes retired: the pinned scrub sequence owns the motion now.) */
+
+/* (Site entrance retired: the landing now appears the instant the boot
+   overlay lifts, per owner request.) */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   OPS CONSOLE — self-contained dark surface
+   All ops-* classes live here so the console is never affected
+   by theme token changes on the main app.
+════════════════════════════════════════════════════════════ */
+
+/* Tokens -------------------------------------------------- */
+:root {
+  --ops-bg:        #111118;
+  --ops-surface:   #18181f;
+  --ops-border:    rgba(255,255,255,0.10);
+  --ops-border-hi: rgba(255,255,255,0.18);
+  --ops-fg:        #e8e8f0;
+  --ops-muted:     #7a7a94;
+  --ops-blue:      hsl(217,100%,66%);
+  --ops-blue-dim:  hsl(217,60%,22%);
+  --ops-red:       #ff5a5e;
+  --ops-green:     #05e17a;
+  --ops-hot-bg:    hsl(217,60%,16%);
+  --ops-hot-border:hsl(217,100%,50%);
+}
+
+/* Root ---------------------------------------------------- */
+.ops-root {
+  background: var(--ops-bg);
+  border: 1px solid var(--ops-border);
+  border-radius: 4px;
+  padding: 20px;
+  color: var(--ops-fg);
+  font-family: var(--mono);
+}
+
+/* Access-denied variant */
+.ops-root--denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 48px 24px;
+}
+.ops-denied__icon { color: var(--ops-muted); margin-bottom: 8px; }
+.ops-denied__label { color: var(--ops-muted); }
+.ops-denied__title { font-family: var(--heading); font-size: 22px; font-weight: 800; color: var(--ops-fg); margin-top: 2px; }
+.ops-denied__sub { font-family: var(--sans); font-size: 14px; color: var(--ops-muted); max-width: 340px; }
+
+/* Kicker label ------------------------------------------- */
+.ops-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--ops-muted);
+}
+
+/* Header -------------------------------------------------- */
+.ops-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--ops-border);
+}
+.ops-header__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ops-header__icon { color: var(--ops-blue); flex-shrink: 0; }
+.ops-header__title {
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ops-fg);
+}
+.ops-header__sub { color: var(--ops-muted); }
+
+.ops-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ops-header__clock {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ops-muted);
+  font-variant-numeric: tabular-nums;
+}
+.ops-header__alert {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: var(--ops-blue-dim);
+  color: var(--ops-blue);
+  border: 1px solid var(--ops-hot-border);
+  border-radius: 3px;
+  padding: 1px 7px;
+}
+
+/* Refresh button */
+.ops-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ops-muted);
+  background: transparent;
+  border: 1px solid var(--ops-border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.ops-refresh:hover { color: var(--ops-fg); border-color: var(--ops-border-hi); }
+@keyframes ops-spin { to { transform: rotate(360deg); } }
+.ops-refresh--spin { animation: ops-spin 0.5s linear infinite; }
+
+/* Stats grid --------------------------------------------- */
+.ops-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--ops-border);
+  border: 1px solid var(--ops-border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .ops-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+.ops-stat {
+  background: var(--ops-surface);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ops-stat--hot {
+  background: var(--ops-hot-bg);
+}
+.ops-stat--hot .ops-stat__value {
+  color: var(--ops-blue);
+}
+.ops-stat__icon {
+  color: var(--ops-muted);
+  margin-bottom: 2px;
+}
+.ops-stat--hot .ops-stat__icon { color: var(--ops-blue); }
+.ops-stat__label { /* inherits ops-kicker */ }
+.ops-stat__value {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ops-fg);
+  letter-spacing: -0.02em;
+}
+
+/* Queues -------------------------------------------------- */
+.ops-queues {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Panel --------------------------------------------------- */
+.ops-panel {
+  border: 1px solid var(--ops-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ops-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--ops-surface);
+  border-bottom: 1px solid var(--ops-border);
+  padding: 8px 14px;
+}
+.ops-panel__body {
+  padding: 14px;
+  background: var(--ops-bg);
+}
+
+/* Badge (pending count) */
+.ops-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--ops-blue);
+  color: #000;
+  border-radius: 2px;
+  padding: 1px 6px;
+  letter-spacing: 0.04em;
+}
+
+/* Empty state */
+.ops-empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ops-muted);
+}
+
+/* List ---------------------------------------------------- */
+.ops-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.ops-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ops-border);
+}
+.ops-item:first-child { padding-top: 0; }
+.ops-item:last-child  { padding-bottom: 0; border-bottom: none; }
+
+.ops-item__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+.ops-item__name {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ops-fg);
+}
+.ops-item__flagged {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ops-red);
+}
+.ops-item__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ops-muted);
+}
+.ops-item__field {
+  color: var(--ops-blue);
+  font-size: 10px;
+}
+.ops-item__sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ops-muted);
+}
+.ops-item__note {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ops-fg);
+  opacity: 0.8;
+  font-style: italic;
+}
+.ops-item__diff {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ops-fg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  word-break: break-all;
+}
+.ops-item__old { color: var(--ops-muted); text-decoration: line-through; }
+.ops-item__arrow { color: var(--ops-muted); }
+.ops-item__new { color: var(--ops-green); }
+
+.ops-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+

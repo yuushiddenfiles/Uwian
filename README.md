@@ -117,29 +117,40 @@ The login page features **interactive 1-click quick-fill buttons** for instant e
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/curtn/Uwian.git
+git clone https://github.com/yuushiddenfiles/Uwian.git
 cd Uwian/uwian
 
-# Install server dependencies
-cd server && npm install && cd ..
+# Install dependencies
+npm --prefix server install
+npm --prefix web install
 ```
 
-### 3. Launch Development Server
+### 3. Launch Applications
 ```bash
-# Start server with live file watch (starts at http://localhost:3000)
+# Start backend API server (runs at http://localhost:3000)
 npm run dev:server
+
+# Start React + Vite Web Client (runs at http://localhost:5173)
+npm run dev:web
+
+# Or build production React bundle
+npm run build:web
 ```
 
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
+Open your browser:
+- **Web App (React + Tailwind + ReactBits)**: `http://localhost:5173`
+- **Backend API & Ops Console**: `http://localhost:3000`
 
 ### 4. Running Unit Tests
 ```bash
 npm run test
 ```
-*Validates password authorization, bill isolation math, and cash settlement graph minimization.*
+*Validates password authorization, bill isolation math, messaging features, verification workflows, and cash settlement graph minimization.*
+
+---
+
+## 📸 Screenshots & Flow Walkthrough
+Walkthrough screenshots of verification, operator console, safety status, and neobrutalism dashboard can be found in the [`screenshots/`](../screenshots/) directory.
 
 ---
 

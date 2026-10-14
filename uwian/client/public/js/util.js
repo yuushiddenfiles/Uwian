@@ -59,7 +59,7 @@ export function openSheet(title, contentEl) {
   }
   root.innerHTML = "";
   const scrim = h("div", { class: "scrim", onclick: close });
-  const sheet = h("div", { class: "sheet", role: "dialog", "aria-label": title },
+  const sheet = h("div", { class: "sheet", role: "dialog", "aria-modal": "true", "aria-label": title },
     h("div", { class: "handle" }), h("h3", {}, title), contentEl);
   root.append(scrim, sheet);
   requestAnimationFrame(() => {
@@ -72,6 +72,7 @@ export function openSheet(title, contentEl) {
     }, 200);
   });
   function close() {
+    document.removeEventListener("keydown", onKey);
     scrim.classList.remove("show"); sheet.classList.remove("show");
     setTimeout(() => {
       root.innerHTML = "";
@@ -80,6 +81,10 @@ export function openSheet(title, contentEl) {
       }
     }, 320);
   }
+  function onKey(e) { if (e.key === "Escape") close(); }
+  document.addEventListener("keydown", onKey);
+  const firstInput = contentEl.querySelector?.("input, select, textarea, button");
+  if (firstInput) setTimeout(() => firstInput.focus({ preventScroll: true }), 120);
   return close;
 }
 

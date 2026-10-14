@@ -12,3 +12,6 @@ Only an explicit choice of antislop during or after selects a session mode. A re
 If the mode is unresolved, ask during/after and end the response; wait for the answer before any UI review, planning, or concept. For read-only tasks, put the active-mode notice only at the start of the final answer, never in progress messages. For editing tasks, announce before the first edit and omit it from the final answer.
 To update antislop later: `npx antislop-ai --update`, or run `npx antislop-ai` and pick Overwrite them.
 <!-- antislop:end -->
+
+## industrial-brutalist
+For industrial/brutalist visual direction (telemetry voice, macro/micro type, analog texture), read `.agents/skills/industrial-brutalist-ui/SKILL.md`. Applied 2026-10-13 as Tactical Telemetry (dark) with owner-recorded overrides: blue kept as the single accent instead of hazard red, radii kept per the neobrutalist theme, sentence case kept for all real reading.

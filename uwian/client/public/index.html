@@ -8,93 +8,62 @@
 <title>Uwian</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/vendor/leaflet.css">
-<link rel="stylesheet" href="/app.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 17 16 7l10 10v9a2 2 0 0 1-2 2h-5v-7h-4v7H8a2 2 0 0 1-2-2z' fill='%23F59332'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/app.css?v=6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23F59332'/%3E%3Cpath d='M8 17 16 9l8 8' stroke='%231C1814' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10.5 15.5V24h11v-8.5' stroke='%231C1814' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 </head>
-<body class="glass-os-theme">
-<div class="wallpaper-bg" aria-hidden="true"></div>
-
-<!-- Slim Vertical Glass Rail (Left) - System & Safety Utility -->
-<aside id="glass-rail" class="glass-rail" aria-label="System & Safety Navigation">
-  <div class="rail-top">
-    <button class="logo-btn rail-icon-btn" data-link="/" aria-label="Uwian home" title="Uwian Home">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 3h6"/><path d="M12 3v3"/><circle cx="12" cy="11" r="2.2"/><path d="M6 10a6 6 0 0 1 12 0v7a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 19v2h6v-2"/>
-      </svg>
-    </button>
-  </div>
-  
-  <nav class="rail-nav" aria-label="System Utilities">
-    <!-- Quick Drinking Preference Toggle -->
-    <button class="rail-btn" id="rail-drink-btn" title="Toggle Drinking Preference" aria-label="Drinking Preference">
-      <img src="/img/3d/cup.png" width="22" height="22" alt="" class="icon-3d" id="rail-drink-icon">
-    </button>
-    <!-- Safe Arrival Buddy Escort status/rules -->
-    <button class="rail-btn" id="rail-buddy-btn" title="Safe Arrival & Buddy Escort" aria-label="Safe Arrival & Buddy Escort">
-      <img src="/img/3d/travel.png" width="22" height="22" alt="" class="icon-3d">
-    </button>
-    <!-- Quick Session Search -->
-    <button class="rail-btn" id="rail-search-btn" title="Search Sessions & Hangouts" aria-label="Search">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-      </svg>
-    </button>
-  </nav>
-
-  <div class="rail-bottom">
-    <button id="bell" class="bell-btn rail-icon-btn" aria-label="Notifications" title="Notifications">
-      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-        <path d="M12 3a6 6 0 0 0-6 6c0 4-2 5-2 7h16c0-2-2-3-2-7a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0"/>
-      </svg>
-      <span id="bell-count" class="bell-dot" hidden aria-live="polite"></span>
-    </button>
-    <div id="rail-user-slot" class="rail-user-slot"></div>
-  </div>
-</aside>
-
-<!-- Hidden fallback topnav for route compatibility -->
-<header class="masthead legacy-masthead" style="display:none" aria-hidden="true">
+<body>
+<div class="bg-wash" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
+<header class="masthead" aria-label="Main">
+  <button class="logo-btn" data-link="/" aria-label="Uwian home" title="Uwian home">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4.5 12.5 12 5.5l7.5 7"/>
+      <path d="M6.8 11v8h10.4v-8"/>
+      <rect x="10.4" y="13.6" width="3.2" height="3.2" rx="0.6" fill="currentColor" stroke="none"/>
+    </svg>
+  </button>
   <span class="wordmark">uwian</span>
   <span class="tagline">find your crew, get home safe</span>
   <nav id="topnav" class="topnav" aria-label="Main"></nav>
+  <button id="bell" class="bell-btn" aria-label="Notifications" title="Notifications">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <path d="M12 3a6 6 0 0 0-6 6c0 4-2 5-2 7h16c0-2-2-3-2-7a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0"/>
+    </svg>
+    <span id="bell-count" class="bell-dot" hidden aria-live="polite"></span>
+  </button>
+  <div id="rail-user-slot" class="rail-user-slot"></div>
 </header>
+
+<aside id="glass-rail" class="side-rail" aria-label="Shortcuts">
+  <nav class="rail-nav" aria-label="Shortcuts">
+    <button class="rail-btn" id="rail-drink-btn" title="Drinking preference" aria-label="Drinking preference">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M5 8h14v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/></svg>
+    </button>
+    <button class="rail-btn" id="rail-buddy-btn" title="Safe arrival and buddy escort" aria-label="Safe arrival and buddy escort">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+    </button>
+    <a href="#/messages" class="rail-btn" id="rail-msg-btn" title="Messages" aria-label="Messages">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+    </a>
+    <button class="rail-btn" id="rail-search-btn" title="Search sessions" aria-label="Search sessions">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+  </nav>
+</aside>
 
 <main id="view" tabindex="-1" aria-label="Page content"></main>
 
-<!-- Floating Glass Dock (Bottom) - Actions & Primary Navigation -->
-<div id="glass-dock" class="glass-dock" role="toolbar" aria-label="Quick Actions">
-  <button class="dock-item" id="dock-new-crew" title="Create New Crew" aria-label="Create New Crew">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/plus.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">+ Crew</span>
-  </button>
-  <button class="dock-item" id="dock-new-session" title="Plan New Session" aria-label="Plan New Session">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/fire.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">+ Session</span>
-  </button>
-  <button class="dock-item active" id="dock-sessions" title="Explore Hangouts & Sessions" aria-label="Explore Sessions">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/calendar.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">Sessions</span>
-  </button>
-  <button class="dock-item" id="dock-crews" title="My Crews & Friends" aria-label="My Crews">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/boy.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">My Crews</span>
-  </button>
-  <a href="#/map" class="dock-item" id="dock-map" title="Live Hangout Map Radar" aria-label="Live Map">
-    <span class="dock-icon-wrap">
-      <img src="/img/3d/mappin.png" width="22" height="22" alt="" class="icon-3d">
-    </span>
-    <span class="dock-label">Live Map</span>
+<div id="glass-dock" class="bottom-bar" role="toolbar" aria-label="Quick actions">
+  <button class="dock-item" id="dock-new-crew">New crew</button>
+  <button class="dock-item" id="dock-new-session">New session</button>
+  <button class="dock-item active" id="dock-sessions">Sessions</button>
+  <button class="dock-item" id="dock-crews">My crews</button>
+  <a href="#/map" class="dock-item" id="dock-map">Live map</a>
+  <a href="#/messages" class="dock-item" id="dock-messages" style="position:relative">Messages
+    <span id="dock-msg-badge" class="bell-dot" hidden aria-live="polite"></span>
   </a>
   <div id="dock-mobile-user-slot" class="dock-mobile-user-slot"></div>
 </div>
@@ -103,6 +72,6 @@
 <div id="sheet-root"></div>
 
 <script src="/vendor/leaflet.js"></script>
-<script type="module" src="/js/app.js"></script>
+<script type="module" src="/js/app.js?v=4"></script>
 </body>
 </html>

@@ -1,29 +1,37 @@
-import { $, api, h, toast, icon, icon3d } from "./util.js";
-import * as P from "./pages.js";
+import { $, api, h, toast, icon, icon3d, timeAgo } from "./util.js";
+import * as P from "./pages.js?v=3";
 
 const view = $("#view");
 
 async function route() {
   const path = location.hash.slice(1) || "/groups";
   view.innerHTML = "";
+  const loading = h("div", { class: "panel" }, h("p", { class: "dim" }, "Loading."));
+  view.append(loading);
   const isAuth = path === "/login" || path === "/signup";
   document.body.classList.toggle("auth-mode", isAuth);
   try {
     if (isAuth) return render(path === "/login" ? P.pageLogin() : P.pageSignup());
     if (!P.me()) { const u = await P.loadMe(); if (!u) { location.hash = "/login"; return; } }
     await api("/api/escalation-tick", {}, "POST").catch(() => {}); // lazy escalation on load
+    // Cleanup message poll on navigation
+    if (window._msgCleanup) { window._msgCleanup(); window._msgCleanup = null; }
     let el;
     if (path === "/" || path === "/groups") el = await P.pageGroups();
     else if (path === "/map" || path.startsWith("/map/")) {
       const gid = path.split("/")[2] ? Number(path.split("/")[2]) : null;
       el = await P.pageMap(gid);
     }
+    else if (path === "/messages" || path.startsWith("/messages/")) {
+      const cid = path.split("/")[2] ? Number(path.split("/")[2]) : null;
+      el = await P.pageMessages(cid);
+    }
     else if (path.startsWith("/g/")) el = await P.pageGroup(Number(path.split("/")[2]));
     else if (path.startsWith("/s/")) el = await P.pageSession(Number(path.split("/")[2]));
     else if (path.startsWith("/join/")) {
       const gid = Number(path.split("/")[2]);
       const r = await api(`/api/groups/${gid}/join`, {});
-      toast(r.status === "active" ? "You're already in — welcome back!" : "Request sent — waiting for someone to vouch for you.");
+      toast(r.status === "active" ? "You are already in. Welcome back." : "Request sent. Waiting for someone to vouch for you.");
       location.hash = `/g/${gid}`; return;
     }
     else el = h("div", { class: "panel" }, h("h2", {}, "Page not found"));
@@ -35,6 +43,7 @@ async function route() {
 }
 
 function render(el) {
+  view.innerHTML = "";
   view.append(el);
   window.scrollTo({ top: 0, behavior: "instant" });
   refreshBell();
@@ -120,17 +129,27 @@ function refreshNav() {
   const hash = location.hash;
   const isGroups = !hash || hash === "#/groups" || hash.startsWith("#/g/") || hash.startsWith("#/s/");
   const isMap = hash === "#/map" || hash.startsWith("#/map/");
+  const isMessages = hash === "#/messages" || hash.startsWith("#/messages/");
 
   // Sync active states on glass rail and floating dock
   const railGroups = $("#rail-groups-btn");
   const railMap = $("#rail-map-btn");
   const dockSessions = $("#dock-sessions");
   const dockMap = $("#dock-map");
+  const dockMessages = $("#dock-messages");
+  const railMsg = $("#rail-msg-btn");
 
   if (railGroups) railGroups.classList.toggle("active", isGroups);
   if (railMap) railMap.classList.toggle("active", isMap);
+  if (railMsg) railMsg.classList.toggle("active", isMessages);
   if (dockSessions) dockSessions.classList.toggle("active", isGroups);
   if (dockMap) dockMap.classList.toggle("active", isMap);
+  if (dockMessages) dockMessages.classList.toggle("active", isMessages);
+
+  const drinkIcon = $("#rail-drink-icon");
+  if (drinkIcon && user) {
+    drinkIcon.src = user.can_drink ? "/img/3d/cup.png" : "/img/3d/teacup.png";
+  }
 
   if (user) {
     if (nav) {
@@ -187,6 +206,14 @@ async function refreshBell() {
     const n = await api("/api/me/notifications");
     dot.textContent = n.length; dot.hidden = n.length === 0;
   } catch { dot.hidden = true; }
+  // Update messages unread badge
+  try {
+    const r = await api("/api/conversations/unread-count");
+    const msgDot = $("#dock-msg-badge");
+    if (msgDot) { msgDot.textContent = r.unread; msgDot.hidden = r.unread === 0; }
+    const refDot = $("#ref-msg-badge");
+    if (refDot) { refDot.textContent = r.unread; refDot.hidden = r.unread === 0; }
+  } catch {}
 }
 
 /* logo → home */
@@ -218,6 +245,19 @@ function focusSearch() {
 
 $("#rail-safety-btn")?.addEventListener("click", () => P.showVerificationSheet && P.showVerificationSheet());
 $("#dock-safety")?.addEventListener("click", () => P.showVerificationSheet && P.showVerificationSheet());
+$("#rail-buddy-btn")?.addEventListener("click", () => P.showBuddyEscortSheet && P.showBuddyEscortSheet());
+$("#rail-drink-btn")?.addEventListener("click", async () => {
+  const user = P.me();
+  if (!user) return;
+  try {
+    const next = !user.can_drink;
+    await api("/api/me", { can_drink: next }, "PATCH");
+    user.can_drink = next ? 1 : 0;
+    const drinkIcon = $("#rail-drink-icon");
+    if (drinkIcon) drinkIcon.src = next ? "/img/3d/cup.png" : "/img/3d/teacup.png";
+    toast(next ? "Preference: Drinks alcohol" : "Preference: Non-drinker");
+  } catch (e) { toast(e.message, true); }
+});
 
 $("#dock-new-crew")?.addEventListener("click", () => {
   if (window._uwianNewCrewSheet) {

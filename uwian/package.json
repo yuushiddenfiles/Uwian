@@ -6,6 +6,8 @@
   "scripts": {
     "dev:server": "node --watch server/src/index.js",
     "dev:client": "npm --prefix client run dev",
+    "dev:web": "npm --prefix web run dev",
+    "build:web": "npm --prefix web run build",
     "test": "node --test server/src/lib/*.test.js shared/*.test.js"
   }
 }

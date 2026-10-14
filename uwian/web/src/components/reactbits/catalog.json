@@ -1,0 +1,2380 @@
+{
+  "ok": [
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TechText",
+      "files": [
+        "TechText/TechText.css",
+        "TechText/TechText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "MaskedHeading",
+      "files": [
+        "MaskedHeading/MaskedHeading.css",
+        "MaskedHeading/MaskedHeading.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ParticleText",
+      "files": [
+        "ParticleText/ParticleText.css",
+        "ParticleText/ParticleText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "SplitFlapText",
+      "files": [
+        "SplitFlapText/SplitFlapText.css",
+        "SplitFlapText/SplitFlapText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "WarpText",
+      "files": [
+        "WarpText/WarpText.css",
+        "WarpText/WarpText.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "StrokeText",
+      "files": [
+        "StrokeText/StrokeText.css",
+        "StrokeText/StrokeText.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TextLoop",
+      "files": [
+        "TextLoop/TextLoop.css",
+        "TextLoop/TextLoop.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "DepthText",
+      "files": [
+        "DepthText/DepthText.css",
+        "DepthText/DepthText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "EchoText",
+      "files": [
+        "EchoText/EchoText.css",
+        "EchoText/EchoText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "BlurText",
+      "files": [
+        "BlurText/BlurText.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "FoldText",
+      "files": [
+        "FoldText/FoldText.css",
+        "FoldText/FoldText.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "CircularText",
+      "files": [
+        "CircularText/CircularText.css",
+        "CircularText/CircularText.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TextType",
+      "files": [
+        "TextType/TextType.css",
+        "TextType/TextType.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ShinyText",
+      "files": [
+        "ShinyText/ShinyText.css",
+        "ShinyText/ShinyText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TextPressure",
+      "files": [
+        "TextPressure/TextPressure.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "CurvedLoop",
+      "files": [
+        "CurvedLoop/CurvedLoop.css",
+        "CurvedLoop/CurvedLoop.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "Shuffle",
+      "files": [
+        "Shuffle/Shuffle.css",
+        "Shuffle/Shuffle.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0",
+        "@gsap/react@^2.1.2"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TextCursor",
+      "files": [
+        "TextCursor/TextCursor.css",
+        "TextCursor/TextCursor.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "FuzzyText",
+      "files": [
+        "FuzzyText/FuzzyText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "GradientText",
+      "files": [
+        "GradientText/GradientText.css",
+        "GradientText/GradientText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "DecryptedText",
+      "files": [
+        "DecryptedText/DecryptedText.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "FallingText",
+      "files": [
+        "FallingText/FallingText.css",
+        "FallingText/FallingText.jsx"
+      ],
+      "deps": [
+        "matter-js@^0.20.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ScrollReveal",
+      "files": [
+        "ScrollReveal/ScrollReveal.css",
+        "ScrollReveal/ScrollReveal.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ScrollFloat",
+      "files": [
+        "ScrollFloat/ScrollFloat.css",
+        "ScrollFloat/ScrollFloat.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ScrambledText",
+      "files": [
+        "ScrambledText/ScrambledText.css",
+        "ScrambledText/ScrambledText.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "TrueFocus",
+      "files": [
+        "TrueFocus/TrueFocus.css",
+        "TrueFocus/TrueFocus.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "GlitchText",
+      "files": [
+        "GlitchText/GlitchText.css",
+        "GlitchText/GlitchText.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "RotatingText",
+      "files": [
+        "RotatingText/RotatingText.css",
+        "RotatingText/RotatingText.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "ScrollVelocity",
+      "files": [
+        "ScrollVelocity/ScrollVelocity.css",
+        "ScrollVelocity/ScrollVelocity.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "CountUp",
+      "files": [
+        "CountUp/CountUp.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ElectricLogo",
+      "files": [
+        "ElectricLogo/ElectricLogo.css",
+        "ElectricLogo/ElectricLogo.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "CrystalizedBall",
+      "files": [
+        "CrystalizedBall/CrystalizedBall.css",
+        "CrystalizedBall/CrystalizedBall.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "text-animations",
+      "component": "VariableProximity",
+      "files": [
+        "VariableProximity/VariableProximity.css",
+        "VariableProximity/VariableProximity.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "DitherVeil",
+      "files": [
+        "DitherVeil/DitherVeil.css",
+        "DitherVeil/DitherVeil.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "RippleDistortion",
+      "files": [
+        "RippleDistortion/RippleDistortion.css",
+        "RippleDistortion/RippleDistortion.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ElasticMesh",
+      "files": [
+        "ElasticMesh/ElasticMesh.css",
+        "ElasticMesh/ElasticMesh.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "GlowCursor",
+      "files": [
+        "GlowCursor/GlowCursor.css",
+        "GlowCursor/GlowCursor.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ScrollExpand",
+      "files": [
+        "ScrollExpand/ScrollExpand.css",
+        "ScrollExpand/ScrollExpand.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "HalftoneReveal",
+      "files": [
+        "HalftoneReveal/HalftoneReveal.css",
+        "HalftoneReveal/HalftoneReveal.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "PixelSwap",
+      "files": [
+        "PixelSwap/PixelSwap.css",
+        "PixelSwap/PixelSwap.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "SwarmCursor",
+      "files": [
+        "SwarmCursor/SwarmCursor.css",
+        "SwarmCursor/SwarmCursor.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "CursorGrid",
+      "files": [
+        "CursorGrid/CursorGrid.css",
+        "CursorGrid/CursorGrid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "AnimatedContent",
+      "files": [
+        "AnimatedContent/AnimatedContent.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "FadeContent",
+      "files": [
+        "FadeContent/FadeContent.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "PixelTransition",
+      "files": [
+        "PixelTransition/PixelTransition.css",
+        "PixelTransition/PixelTransition.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "GlareHover",
+      "files": [
+        "GlareHover/GlareHover.css",
+        "GlareHover/GlareHover.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ElectricBorder",
+      "files": [
+        "ElectricBorder/ElectricBorder.css",
+        "ElectricBorder/ElectricBorder.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "LogoLoop",
+      "files": [
+        "LogoLoop/LogoLoop.css",
+        "LogoLoop/LogoLoop.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "OrbitImages",
+      "files": [
+        "OrbitImages/OrbitImages.css",
+        "OrbitImages/OrbitImages.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Antigravity",
+      "files": [
+        "Antigravity/Antigravity.jsx"
+      ],
+      "deps": [
+        "@react-three/fiber@^9.3.0",
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "TargetCursor",
+      "files": [
+        "TargetCursor/TargetCursor.css",
+        "TargetCursor/TargetCursor.jsx"
+      ],
+      "deps": [
+        "react-dom@^19.0.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "LaserFlow",
+      "files": [
+        "LaserFlow/LaserFlow.css",
+        "LaserFlow/LaserFlow.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "GradualBlur",
+      "files": [
+        "GradualBlur/GradualBlur.css",
+        "GradualBlur/GradualBlur.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "GhostCursor",
+      "files": [
+        "GhostCursor/GhostCursor.css",
+        "GhostCursor/GhostCursor.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "StickerPeel",
+      "files": [
+        "StickerPeel/StickerPeel.css",
+        "StickerPeel/StickerPeel.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Magnet",
+      "files": [
+        "Magnet/Magnet.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ClickSpark",
+      "files": [
+        "ClickSpark/ClickSpark.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Strands",
+      "files": [
+        "Strands/Strands.css",
+        "Strands/Strands.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "PixelTrail",
+      "files": [
+        "PixelTrail/PixelTrail.css",
+        "PixelTrail/PixelTrail.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Cubes",
+      "files": [
+        "Cubes/Cubes.css",
+        "Cubes/Cubes.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "MetallicPaint",
+      "files": [
+        "MetallicPaint/MetallicPaint.css",
+        "MetallicPaint/MetallicPaint.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ShapeBlur",
+      "files": [
+        "ShapeBlur/ShapeBlur.css",
+        "ShapeBlur/ShapeBlur.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Crosshair",
+      "files": [
+        "Crosshair/Crosshair.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "ImageTrail",
+      "files": [
+        "ImageTrail/ImageTrail.css",
+        "ImageTrail/ImageTrail.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Noise",
+      "files": [
+        "Noise/Noise.css",
+        "Noise/Noise.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "Ribbons",
+      "files": [
+        "Ribbons/Ribbons.css",
+        "Ribbons/Ribbons.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "SplashCursor",
+      "files": [
+        "SplashCursor/SplashCursor.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "BlobCursor",
+      "files": [
+        "BlobCursor/BlobCursor.css",
+        "BlobCursor/BlobCursor.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "MetaBalls",
+      "files": [
+        "MetaBalls/MetaBalls.css",
+        "MetaBalls/MetaBalls.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "HoloCard",
+      "files": [
+        "HoloCard/HoloCard.css",
+        "HoloCard/HoloCard.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "CircularCarousel",
+      "files": [
+        "CircularCarousel/CircularCarousel.css",
+        "CircularCarousel/CircularCarousel.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "animations",
+      "component": "StarBorder",
+      "files": [
+        "StarBorder/StarBorder.css",
+        "StarBorder/StarBorder.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "FlexCarousel",
+      "files": [
+        "FlexCarousel/FlexCarousel.css",
+        "FlexCarousel/FlexCarousel.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "DepthCarousel",
+      "files": [
+        "DepthCarousel/DepthCarousel.css",
+        "DepthCarousel/DepthCarousel.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "MorphSlider",
+      "files": [
+        "MorphSlider/MorphSlider.css",
+        "MorphSlider/MorphSlider.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11",
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "DriftWall",
+      "files": [
+        "DriftWall/DriftWall.css",
+        "DriftWall/DriftWall.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "InfiniteSpiral",
+      "files": [
+        "InfiniteSpiral/InfiniteSpiral.css",
+        "InfiniteSpiral/InfiniteSpiral.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "AccordionGallery",
+      "files": [
+        "AccordionGallery/AccordionGallery.css",
+        "AccordionGallery/AccordionGallery.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "SpecularButton",
+      "files": [
+        "SpecularButton/SpecularButton.css",
+        "SpecularButton/SpecularButton.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "AnimatedList",
+      "files": [
+        "AnimatedList/AnimatedList.css",
+        "AnimatedList/AnimatedList.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "LineSidebar",
+      "files": [
+        "LineSidebar/LineSidebar.css",
+        "LineSidebar/LineSidebar.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "CurvedInput",
+      "files": [
+        "CurvedInput/CurvedInput.css",
+        "CurvedInput/CurvedInput.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ScrollStack",
+      "files": [
+        "ScrollStack/ScrollStack.css",
+        "ScrollStack/ScrollStack.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "OptionWheel",
+      "files": [
+        "OptionWheel/OptionWheel.css",
+        "OptionWheel/OptionWheel.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "MagicBento",
+      "files": [
+        "MagicBento/MagicBento.css",
+        "MagicBento/MagicBento.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "CircularGallery",
+      "files": [
+        "CircularGallery/CircularGallery.css",
+        "CircularGallery/CircularGallery.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "CardNav",
+      "files": [
+        "CardNav/CardNav.css",
+        "CardNav/CardNav.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0",
+        "react-icons@^5.5.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ReflectiveCard",
+      "files": [
+        "ReflectiveCard/ReflectiveCard.css",
+        "ReflectiveCard/ReflectiveCard.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Stack",
+      "files": [
+        "Stack/Stack.css",
+        "Stack/Stack.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "BubbleMenu",
+      "files": [
+        "BubbleMenu/BubbleMenu.css",
+        "BubbleMenu/BubbleMenu.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "FluidGlass",
+      "files": [
+        "FluidGlass/FluidGlass.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0",
+        "@react-three/fiber@^9.3.0",
+        "@react-three/drei@^10.7.4",
+        "maath@^0.10.8"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "PillNav",
+      "files": [
+        "PillNav/PillNav.css",
+        "PillNav/PillNav.jsx"
+      ],
+      "deps": [
+        "react-router-dom@^6.30.1",
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "TiltedCard",
+      "files": [
+        "TiltedCard/TiltedCard.css",
+        "TiltedCard/TiltedCard.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Masonry",
+      "files": [
+        "Masonry/Masonry.css",
+        "Masonry/Masonry.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "GlassSurface",
+      "files": [
+        "GlassSurface/GlassSurface.css",
+        "GlassSurface/GlassSurface.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "DomeGallery",
+      "files": [
+        "DomeGallery/DomeGallery.css",
+        "DomeGallery/DomeGallery.jsx"
+      ],
+      "deps": [
+        "@use-gesture/react@^10.2.27"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Folder",
+      "files": [
+        "Folder/Folder.css",
+        "Folder/Folder.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ChromaGrid",
+      "files": [
+        "ChromaGrid/ChromaGrid.css",
+        "ChromaGrid/ChromaGrid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "StaggeredMenu",
+      "files": [
+        "StaggeredMenu/StaggeredMenu.css",
+        "StaggeredMenu/StaggeredMenu.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ModelViewer",
+      "files": [
+        "ModelViewer/ModelViewer.jsx"
+      ],
+      "deps": [
+        "@react-three/fiber@^9.3.0",
+        "@react-three/drei@^10.7.4",
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Lanyard",
+      "files": [
+        "Lanyard/Lanyard.css",
+        "Lanyard/Lanyard.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ProfileCard",
+      "files": [
+        "ProfileCard/ProfileCard.css",
+        "ProfileCard/ProfileCard.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "GooeyNav",
+      "files": [
+        "GooeyNav/GooeyNav.css",
+        "GooeyNav/GooeyNav.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Carousel",
+      "files": [
+        "Carousel/Carousel.css",
+        "Carousel/Carousel.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "SpotlightCard",
+      "files": [
+        "SpotlightCard/SpotlightCard.css",
+        "SpotlightCard/SpotlightCard.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Dock",
+      "files": [
+        "Dock/Dock.css",
+        "Dock/Dock.jsx"
+      ],
+      "deps": [
+        "react-dom@^19.0.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "PixelCard",
+      "files": [
+        "PixelCard/PixelCard.css",
+        "PixelCard/PixelCard.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "BorderGlow",
+      "files": [
+        "BorderGlow/BorderGlow.css",
+        "BorderGlow/BorderGlow.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "CardSwap",
+      "files": [
+        "CardSwap/CardSwap.css",
+        "CardSwap/CardSwap.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "FlyingPosters",
+      "files": [
+        "FlyingPosters/FlyingPosters.css",
+        "FlyingPosters/FlyingPosters.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "FlowingMenu",
+      "files": [
+        "FlowingMenu/FlowingMenu.css",
+        "FlowingMenu/FlowingMenu.jsx"
+      ],
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Counter",
+      "files": [
+        "Counter/Counter.css",
+        "Counter/Counter.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "GlassIcons",
+      "files": [
+        "GlassIcons/GlassIcons.css",
+        "GlassIcons/GlassIcons.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "ElasticSlider",
+      "files": [
+        "ElasticSlider/ElasticSlider.css",
+        "ElasticSlider/ElasticSlider.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@chakra-ui/react@^3.20.0",
+        "react-icons@^5.5.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "DecayCard",
+      "files": [
+        "DecayCard/DecayCard.css",
+        "DecayCard/DecayCard.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "Shredder",
+      "files": [
+        "Shredder/Shredder.css",
+        "Shredder/Shredder.jsx"
+      ],
+      "deps": [
+        "react-dom@^19.0.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "BounceCards",
+      "files": [
+        "BounceCards/BounceCards.css",
+        "BounceCards/BounceCards.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "Stepper",
+      "files": [
+        "Stepper/Stepper.css",
+        "Stepper/Stepper.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "PaperCrumple",
+      "files": [
+        "PaperCrumple/PaperCrumple.css",
+        "PaperCrumple/PaperCrumple.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "components",
+      "component": "InfiniteMenu",
+      "files": [
+        "InfiniteMenu/InfiniteMenu.css",
+        "InfiniteMenu/InfiniteMenu.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "FlipCard",
+      "files": [
+        "FlipCard/FlipCard.css",
+        "FlipCard/FlipCard.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "TearTicket",
+      "files": [
+        "TearTicket/TearTicket.css",
+        "TearTicket/TearTicket.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "BranchedMenu",
+      "files": [
+        "BranchedMenu/BranchedMenu.css",
+        "BranchedMenu/BranchedMenu.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "FolderFloat",
+      "files": [
+        "FolderFloat/FolderFloat.css",
+        "FolderFloat/FolderFloat.jsx"
+      ],
+      "deps": [
+        "matter-js@^0.20.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "VoicePill",
+      "files": [
+        "VoicePill/VoicePill.css",
+        "VoicePill/VoicePill.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SloshGauge",
+      "files": [
+        "SloshGauge/SloshGauge.css",
+        "SloshGauge/SloshGauge.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "ThoughtLine",
+      "files": [
+        "ThoughtLine/ThoughtLine.css",
+        "ThoughtLine/ThoughtLine.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "RefineFrame",
+      "files": [
+        "RefineFrame/RefineFrame.css",
+        "RefineFrame/RefineFrame.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "PromptBar",
+      "files": [
+        "PromptBar/PromptBar.css",
+        "PromptBar/PromptBar.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SwipeToast",
+      "files": [
+        "SwipeToast/SwipeToast.css",
+        "SwipeToast/SwipeToast.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "BellToggle",
+      "files": [
+        "BellToggle/BellToggle.css",
+        "BellToggle/BellToggle.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "StatusMark",
+      "files": [
+        "StatusMark/StatusMark.css",
+        "StatusMark/StatusMark.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SlingButton",
+      "files": [
+        "SlingButton/SlingButton.css",
+        "SlingButton/SlingButton.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "CallChip",
+      "files": [
+        "CallChip/CallChip.css",
+        "CallChip/CallChip.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "GlideSelect",
+      "files": [
+        "GlideSelect/GlideSelect.css",
+        "GlideSelect/GlideSelect.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SwipeRow",
+      "files": [
+        "SwipeRow/SwipeRow.css",
+        "SwipeRow/SwipeRow.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "JellyRadio",
+      "files": [
+        "JellyRadio/JellyRadio.css",
+        "JellyRadio/JellyRadio.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "CometDial",
+      "files": [
+        "CometDial/CometDial.css",
+        "CometDial/CometDial.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "WakeSlider",
+      "files": [
+        "WakeSlider/WakeSlider.css",
+        "WakeSlider/WakeSlider.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "CodeSlots",
+      "files": [
+        "CodeSlots/CodeSlots.css",
+        "CodeSlots/CodeSlots.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "DodgeField",
+      "files": [
+        "DodgeField/DodgeField.css",
+        "DodgeField/DodgeField.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "LatticeLoader",
+      "files": [
+        "LatticeLoader/LatticeLoader.css",
+        "LatticeLoader/LatticeLoader.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "ScrubField",
+      "files": [
+        "ScrubField/ScrubField.css",
+        "ScrubField/ScrubField.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "WarmTooltip",
+      "files": [
+        "WarmTooltip/WarmTooltip.css",
+        "WarmTooltip/WarmTooltip.jsx"
+      ],
+      "deps": [
+        "react-dom@^19.0.0",
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SlideCommit",
+      "files": [
+        "SlideCommit/SlideCommit.css",
+        "SlideCommit/SlideCommit.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "RubberSegment",
+      "files": [
+        "RubberSegment/RubberSegment.css",
+        "RubberSegment/RubberSegment.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "FuseButton",
+      "files": [
+        "FuseButton/FuseButton.css",
+        "FuseButton/FuseButton.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "PulseHeart",
+      "files": [
+        "PulseHeart/PulseHeart.css",
+        "PulseHeart/PulseHeart.jsx"
+      ],
+      "deps": [
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SpringCheck",
+      "files": [
+        "SpringCheck/SpringCheck.css",
+        "SpringCheck/SpringCheck.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "HoldButton",
+      "files": [
+        "HoldButton/HoldButton.css",
+        "HoldButton/HoldButton.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "PeekRating",
+      "files": [
+        "PeekRating/PeekRating.css",
+        "PeekRating/PeekRating.jsx"
+      ],
+      "deps": [
+        "@hugeicons/react@^1.1.10",
+        "@hugeicons/core-free-icons@^4.3.3"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "micro",
+      "component": "SquishSwitch",
+      "files": [
+        "SquishSwitch/SquishSwitch.css",
+        "SquishSwitch/SquishSwitch.jsx"
+      ],
+      "deps": [
+        "motion@^12.23.12"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "PatternWaves",
+      "files": [
+        "PatternWaves/PatternWaves.css",
+        "PatternWaves/PatternWaves.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "FluxLines",
+      "files": [
+        "FluxLines/FluxLines.css",
+        "FluxLines/FluxLines.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "MicroSlats",
+      "files": [
+        "MicroSlats/MicroSlats.css",
+        "MicroSlats/MicroSlats.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "ShapeWaves",
+      "files": [
+        "ShapeWaves/ShapeWaves.css",
+        "ShapeWaves/ShapeWaves.jsx"
+      ],
+      "deps": [
+        "vgpu@^0.3.1"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "AeroShards",
+      "files": [
+        "AeroShards/AeroShards.css",
+        "AeroShards/AeroShards.jsx"
+      ],
+      "deps": [
+        "vgpu@^0.3.1"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GhostFibers",
+      "files": [
+        "GhostFibers/GhostFibers.css",
+        "GhostFibers/GhostFibers.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GradientWaves",
+      "files": [
+        "GradientWaves/GradientWaves.css",
+        "GradientWaves/GradientWaves.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "WebThreads",
+      "files": [
+        "WebThreads/WebThreads.css",
+        "WebThreads/WebThreads.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LightTunnel",
+      "files": [
+        "LightTunnel/LightTunnel.css",
+        "LightTunnel/LightTunnel.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "AcidSquares",
+      "files": [
+        "AcidSquares/AcidSquares.css",
+        "AcidSquares/AcidSquares.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "MoltenMetal",
+      "files": [
+        "MoltenMetal/MoltenMetal.css",
+        "MoltenMetal/MoltenMetal.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Topography",
+      "files": [
+        "Topography/Topography.css",
+        "Topography/Topography.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Scanner",
+      "files": [
+        "Scanner/Scanner.css",
+        "Scanner/Scanner.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "SlicedWaves",
+      "files": [
+        "SlicedWaves/SlicedWaves.css",
+        "SlicedWaves/SlicedWaves.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Lightfall",
+      "files": [
+        "Lightfall/Lightfall.css",
+        "Lightfall/Lightfall.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Ferrofluid",
+      "files": [
+        "Ferrofluid/Ferrofluid.css",
+        "Ferrofluid/Ferrofluid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "DarkVeil",
+      "files": [
+        "DarkVeil/DarkVeil.css",
+        "DarkVeil/DarkVeil.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LiquidEther",
+      "files": [
+        "LiquidEther/LiquidEther.css",
+        "LiquidEther/LiquidEther.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LightPillar",
+      "files": [
+        "LightPillar/LightPillar.css",
+        "LightPillar/LightPillar.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Silk",
+      "files": [
+        "Silk/Silk.css",
+        "Silk/Silk.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Prism",
+      "files": [
+        "Prism/Prism.css",
+        "Prism/Prism.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "FloatingLines",
+      "files": [
+        "FloatingLines/FloatingLines.css",
+        "FloatingLines/FloatingLines.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "SideRays",
+      "files": [
+        "SideRays/SideRays.css",
+        "SideRays/SideRays.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LightRays",
+      "files": [
+        "LightRays/LightRays.css",
+        "LightRays/LightRays.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "PixelBlast",
+      "files": [
+        "PixelBlast/PixelBlast.css",
+        "PixelBlast/PixelBlast.jsx"
+      ],
+      "deps": [
+        "postprocessing@^6.36.0",
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LineWaves",
+      "files": [
+        "LineWaves/LineWaves.css",
+        "LineWaves/LineWaves.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Radar",
+      "files": [
+        "Radar/Radar.css",
+        "Radar/Radar.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "SoftAurora",
+      "files": [
+        "SoftAurora/SoftAurora.css",
+        "SoftAurora/SoftAurora.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "ColorBends",
+      "files": [
+        "ColorBends/ColorBends.css",
+        "ColorBends/ColorBends.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Aurora",
+      "files": [
+        "Aurora/Aurora.css",
+        "Aurora/Aurora.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "PlasmaWave",
+      "files": [
+        "PlasmaWave/PlasmaWave.css",
+        "PlasmaWave/PlasmaWave.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Plasma",
+      "files": [
+        "Plasma/Plasma.css",
+        "Plasma/Plasma.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Particles",
+      "files": [
+        "Particles/Particles.css",
+        "Particles/Particles.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "MagicRings",
+      "files": [
+        "MagicRings/MagicRings.css",
+        "MagicRings/MagicRings.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "PixelSnow",
+      "files": [
+        "PixelSnow/PixelSnow.css",
+        "PixelSnow/PixelSnow.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Grainient",
+      "files": [
+        "Grainient/Grainient.css",
+        "Grainient/Grainient.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GradientBlinds",
+      "files": [
+        "GradientBlinds/GradientBlinds.css",
+        "GradientBlinds/GradientBlinds.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Beams",
+      "files": [
+        "Beams/Beams.css",
+        "Beams/Beams.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GridScan",
+      "files": [
+        "GridScan/GridScan.css",
+        "GridScan/GridScan.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Lightning",
+      "files": [
+        "Lightning/Lightning.css",
+        "Lightning/Lightning.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Galaxy",
+      "files": [
+        "Galaxy/Galaxy.css",
+        "Galaxy/Galaxy.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "PrismaticBurst",
+      "files": [
+        "PrismaticBurst/PrismaticBurst.css",
+        "PrismaticBurst/PrismaticBurst.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Dither",
+      "files": [
+        "Dither/Dither.css",
+        "Dither/Dither.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "RippleGrid",
+      "files": [
+        "RippleGrid/RippleGrid.css",
+        "RippleGrid/RippleGrid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "DotGrid",
+      "files": [
+        "DotGrid/DotGrid.css",
+        "DotGrid/DotGrid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "DotField",
+      "files": [
+        "DotField/DotField.css",
+        "DotField/DotField.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "FaultyTerminal",
+      "files": [
+        "FaultyTerminal/FaultyTerminal.css",
+        "FaultyTerminal/FaultyTerminal.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Threads",
+      "files": [
+        "Threads/Threads.css",
+        "Threads/Threads.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Iridescence",
+      "files": [
+        "Iridescence/Iridescence.css",
+        "Iridescence/Iridescence.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Waves",
+      "files": [
+        "Waves/Waves.css",
+        "Waves/Waves.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GridDistortion",
+      "files": [
+        "GridDistortion/GridDistortion.css",
+        "GridDistortion/GridDistortion.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Hyperspeed",
+      "files": [
+        "Hyperspeed/Hyperspeed.css",
+        "Hyperspeed/Hyperspeed.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Ballpit",
+      "files": [
+        "Ballpit/Ballpit.jsx"
+      ],
+      "deps": [
+        "three@^0.180.0"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "MagnetLines",
+      "files": [
+        "MagnetLines/MagnetLines.css",
+        "MagnetLines/MagnetLines.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Orb",
+      "files": [
+        "Orb/Orb.css",
+        "Orb/Orb.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "GridMotion",
+      "files": [
+        "GridMotion/GridMotion.css",
+        "GridMotion/GridMotion.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LetterGlitch",
+      "files": [
+        "LetterGlitch/LetterGlitch.css",
+        "LetterGlitch/LetterGlitch.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "ShapeGrid",
+      "files": [
+        "ShapeGrid/ShapeGrid.css",
+        "ShapeGrid/ShapeGrid.jsx"
+      ],
+      "deps": []
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "Balatro",
+      "files": [
+        "Balatro/Balatro.css",
+        "Balatro/Balatro.jsx"
+      ],
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "ok": true,
+      "category": "backgrounds",
+      "component": "LiquidChrome",
+      "files": [
+        "LiquidChrome/LiquidChrome.css",
+        "LiquidChrome/LiquidChrome.jsx"
+      ],
+      "deps": []
+    }
+  ],
+  "fail": [
+    {
+      "ok": false,
+      "category": "text-animations",
+      "component": "AsciiText",
+      "error": "HTTP 404"
+    },
+    {
+      "ok": false,
+      "category": "backgrounds",
+      "component": "CrtWarp",
+      "error": "HTTP 404"
+    }
+  ]
+}

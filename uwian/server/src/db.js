@@ -14,3 +14,240 @@ if (!db.prepare("SELECT _rowid_ FROM _schema_done LIMIT 1").get()) {
   db.exec(sql);
   db.prepare("INSERT INTO _schema_done VALUES (1)").run();
 }
+
+// ── Incremental migrations ──
+// Each migration runs once; the version is stored in _migrations.
+db.exec("CREATE TABLE IF NOT EXISTS _migrations (id TEXT PRIMARY KEY, ran_at TEXT NOT NULL DEFAULT (datetime('now')))");
+
+function migrate(id, sql) {
+  if (db.prepare("SELECT id FROM _migrations WHERE id=?").get(id)) return;
+  db.exec(sql);
+  db.prepare("INSERT INTO _migrations (id) VALUES (?)").run(id);
+}
+
+// m001: messaging system
+migrate("m001_messaging", `
+  CREATE TABLE IF NOT EXISTS conversations (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    type        TEXT NOT NULL CHECK (type IN ('dm','group')),
+    group_id    INTEGER REFERENCES groups(id) ON DELETE CASCADE, -- optional: linked group for group chats
+    title       TEXT,                                            -- group chat display name
+    created_by  INTEGER NOT NULL REFERENCES users(id),
+    created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS conversation_members (
+    conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    user_id         INTEGER NOT NULL REFERENCES users(id),
+    joined_at       TEXT NOT NULL DEFAULT (datetime('now')),
+    last_read_at    TEXT,
+    PRIMARY KEY (conversation_id, user_id)
+  );
+  CREATE TABLE IF NOT EXISTS messages (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_id       INTEGER NOT NULL REFERENCES users(id),
+    content         TEXT NOT NULL,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    edited_at       TEXT,
+    deleted_at      TEXT    -- soft delete
+  );
+  CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_conv_members ON conversation_members(user_id);
+`);
+
+// m002: enhanced verification moderation
+migrate("m002_verification", `
+  CREATE TABLE IF NOT EXISTS verification_submissions (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL UNIQUE REFERENCES users(id),
+    id_type         TEXT NOT NULL DEFAULT 'school_id',  -- 'school_id','drivers_license','passport','national_id'
+    id_number       TEXT,
+    full_name_on_id TEXT NOT NULL,
+    birthdate_on_id TEXT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected','under_review')),
+    submitted_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    reviewed_at     TEXT,
+    reviewed_by     INTEGER REFERENCES users(id),
+    rejection_note  TEXT
+  );
+  CREATE TABLE IF NOT EXISTS admin_flags (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    reporter_id INTEGER NOT NULL REFERENCES users(id),
+    flagged_uid INTEGER NOT NULL REFERENCES users(id),
+    group_id    INTEGER REFERENCES groups(id),
+    reason      TEXT NOT NULL,
+    category    TEXT NOT NULL DEFAULT 'misconduct' CHECK (category IN ('misconduct','fake_id','harassment','spam','other')),
+    status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','reviewed','dismissed')),
+    admin_note  TEXT,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    reviewed_at TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_flags_flagged ON admin_flags(flagged_uid, status);
+  CREATE INDEX IF NOT EXISTS idx_verif_status ON verification_submissions(status);
+`);
+
+// m003: profile pictures + admin-approved name/email changes
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='avatar_id'").get())
+  db.exec("ALTER TABLE users ADD COLUMN avatar_id TEXT");
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='avatar_url'").get())
+  db.exec("ALTER TABLE users ADD COLUMN avatar_url TEXT"); // custom uploaded picture, a downscaled data URL
+migrate("m003_profile_requests", `
+  CREATE TABLE IF NOT EXISTS profile_change_requests (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id),
+    field       TEXT NOT NULL CHECK (field IN ('name','email')),
+    old_value   TEXT NOT NULL,
+    new_value   TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+    submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+    reviewed_at TEXT,
+    reviewed_by INTEGER REFERENCES users(id),
+    review_note TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_profile_req_status ON profile_change_requests(status);
+  CREATE INDEX IF NOT EXISTS idx_profile_req_user ON profile_change_requests(user_id, status);
+`);
+
+// m004: site-wide staff role + spot suggestion queue.
+// 'user' is everyone. 'admin' is a Uwian operator account, NOT a crew role:
+// crew admins live in group_members and stay scoped to their own crew.
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='role'").get())
+  db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
+migrate("m004_spot_suggestions", `
+  CREATE TABLE IF NOT EXISTS spot_submissions (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    submitter_id INTEGER NOT NULL REFERENCES users(id),
+    name        TEXT NOT NULL,
+    lat         REAL NOT NULL, lng REAL NOT NULL,
+    price_range TEXT,
+    closes_at   TEXT,
+    notes       TEXT,
+    status      TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+    review_note TEXT,
+    reviewed_by INTEGER REFERENCES users(id),
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    reviewed_at TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_spot_sub_status ON spot_submissions(status, created_at);
+`);
+
+// m005: TOS gate in front of ID verification.
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='tos_accepted_at'").get())
+  db.exec("ALTER TABLE users ADD COLUMN tos_accepted_at TEXT");
+
+// m006: ID photo upload — store the submitted image as a base64 data URL.
+// Ops needs to see the actual document to approve, not just typed-in text.
+if (!db.prepare("SELECT name FROM pragma_table_info('verification_submissions') WHERE name='id_photo'").get())
+  db.exec("ALTER TABLE verification_submissions ADD COLUMN id_photo TEXT");
+
+// m007: location sharing in chats.
+// Messages can carry a geographic ping (kind='location') in addition to plain
+// text. Only verified members may send location messages (enforced at API layer).
+// Columns are nullable because existing text-only messages have no coordinates.
+if (!db.prepare("SELECT name FROM pragma_table_info('messages') WHERE name='kind'").get())
+  db.exec("ALTER TABLE messages ADD COLUMN kind TEXT NOT NULL DEFAULT 'text'");
+if (!db.prepare("SELECT name FROM pragma_table_info('messages') WHERE name='lat'").get())
+  db.exec("ALTER TABLE messages ADD COLUMN lat REAL");
+if (!db.prepare("SELECT name FROM pragma_table_info('messages') WHERE name='lng'").get())
+  db.exec("ALTER TABLE messages ADD COLUMN lng REAL");
+
+// m008: link a conversation to the session that spawned it so the session page
+// can deep-link straight to the right chat without a secondary lookup.
+if (!db.prepare("SELECT name FROM pragma_table_info('conversations') WHERE name='session_id'").get())
+  db.exec("ALTER TABLE conversations ADD COLUMN session_id INTEGER REFERENCES sessions(id) ON DELETE SET NULL");
+
+// m009: live GPS tracking during sessions.
+// One row per (user, session). Upserted on each location broadcast.
+// 'active' is set to 0 when the member stops sharing or the session ends.
+// Staleness threshold enforced client-side: pins last updated >2min ago shown as faded.
+migrate("m009_live_locations", `
+  CREATE TABLE IF NOT EXISTS live_locations (
+    session_id  INTEGER NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES users(id)   ON DELETE CASCADE,
+    lat         REAL    NOT NULL,
+    lng         REAL    NOT NULL,
+    accuracy    REAL,
+    active      INTEGER NOT NULL DEFAULT 1,
+    updated_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (session_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_live_loc_session ON live_locations(session_id, active, updated_at);
+`);
+
+// m010: user handles (name#12345 format, max 5 digit slots) and friend system
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='handle'").get())
+  db.exec("ALTER TABLE users ADD COLUMN handle TEXT");
+if (!db.prepare("SELECT name FROM pragma_table_info('users') WHERE name='vibe'").get())
+  db.exec("ALTER TABLE users ADD COLUMN vibe TEXT");
+db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_handle ON users(handle)");
+
+migrate("m010_friends", `
+  CREATE TABLE IF NOT EXISTS friends (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    friend_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status      TEXT NOT NULL CHECK (status IN ('pending','accepted','rejected')),
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(user_id, friend_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_friends_user ON friends(user_id, status);
+  CREATE INDEX IF NOT EXISTS idx_friends_friend ON friends(friend_id, status);
+`);
+
+// Seed handles for existing users if unassigned
+const knownHandles = {
+  "admin@uwian.dev": { handle: "uwiandev#9999", vibe: "Uwian Platform Ops · Safe routes & fair tabs" },
+  "curtney@uwian.dev": { handle: "yuu#12345", vibe: "Night walks & acoustic sets · Quezon City" },
+  "albertjhonragasa399@gmail.com": { handle: "ajragasa#54321", vibe: "Tech explorer & weekend hangouts · Makati" },
+  "ajragasa@barkada.demo": { handle: "ajragasa#10294", vibe: "Always down for food trips & Poblacion nights" },
+  "ana@barkada.demo": { handle: "anareyes#28419", vibe: "Barkada organizer · Always checking who has a ride home" },
+  "ben@barkada.demo": { handle: "bencruz#48102", vibe: "Designated Driver champion 🚗 · Manila" },
+  "carl@barkada.demo": { handle: "carldomingo#22910", vibe: "Craft cocktails & late diner conversations" },
+  "dina@barkada.demo": { handle: "dinaflores#39182", vibe: "Music festivals, indie gigs & rooftop sunset sessions" },
+  "ramon@barkada.demo": { handle: "ramonsy#58190", vibe: "Foodie & budget spreadsheet wizard 📊" },
+  "ela@barkada.demo": { handle: "elavillanueva#61092", vibe: "Karaoke queen 🎤 · BGC & Pasig" }
+};
+
+for (const [email, meta] of Object.entries(knownHandles)) {
+  db.prepare("UPDATE users SET handle=COALESCE(handle, ?), vibe=COALESCE(vibe, ?) WHERE email=?")
+    .run(meta.handle, meta.vibe, email);
+}
+
+// Seed Curtney Trinidad and other discoverable members if missing
+const extraUsers = [
+  { name: "Curtney Trinidad", email: "curtney@uwian.dev", handle: "yuu#12345", avatar_id: "star", vibe: "Night walks & acoustic sets · Quezon City", can_drink: 1 },
+  { name: "Maya Santos", email: "maya@barkada.demo", handle: "mayasantos#20481", avatar_id: "orbit", vibe: "Designated Driver & chill playlist curator · BGC", can_drink: 0 },
+  { name: "Paolo Reyes", email: "paolo@barkada.demo", handle: "paoloreyes#39182", avatar_id: "bolt", vibe: "Late-night tapsilog & craft beers · Makati", can_drink: 1 },
+  { name: "Sofia Chen", email: "sofia@barkada.demo", handle: "sofiachen#77123", avatar_id: "bloom", vibe: "Karaoke champion & midnight boba runs · Manila", can_drink: 1 },
+  { name: "Kenzo Tan", email: "kenzo@barkada.demo", handle: "kenzotan#11094", avatar_id: "peak", vibe: "Rooftop lounge & vinyl jazz lover · Ortigas", can_drink: 1 }
+];
+
+for (const u of extraUsers) {
+  const existing = db.prepare("SELECT id FROM users WHERE email=? OR handle=?").get(u.email, u.handle);
+  if (!existing) {
+    db.prepare(`
+      INSERT INTO users (name, email, password_hash, birthdate, can_drink, avatar_id, handle, vibe)
+      VALUES (?, ?, '$2a$10$wT8f6sI09bN7fM2B9Xq9.evb4H6K983y/cWJz7L94Qe4m0zN7JgKi', '2001-05-20', ?, ?, ?, ?)
+    `).run(u.name, u.email, u.can_drink, u.avatar_id, u.handle, u.vibe);
+  }
+}
+
+// Auto-fill any remaining users without handles
+const missingHandles = db.prepare("SELECT id, name, email FROM users WHERE handle IS NULL").all();
+for (const u of missingHandles) {
+  const slug = (u.name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10) || "user");
+  let num = Math.floor(1000 + Math.random() * 90000);
+  let h = `${slug}#${num}`;
+  while (db.prepare("SELECT 1 FROM users WHERE handle=?").get(h)) {
+    num = Math.floor(1000 + Math.random() * 90000);
+    h = `${slug}#${num}`;
+  }
+  db.prepare("UPDATE users SET handle=? WHERE id=?").run(h, u.id);
+}
+
+// m011: per-session cover pictures. Uploaded by crew admins, shown as the
+// session page banner. Same downscaled data-URL storage as avatar_url;
+// sessions without one keep their generative SpotArt tile in the feed.
+if (!db.prepare("SELECT name FROM pragma_table_info('sessions') WHERE name='cover_url'").get())
+  db.exec("ALTER TABLE sessions ADD COLUMN cover_url TEXT");
