@@ -297,6 +297,18 @@ retired vanilla client in `client/` (kept on disk as rollback).
   console still ships as one route with one entry in the account menu (link-only,
   no public nav), which is the half of "hidden behind a link" that was already
   true.
+- Google sign-in (owner request, 2026-10-15): one button for both sign-in and
+  sign-up (white + official G mark, on login and signup pages) — first click
+  auto-creates the account, later clicks just sign in. No new npm deps: code
+  exchange and userinfo are plain fetch. Existing emails link automatically
+  (verified Google email = email ownership). New accounts get a random
+  unusable password hash (password login can never work) and NULL birthdate,
+  which triggers a one-time 18+ step (POST /api/me/birthdate, refuses
+  overwrite) so the age invariant holds. CSRF state via session, failures
+  redirect to /login with an error code. Verified end to end except the live
+  Google handshake (needs real credentials): redirect shape, bad-state
+  rejection, 401/409/400/200 birthdate paths. Needs GOOGLE_CLIENT_ID +
+  GOOGLE_CLIENT_SECRET env and the authorized redirect URI in Google Console.
 - Invite picker trust rule (owner request, 2026-10-15): the session invite
   list shows friends plus past crew only — plain crew membership no longer
   qualifies anyone. Past crew = people you shared a successful session with,
