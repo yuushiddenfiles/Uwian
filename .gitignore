@@ -12,11 +12,15 @@ dist-ssr/
 build/
 *.local
 
-# Database temporary & journal files
+# Database files (local SQLite — do NOT commit)
+uwian/server/uwian.sqlite
 uwian/server/uwian.sqlite-shm
 uwian/server/uwian.sqlite-wal
 *.db-shm
 *.db-wal
+
+# Vercel
+.vercel
 
 # Logs
 logs/
