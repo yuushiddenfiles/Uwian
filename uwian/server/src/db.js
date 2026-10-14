@@ -17,8 +17,11 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ── Turso production path ────────────────────────────────────────────────────
+// ── Unified DB initialization ─────────────────────────────────────────────
+let db;
+
 if (process.env.TURSO_URL) {
+  // ── Turso production path ────────────────────────────────────────────────
   const { createClient } = await import("@libsql/client");
   const client = createClient({
     url: process.env.TURSO_URL,
@@ -28,8 +31,7 @@ if (process.env.TURSO_URL) {
   // Run schema + all migrations once at cold-start
   await initSchema(client);
 
-  export const db = makeTursoAdapter(client);
-
+  db = makeTursoAdapter(client);
 } else {
   // ── Local better-sqlite3 path ──────────────────────────────────────────────
   const BetterSqlite = (await import("better-sqlite3")).default;
@@ -49,8 +51,10 @@ if (process.env.TURSO_URL) {
   await runMigrations_sqlite(rawDb);
   await seedData_sqlite(rawDb);
 
-  export const db = makeSqliteAdapter(rawDb);
+  db = makeSqliteAdapter(rawDb);
 }
+
+export { db };
 
 // ── Schema initializer for Turso ────────────────────────────────────────────
 async function initSchema(client) {
@@ -62,6 +66,8 @@ async function initSchema(client) {
       .readFileSync(path.join(__dirname, "..", "schema.sql"), "utf8")
       // strip PRAGMA (not supported in Turso)
       .replace(/^PRAGMA.*$/gm, "")
+      // strip line comments so semicolons inside comments don't break splitting
+      .replace(/--.*$/gm, "")
       // already have IF NOT EXISTS handling below, but be safe
       .replace(/^CREATE TABLE /gm, "CREATE TABLE IF NOT EXISTS ")
       .replace(/^CREATE INDEX /gm, "CREATE INDEX IF NOT EXISTS ");
@@ -85,7 +91,8 @@ async function runMigrations_turso(client) {
   async function migrate(id, sql) {
     const row = await client.execute({ sql: "SELECT id FROM _migrations WHERE id=?", args: [id] });
     if (row.rows.length) return;
-    const stmts = sql.split(";").map((s) => s.trim()).filter(Boolean);
+    const cleanSql = sql.replace(/--.*$/gm, "");
+    const stmts = cleanSql.split(";").map((s) => s.trim()).filter(Boolean);
     for (const stmt of stmts) {
       try { await client.execute(stmt + ";"); } catch (e) { if (!e.message?.includes("already exists")) throw e; }
     }
@@ -476,7 +483,8 @@ function makeTursoAdapter(client) {
       return { lastInsertRowid: Number(r.lastInsertRowid ?? 0), changes: r.rowsAffected ?? 0 };
     },
     async exec(sql) {
-      const stmts = sql.split(";").map((s) => s.trim()).filter(Boolean);
+      const clean = sql.replace(/--.*$/gm, "");
+      const stmts = clean.split(";").map((s) => s.trim()).filter(Boolean);
       for (const stmt of stmts) {
         try { await client.execute(stmt + ";"); } catch (e) { if (!e.message?.includes("already exists")) throw e; }
       }
