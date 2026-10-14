@@ -1,11 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
-    "web": {
-      "root": "uwian/web"
-    },
     "server": {
-      "root": "uwian/server"
+      "root": "uwian/server",
+      "framework": "express"
+    },
+    "web": {
+      "root": "uwian/web",
+      "framework": "vite"
     }
   },
   "rewrites": [
