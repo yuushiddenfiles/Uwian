@@ -307,18 +307,29 @@ Test output executes 18 unit tests across 6 suites validating core algorithms:
 
 Walkthrough screenshots documenting the platform flows are stored in the [`screenshots/`](screenshots/) directory:
 
+**Authentication & Onboarding**
+- [`login_portal.png`](screenshots/login_portal.png): Claymorphic login portal with 1-click quick-fill demo account pills.
 - [`step0_tos.png`](screenshots/step0_tos.png): Mandatory Terms of Service and Safety Agreement modal.
 - [`step1_id_info.png`](screenshots/step1_id_info.png): ID type selection and birthdate verification form.
 - [`step2_photo_upload.png`](screenshots/step2_photo_upload.png): Document photo upload with client-side canvas capture.
 - [`step2_preview.png`](screenshots/step2_preview.png): Document image preview prior to submission.
 - [`step3_under_review.png`](screenshots/step3_under_review.png): Confirmation receipt and pending review badge.
-- [`ops_console_queue.png`](screenshots/ops_console_queue.png): Platform operator verification queue on `/admin`.
-- [`ops_inspector_modal.png`](screenshots/ops_inspector_modal.png): Side-by-side document inspection and approval modal.
+
+**Dashboard & Profile**
 - [`unverified_dashboard.png`](screenshots/unverified_dashboard.png): Dashboard state for unverified member.
 - [`pending_dashboard.png`](screenshots/pending_dashboard.png): Dashboard state with verification pending banner.
+- [`pixelsnow_active.png`](screenshots/pixelsnow_active.png): Active dashboard showing neobrutalism blue theme and PixelSnow shader.
 - [`verified_account_dropdown.png`](screenshots/verified_account_dropdown.png): User profile menu with verified trust badge.
 - [`verified_profile_page.png`](screenshots/verified_profile_page.png): Profile settings, friend list, handle, and trust tier.
-- [`pixelsnow_active.png`](screenshots/pixelsnow_active.png): Active dashboard showing neobrutalism blue theme and PixelSnow shader.
+
+**Sessions & Social**
+- [`session_details.png`](screenshots/session_details.png): Live session view with attendee list, tab split, and commute buddy pairing.
+- [`messages_chat.png`](screenshots/messages_chat.png): Direct and group messaging with geolocation pin drops in chat.
+- [`tambayan_radar_map.png`](screenshots/tambayan_radar_map.png): Geospatial tambayan radar with verified spot markers, price tiers, and live attendee GPS pins.
+
+**Operator Console**
+- [`ops_console_queue.png`](screenshots/ops_console_queue.png): Platform operator verification queue on `/admin`.
+- [`ops_inspector_modal.png`](screenshots/ops_inspector_modal.png): Side-by-side document inspection and approval modal.
 
 ---
 

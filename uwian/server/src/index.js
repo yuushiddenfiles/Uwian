@@ -3,6 +3,7 @@
 // returned to their owner, including for admins. No endpoint exposes another
 // person's count. See docs/privacy.md.
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import express from "express";
 import cookieSession from "cookie-session";
@@ -18,7 +19,7 @@ app.use(cookieSession({ name: "uwian", keys: [process.env.UWIAN_SECRET ?? "dev-s
 const me = (req) => {
   if (!req.session.uid) return null;
   const u = db.prepare(`
-    SELECT u.id, u.name, u.email, u.can_drink, u.avatar_id, u.avatar_url, u.role, u.tos_accepted_at,
+    SELECT u.id, u.name, u.email, u.birthdate, u.can_drink, u.avatar_id, u.avatar_url, u.role, u.tos_accepted_at,
            u.handle, u.vibe,
            vs.status AS verification_status
     FROM users u
@@ -85,6 +86,101 @@ app.post("/api/login", (req, res) => {
   req.session.uid = u.id; res.json({ ok: true });
 });
 app.post("/api/logout", (req, res) => { req.session = null; res.json({ ok: true }); });
+
+// ---------- Google sign-in ----------
+// Owner one-time setup in Google Cloud Console: OAuth client (Web app),
+// redirect URI http://localhost:3000/api/auth/google/callback (plus the
+// production URL later), scopes openid + email + profile. Secrets come from
+// env only — never from the repo. No new npm deps: code exchange and
+// userinfo are plain fetch calls.
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
+// Absolute override for deployments behind a TLS-terminating proxy, where
+// req.protocol would otherwise say http. Must match a URI authorized above.
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI ?? "";
+const googleRedirectUri = (req) =>
+  GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get("host")}/api/auth/google/callback`;
+
+app.get("/api/auth/google", (req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(500).send("Google sign-in is not configured yet.");
+  const state = crypto.randomBytes(16).toString("hex");
+  req.session.oauth_state = state;
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: googleRedirectUri(req),
+    response_type: "code",
+    scope: "openid email profile",
+    state,
+    prompt: "select_account",
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+app.get("/api/auth/google/callback", async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    if (error) return res.redirect("/login?google=cancelled");
+    if (!code || !state || state !== req.session.oauth_state)
+      return res.redirect("/login?google=invalid");
+    delete req.session.oauth_state;
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET)
+      return res.redirect("/login?google=unconfigured");
+    // Code → tokens, server to server. The secret never touches the browser.
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code, client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: googleRedirectUri(req), grant_type: "authorization_code",
+      }),
+    });
+    if (!tokenRes.ok) return res.redirect("/login?google=token");
+    const { access_token } = await tokenRes.json();
+    // Who-am-I over the fresh access token (no JWT verification needed).
+    const uiRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+      headers: { authorization: `Bearer ${access_token}` },
+    });
+    if (!uiRes.ok) return res.redirect("/login?google=profile");
+    const profile = await uiRes.json();
+    if (!profile.email || profile.email_verified !== true)
+      return res.redirect("/login?google=unverified");
+    const email = profile.email;
+    let u = db.prepare("SELECT * FROM users WHERE LOWER(email)=LOWER(?)").get(email);
+    if (!u) {
+      // New account. No password exists (random unusable hash, so password
+      // login can never work) and no birthdate yet — Google shares neither.
+      const name = profile.name || email.split("@")[0];
+      const slug = (name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) || "user");
+      let num = Math.floor(1000 + Math.random() * 90000);
+      let handle = `${slug}#${num}`;
+      while (db.prepare("SELECT 1 FROM users WHERE handle=?").get(handle)) {
+        num = Math.floor(1000 + Math.random() * 90000);
+        handle = `${slug}#${num}`;
+      }
+      const r = db.prepare("INSERT INTO users (name,email,password_hash,birthdate,handle) VALUES (?,?,?,?,?)")
+        .run(name, email, hashPw(crypto.randomBytes(32).toString("hex")), null, handle);
+      u = db.prepare("SELECT * FROM users WHERE id=?").get(r.lastInsertRowid);
+    }
+    req.session.uid = u.id;
+    // Google users skip the signup form, so the 18+ self-declaration happens
+    // here instead — once, before they can do anything else.
+    res.redirect(u.birthdate ? "/groups" : "/login?need_birthdate=1");
+  } catch (e) {
+    console.error("google callback:", e.message);
+    res.redirect("/login?google=error");
+  }
+});
+
+// One-time 18+ self-declaration for accounts created via Google (which have
+// no birthdate). Refuses to overwrite an existing one.
+app.post("/api/me/birthdate", requireAuth, (req, res) => {
+  const u = me(req);
+  if (u.birthdate) return res.status(409).json({ error: "Birthdate is already set." });
+  if (!ageOk(req.body?.birthdate))
+    return res.status(400).json({ error: "You must be 18 or older to use this app. (Self-declared — see docs/privacy.md)" });
+  db.prepare("UPDATE users SET birthdate=? WHERE id=?").run(req.body.birthdate, u.id);
+  res.json({ ok: true });
+});
 app.get("/api/me", (req, res) => res.json({ user: me(req) ?? null }));
 app.patch("/api/me", requireAuth, (req, res) => {
   const { can_drink, avatar_id, avatar_url, vibe } = req.body ?? {};
