@@ -18,9 +18,31 @@
       }
     },
     {
+      "source": "/assets/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/assets/$1"
+      }
+    },
+    {
+      "source": "/sfx/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/sfx/$1"
+      }
+    },
+    {
+      "source": "/(.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|css|js|txt|xml))",
+      "destination": {
+        "service": "web",
+        "path": "/$1"
+      }
+    },
+    {
       "source": "/(.*)",
       "destination": {
-        "service": "web"
+        "service": "web",
+        "path": "/index.html"
       }
     }
   ]
